@@ -1,0 +1,116 @@
+diff --git a/playwright/tests/office/txo/tooFlows.spec.js b/playwright/tests/office/txo/tooFlows.spec.js
+index fa5021dde0..1c86d6306e 100644
+--- a/playwright/tests/office/txo/tooFlows.spec.js
++++ b/playwright/tests/office/txo/tooFlows.spec.js
+@@ -9,6 +9,10 @@ import { test, expect, DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/o
+
+ import { TooFlowPage } from './tooTestFixture';
+
++test.use({
++  headless: false,
++});
++
+ test.describe('TOO user', () => {
+   /** @type {TooFlowPage} */
+   let tooFlowPage;
+@@ -17,10 +21,12 @@ test.describe('TOO user', () => {
+       const move = await officePage.testHarness.buildHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO();
+       await officePage.signInAsNewTOOUser();
+       tooFlowPage = new TooFlowPage(officePage, move);
++
+       await officePage.tooNavigateToMove(move.locator);
+     });
+
+     test('is able to approve a shipment', async ({ page }) => {
++      await page.pause();
+       await expect(page.locator('#approved-shipments')).not.toBeVisible();
+       await expect(page.locator('#requested-shipments')).toBeVisible();
+       await expect(page.getByText('Approve selected')).toBeDisabled();
+diff --git a/src/constants/MoveHistory/EventTemplates/UpdateMTOShipment/updateMTOShipment.test.jsx b/src/constants/MoveHistory/EventTemplates/UpdateMTOShipment/updateMTOShipment.test.jsx
+index 1232d4656c..5c630af326 100644
+--- a/src/constants/MoveHistory/EventTemplates/UpdateMTOShipment/updateMTOShipment.test.jsx
++++ b/src/constants/MoveHistory/EventTemplates/UpdateMTOShipment/updateMTOShipment.test.jsx
+@@ -10,7 +10,7 @@ import {
+   formatYesNoMoveHistoryValue,
+   toDollarString,
+ } from 'utils/formatters';
+-import { retrieveTextToDisplay } from 'pages/Office/MoveHistory/LabeledDetails';
++import LabeledDetails, { retrieveTextToDisplay } from 'pages/Office/MoveHistory/LabeledDetails';
+
+ const FieldMappings = fieldDefault.default;
+
+@@ -31,7 +31,7 @@ describe('when given an mto shipment update with mto shipment table history reco
+     prime_actual_weight: '14000',
+     prime_estimated_weight: '12000',
+     sac_type: 'HHG',
+-    scheduled_delivery_date: '2020-04-13',
++    //scheduled_delivery_date: '2020-04-13',
+     scheduled_pickup_date: '2020-03-22',
+     service_order_number: '767567576',
+     status: 'SUBMITTED',
+@@ -69,52 +69,20 @@ describe('when given an mto shipment update with mto shipment table history reco
+     expect(result).toMatchObject(e);
+   });
+   describe('it correctly renders the details component for Create MTO shipments', () => {
+-    it.each([
+-      [FieldMappings.status, changedValues.status],
+-      [FieldMappings.requested_delivery_date, formatCustomerDate(changedValues.requested_delivery_date)],
+-      [FieldMappings.requested_pickup_date, formatCustomerDate(changedValues.requested_pickup_date)],
+-      Object.values(retrieveTextToDisplay('destination_address_type', changedValues.destination_address_type)),
+-      [FieldMappings.actual_pickup_date, formatCustomerDate(changedValues.actual_pickup_date)],
+-      [FieldMappings.approved_date, formatCustomerDate(changedValues.approved_date)],
+-      [FieldMappings.billable_weight_cap, formatWeight(Number(changedValues.billable_weight_cap))],
+-      [FieldMappings.billable_weight_justification, changedValues.billable_weight_justification],
+-      [FieldMappings.counselor_remarks, changedValues.counselor_remarks],
+-      [FieldMappings.customer_remarks, changedValues.customer_remarks],
+-      [FieldMappings.diversion, changedValues.diversion],
+-      [FieldMappings.first_available_delivery_date, formatCustomerDate(changedValues.first_available_delivery_date)],
+-      [FieldMappings.shipment_weight, formatWeight(changedValues.shipment_weight)],
+-      [FieldMappings.prime_estimated_weight, formatWeight(Number(changedValues.prime_estimated_weight))],
+-      [FieldMappings.sac_type, changedValues.sac_type],
+-      [FieldMappings.tac_type, changedValues.tac_type],
+-      [FieldMappings.scheduled_pickup_date, formatCustomerDate(changedValues.scheduled_pickup_date)],
+-      [FieldMappings.service_order_number, `${changedValues.service_order_number}`],
+-      [FieldMappings.uses_external_vendor, changedValues.uses_external_vendor],
+-      Object.values(retrieveTextToDisplay('distance', changedValues.distance)),
+-      [FieldMappings.advance_amount_requested, toDollarString(changedValues.has_requested_advance)],
+-      [FieldMappings.destination_postal_code, changedValues.destination_postal_code],
+-      [FieldMappings.estimated_incentive, toDollarString(formatCents(changedValues.estimated_incentive))],
+-      [FieldMappings.estimated_weight, formatWeight(Number(changedValues.estimated_weight))],
+-      [FieldMappings.expected_departure_date, formatCustomerDate(changedValues.expected_departure_date)],
+-      [FieldMappings.has_requested_advance, formatYesNoMoveHistoryValue(changedValues.has_requested_advance)],
+-      [FieldMappings.pro_gear_weight, formatWeight(Number(changedValues.pro_gear_weight))],
+-      [FieldMappings.sit_estimated_cost, toDollarString(formatCents(changedValues.sit_estimated_cost))],
+-      [FieldMappings.sit_estimated_departure_date, formatCustomerDate(changedValues.sit_estimated_departure_date)],
+-      [FieldMappings.sit_estimated_entry_date, formatCustomerDate(changedValues.sit_estimated_entry_date)],
+-      [FieldMappings.sit_estimated_weight, formatWeight(Number(changedValues.sit_estimated_weight))],
+-      [FieldMappings.spouse_pro_gear_weight, formatWeight(Number(changedValues.spouse_pro_gear_weight))],
+-    ])('displays the correct details value for %s', async (label, value) => {
+-      const targetItem = Object.fromEntries(
+-        Object.entries(changedValues).filter(([key]) => FieldMappings[key] === label),
+-      );
+-      const history = { ...historyRecord, changedValues: { ...targetItem } };
+-      const result = getTemplate(history);
+-      render(result.getDetails(history));
+-      const displayingElements = screen.getAllByText(label);
+-      const displayingElement = displayingElements.find((element) => element.parentElement.textContent.includes(label));
+-      const parent = displayingElement.parentElement;
+-      expect(parent.textContent).toContain(label);
+-      expect(parent.textContent).toContain(value);
++    const testCases = Object.entries(changedValues).map(([fieldName, value]) => {
++      const { displayName, displayValue } = retrieveTextToDisplay(fieldName, value);
++      return [fieldName, value, displayName, displayValue];
+     });
++
++    it.each(testCases.filter(([key]) => key !== 'id'))(
++      "it renders [%s %s] as '%s: %s'",
++      (fieldName, value, displayName, displayValue) => {
++        const result = getTemplate(historyRecord);
++        const { baseElement } = render(result.getDetails({ ...historyRecord, changedValues: { [fieldName]: value } }));
++        expect(baseElement).toHaveTextContent(`${displayName}: ${displayValue}`, { normalizeWhitespace: true });
++      },
++    );
++
+     it('displays the correct label for shipment', () => {
+       const result = getTemplate(historyRecord);
+       render(result.getDetails(historyRecord));

@@ -1,0 +1,284 @@
+diff --git a/src/components/Office/ShipmentCustomerSIT/ShipmentCustomerSIT.jsx b/src/components/Office/ShipmentCustomerSIT/ShipmentCustomerSIT.jsx
+index 67d399b68e..bac77e831a 100644
+--- a/src/components/Office/ShipmentCustomerSIT/ShipmentCustomerSIT.jsx
++++ b/src/components/Office/ShipmentCustomerSIT/ShipmentCustomerSIT.jsx
+@@ -84,7 +84,7 @@ const ShipmentCustomerSIT = () => {
+                   id="sitEstimatedWeight"
+                   mask={Number}
+                   scale={0} // digits after point, 0 for integers
+-                  signed={false} // disallow negative
++                  signed="false" // disallow negative
+                   thousandsSeparator=","
+                   lazy={false} // immediate masking evaluation
+                   suffix="lbs"
+diff --git a/src/components/Office/ShipmentWeight/ShipmentWeight.jsx b/src/components/Office/ShipmentWeight/ShipmentWeight.jsx
+index 8bc512bef3..797c6b0e03 100644
+--- a/src/components/Office/ShipmentWeight/ShipmentWeight.jsx
++++ b/src/components/Office/ShipmentWeight/ShipmentWeight.jsx
+@@ -33,7 +33,7 @@ const ShipmentWeight = () => {
+               id="estimatedWeight"
+               mask={Number}
+               scale={0} // digits after point, 0 for integers
+-              signed={false} // disallow negative
++              signed="false" // disallow negative
+               thousandsSeparator=","
+               lazy={false} // immediate masking evaluation
+               suffix="lbs"
+@@ -69,7 +69,7 @@ const ShipmentWeight = () => {
+                   id="proGearWeight"
+                   mask={Number}
+                   scale={0} // digits after point, 0 for integers
+-                  signed={false} // disallow negative
++                  signed="false" // disallow negative
+                   thousandsSeparator=","
+                   lazy={false} // immediate masking evaluation
+                   suffix="lbs"
+@@ -81,7 +81,7 @@ const ShipmentWeight = () => {
+                   id="spouseProGearWeight"
+                   mask={Number}
+                   scale={0} // digits after point, 0 for integers
+-                  signed={false} // disallow negative
++                  signed="false" // disallow negative
+                   thousandsSeparator=","
+                   lazy={false} // immediate masking evaluation
+                   suffix="lbs"
+diff --git a/src/components/form/fields/MaskedTextField/MaskedTextField.jsx b/src/components/form/fields/MaskedTextField/MaskedTextField.jsx
+index 57f84e2d86..4d8959768a 100644
+--- a/src/components/form/fields/MaskedTextField/MaskedTextField.jsx
++++ b/src/components/form/fields/MaskedTextField/MaskedTextField.jsx
+@@ -164,6 +164,7 @@ MaskedTextField.propTypes = {
+   error: PropTypes.bool,
+   errorMessage: PropTypes.string,
+   isDisabled: PropTypes.bool,
++  signed: PropTypes.string,
+ };
+
+ MaskedTextField.defaultProps = {
+@@ -191,6 +192,7 @@ MaskedTextField.defaultProps = {
+   error: false,
+   errorMessage: '',
+   isDisabled: false,
++  signed: 'false',
+ };
+
+ export default MaskedTextField;
+diff --git a/src/constants/MoveHistory/EventTemplates/UpdateMovingExpense/UpdateMovingExpense.test.jsx b/src/constants/MoveHistory/EventTemplates/UpdateMovingExpense/UpdateMovingExpense.test.jsx
+index 0e515685b9..3e8f222c1a 100644
+--- a/src/constants/MoveHistory/EventTemplates/UpdateMovingExpense/UpdateMovingExpense.test.jsx
++++ b/src/constants/MoveHistory/EventTemplates/UpdateMovingExpense/UpdateMovingExpense.test.jsx
+@@ -1,4 +1,4 @@
+-import { render, screen } from '@testing-library/react';
++import { getByText, getDefaultNormalizer, render, screen } from '@testing-library/react';
+
+ import getTemplate from 'constants/MoveHistory/TemplateManager';
+ import o from 'constants/MoveHistory/UIDisplay/Operations';
+@@ -6,6 +6,8 @@ import a from 'constants/MoveHistory/Database/Actions';
+ import t from 'constants/MoveHistory/Database/Tables';
+ import { ppmExpenseTypes } from 'constants/ppmExpenseTypes';
+ import ppms from 'constants/ppms';
++import * as fieldDefault from 'constants/MoveHistory/Database/FieldMappings';
++const FieldMappings = fieldDefault.default;
+
+ const expenseTypes = ppmExpenseTypes.map((expense) => [expense.value, expense.key]);
+
+@@ -74,17 +76,37 @@ describe('When given an updated expense document it', () => {
+     });
+   });
+
+-  it('handles SIT dates', () => {
++  it('handles SIT dates', async () => {
++    const formatForSitLogDate = /\d{2} \w{3} \d{4}/.source;
++    const expectedElements = expect.arrayContaining(
++      [
++        // exlusively matches: 'SIT start date: 12 Dec 2023'
++        new RegExp(`^${FieldMappings.sit_start_date}: ${formatForSitLogDate}$`, 'i'),
++        // exlusively matches:  SIT end date: 01 Jan 2024
++        new RegExp(`^${FieldMappings.sit_end_date}: ${formatForSitLogDate}$`, 'i'),
++      ].map(expect.stringMatching),
++    );
+     expenseRecord.changedValues = {
+       sit_end_date: '2024-01-01',
+       sit_start_date: '2023-12-12',
+     };
+
+     const template = getTemplate(expenseRecord);
++<<<<<<< Updated upstream
+     render(template.getDetails(expenseRecord));
+     expect(screen.getByText('SIT start date')).toBeInTheDocument();
+     expect(screen.getByText(': 12 Dec 2023')).toBeInTheDocument();
+     expect(screen.getByText('SIT end date')).toBeInTheDocument();
+     expect(screen.getByText(': 01 Jan 2024')).toBeInTheDocument();
++=======
++    render(template.getDetails(expenseRecord)).baseElement;
++
++    const textContentOfTheDom = [...screen.getAllByText('', { exact: false })].map((e) =>
++      getDefaultNormalizer()(e.textContent),
++    );
++
++    console.log(textContentOfTheDom);
++    expect(textContentOfTheDom).toEqual(expectedElements);
++>>>>>>> Stashed changes
+   });
+ });
+diff --git a/src/pages/Office/MoveHistory/MoveHistory.test.jsx b/src/pages/Office/MoveHistory/MoveHistory.test.jsx
+index 87d8ee316e..85094b183c 100644
+--- a/src/pages/Office/MoveHistory/MoveHistory.test.jsx
++++ b/src/pages/Office/MoveHistory/MoveHistory.test.jsx
+@@ -5,6 +5,8 @@ import MoveHistory from './MoveHistory';
+
+ import { MockProviders } from 'testUtils';
+
++const dateTimeFormatRegex = /(\d{2}) (\w{3}) (\d{2}) (\d{2}):(\d{2})/;
++
+ const mockMoveCode = 'DVRS0N';
+
+ jest.mock('hooks/queries', () => ({
+@@ -135,12 +137,12 @@ describe('MoveHistory', () => {
+       expect(screen.getByText('Move history (2)')).toBeInTheDocument();
+       expect(screen.getByRole('table')).toBeInTheDocument();
+
+-      expect(screen.getByTestId('move-history-date-time-0')).toHaveTextContent('09 Mar 22 15:33');
++      expect(screen.getByTestId('move-history-date-time-0')).toHaveTextContent(dateTimeFormatRegex);
+       expect(screen.getByTestId('move-history-event-0')).toHaveTextContent('Approved move');
+       expect(screen.getByTestId('move-history-details-0')).toBeInTheDocument();
+       expect(screen.getByTestId('move-history-modified-by-0')).toBeInTheDocument();
+
+-      expect(screen.getByTestId('move-history-date-time-1')).toHaveTextContent('08 Mar 22 18:28');
++      expect(screen.getByTestId('move-history-date-time-1')).toHaveTextContent(dateTimeFormatRegex);
+       expect(screen.getByTestId('move-history-event-1')).toHaveTextContent('Approved shipment');
+       expect(screen.getByTestId('move-history-details-1')).toBeInTheDocument();
+       expect(screen.getByTestId('move-history-modified-by-1')).toBeInTheDocument();
+diff --git a/src/pages/Office/ServicesCounselingEditShipmentDetails/ServicesCounselingEditShipmentDetails.test.jsx b/src/pages/Office/ServicesCounselingEditShipmentDetails/ServicesCounselingEditShipmentDetails.test.jsx
+index 6988d12c60..204e5e4a03 100644
+--- a/src/pages/Office/ServicesCounselingEditShipmentDetails/ServicesCounselingEditShipmentDetails.test.jsx
++++ b/src/pages/Office/ServicesCounselingEditShipmentDetails/ServicesCounselingEditShipmentDetails.test.jsx
+@@ -338,51 +338,77 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
+       expect(await screen.findByRole('button', { name: 'Save and Continue' })).toBeInTheDocument();
+     });
+
++    const numberCommaDecimalFormat = /^\d{1,3}(,\d{3})*(\.\d+)?$/;
+     describe('Check SIT field validations', () => {
++      const dateErrorMessage = 'Enter a complete date in DD MMM YYYY format (day, month, year).';
++      const requiredErrorMessage = 'Required';
+       it.each([
+         [
+           'sitEstimatedWeight',
+           {
+-            sitEstimatedWeight: '{Tab}',
++            sitEstimatedWeight: { value: '{Tab}', compare: '' },
+             sitEstimatedEntryDate: '15 Jun 2022',
+             sitEstimatedDepartureDate: '25 Jul 2022',
+           },
+-          'Required',
++          requiredErrorMessage,
+         ],
+         [
+           'sitEstimatedEntryDate',
+-          { sitEstimatedWeight: '1234', sitEstimatedEntryDate: 'asdf', sitEstimatedDepartureDate: '25 Jul 2022' },
+-          'Enter a complete date in DD MMM YYYY format (day, month, year).',
++          {
++            sitEstimatedWeight: { value: '1234', compare: numberCommaDecimalFormat },
++            sitEstimatedEntryDate: 'asdf',
++            sitEstimatedDepartureDate: '25 Jul 2022',
++          },
++          dateErrorMessage,
+         ],
+         [
+           'sitEstimatedDepartureDate',
+-          { sitEstimatedWeight: '1234', sitEstimatedEntryDate: '15 Jun 2022', sitEstimatedDepartureDate: 'asdf' },
+-          'Enter a complete date in DD MMM YYYY format (day, month, year).',
++          {
++            sitEstimatedWeight: { value: '1234', compare: numberCommaDecimalFormat },
++            sitEstimatedEntryDate: '15 Jun 2022',
++            sitEstimatedDepartureDate: 'asdf',
++          },
++          dateErrorMessage,
+         ],
+       ])('Verify invalid %s field shows validation error', async (field, data, expectedError) => {
++        const getControls = () => ({
++          weight: screen.getByLabelText('Estimated SIT weight'),
++          start: screen.getByLabelText('Estimated storage start', { exact: false }),
++          end: screen.getByLabelText('Estimated storage end', { exact: false }),
++        });
++
+         useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
+-        renderWithProviders(<ServicesCounselingEditShipmentDetails {...props} />, mockRoutingConfig);
++        const renderResult = renderWithProviders(
++          <ServicesCounselingEditShipmentDetails {...props} />,
++          mockRoutingConfig,
++        );
++
++        const { user } = { user: userEvent.setup(), ...renderResult };
+
+         const sitExpected = document.getElementById('sitExpectedYes').parentElement;
+         const sitExpectedYes = within(sitExpected).getByRole('radio', { name: 'Yes' });
+-        await userEvent.click(sitExpectedYes);
+-
+-        // The test is dependent on the ordering of these three lines, and I'm not sure why.
+-        // If either of the estimated storage dates is entered last, the test that puts an invalid value
+-        // in that field will fail. But if the estimated SIT weight comes last, everything works fine.
+-        await userEvent.type(screen.getByLabelText('Estimated storage start'), data.sitEstimatedEntryDate);
+-        await userEvent.type(screen.getByLabelText('Estimated storage end'), data.sitEstimatedDepartureDate);
+-        await userEvent.type(screen.getByLabelText('Estimated SIT weight'), data.sitEstimatedWeight);
+-        await userEvent.tab();
+-
+-        await waitFor(() => {
+-          const alerts = screen.getAllByRole('alert');
+-          expect(alerts).toHaveLength(1);
+-          expect(alerts[0]).toHaveTextContent(expectedError);
+-        });
++
++        await user.click(sitExpectedYes);
++
++        const controls = getControls();
++
++        await waitFor(() => expect(controls.weight).toBeVisible()).then(
++          async () => await user.type(controls.weight, data.sitEstimatedWeight.value),
++        );
++        await waitFor(() => expect(controls.weight).toHaveDisplayValue(data.sitEstimatedWeight.compare));
++
++        await user.type(controls.start, data.sitEstimatedEntryDate);
++        await user.type(controls.end, data.sitEstimatedDepartureDate);
++        await user.tab({ shift: true });
++        await user.tab();
++
++        screen.debug(controls.start);
++        screen.debug(controls.end);
+
+         expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
+-        expect(screen.getByRole('alert').nextElementSibling.firstElementChild).toHaveAttribute('name', field);
++        const alert = screen.getByRole('alert');
++        expect(alert.nextElementSibling.firstElementChild).toHaveAttribute('name', field);
++        expect(alert).toHaveTextContent(expectedError);
+       });
+     });
+
+diff --git a/src/pages/PrimeUI/AvailableMoves/AvailableMovesQueue.test.jsx b/src/pages/PrimeUI/AvailableMoves/AvailableMovesQueue.test.jsx
+index fe6df3ae79..943764011d 100644
+--- a/src/pages/PrimeUI/AvailableMoves/AvailableMovesQueue.test.jsx
++++ b/src/pages/PrimeUI/AvailableMoves/AvailableMovesQueue.test.jsx
+@@ -5,6 +5,8 @@ import PrimeSimulatorAvailableMoves from './AvailableMovesQueue';
+
+ import { MockProviders } from 'testUtils';
+
++const dateTimeFormatRegex = /\d{2} \w{3} \d{4}, \d{2}:\d{2} \w{2}/;
++
+ jest.mock('hooks/queries', () => ({
+   useUserQueries: () => {
+     return {
+@@ -60,12 +62,12 @@ describe('MoveQueue', () => {
+     const firstMove = moves.at(0);
+     expect(firstMove.find({ 'data-testid': 'id-0' }).text()).toBe('6b3df50c-9b7a-4d95-92d0-796563e50fa8');
+     expect(firstMove.find({ 'data-testid': 'moveCode-0' }).text()).toBe('SidDLH');
+-    expect(firstMove.find({ 'data-testid': 'createdAt-0' }).text()).toBe('07 Dec 2023, 06:21 pm');
+-    expect(firstMove.find({ 'data-testid': 'updatedAt-0' }).text()).toBe('07 Dec 2023, 06:21 pm');
++    expect(firstMove.find({ 'data-testid': 'createdAt-0' }).text()).toMatch(dateTimeFormatRegex);
++    expect(firstMove.find({ 'data-testid': 'updatedAt-0' }).text()).toMatch(dateTimeFormatRegex);
+     expect(firstMove.find({ 'data-testid': 'orderID-0' }).text()).toBe('07ba4203-8b60-4171-92d0-7d2454bac1b5');
+     expect(firstMove.find({ 'data-testid': 'ppmType-0' }).text()).toBe('PARTIAL');
+     expect(firstMove.find({ 'data-testid': 'referenceId-0' }).text()).toBe('7789-3211');
+-    expect(firstMove.find({ 'data-testid': 'availableToPrimeAt-0' }).text()).toBe('07 Dec 2023, 06:21 pm');
++    expect(firstMove.find({ 'data-testid': 'availableToPrimeAt-0' }).text()).toMatch(dateTimeFormatRegex);
+   });
+
+   it('should render the pagination component', () => {

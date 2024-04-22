@@ -1,0 +1,162 @@
+diff --git a/src/pages/Office/PPM/ReviewDocuments/ReviewDocuments.jsx b/src/pages/Office/PPM/ReviewDocuments/ReviewDocuments.jsx
+index 6ea8eccf83..baada9161b 100644
+--- a/src/pages/Office/PPM/ReviewDocuments/ReviewDocuments.jsx
++++ b/src/pages/Office/PPM/ReviewDocuments/ReviewDocuments.jsx
+@@ -29,6 +29,40 @@ const DOCUMENT_TYPES = {
+   MOVING_EXPENSE: 'MOVING_EXPENSE',
+ };
+
++const componentMap = [
++  {
++    name: DOCUMENT_TYPES.MOVING_EXPENSE,
++    component: ReviewExpense,
++    specialProps: ({ documentSet: expense, ...values }) => ({ ...values, expense }),
++  },
++  {
++    name: DOCUMENT_TYPES.WEIGHT_TICKET,
++    component: ReviewWeightTicket,
++    specialProps: ({ documentSet: weightTicket, order, ...values }) => ({ ...values, order, weightTicket }),
++  },
++  {
++    name: DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET,
++    component: ReviewProGear,
++    specialProps: ({ documentSet: proGear, ...values }) => ({ ...values, proGear }),
++  },
++].reduce((acc, item) => {
++  acc[item.name] = item;
++  return acc;
++}, {});
++
++const CreateExpenseComponentFromModel = ({ setType, documentSet, ...props }) => {
++  const ComponentResult = componentMap[setType];
++  // explicitly listing documentSet here is significant because it is a required parameter for specialProps,
++  // whereas, ...props are any props that may be specific to the component it is applied to.
++  return React.createElement(
++    ComponentResult.component,
++    ComponentResult.specialProps({
++      documentSet,
++      ...props,
++    }),
++  );
++};
++
+ export const ReviewDocuments = () => {
+   const { shipmentId, moveCode } = useParams();
+   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
+@@ -192,6 +226,24 @@ export const ReviewDocuments = () => {
+
+   const currentTripNumber = currentDocumentSet.tripNumber + 1;
+   const currentDocumentCategoryIndex = currentDocumentSet.categoryIndex + 1;
++  // bag of expense specific properties
++  const expenseModel = {
++    mtoShipment,
++    mtoShipments,
++    order,
++    categoryIndex: currentDocumentCategoryIndex,
++  };
++
++  const PresentExpenseComponent = CreateExpenseComponentFromModel({
++    ...expenseModel,
++    ppmNumber: 1,
++    tripNumber: currentTripNumber,
++    setType: currentDocumentSet.documentSetType,
++    documentSet: currentDocumentSet.documentSet,
++    onError,
++    onSuccess,
++    formRef,
++  });
+
+   const formatDocumentSetDisplay = documentSetIndex + 1;
+
+@@ -211,66 +263,31 @@ export const ReviewDocuments = () => {
+         hyperlink={reviewShipmentWeightsLink}
+       >
+         <DocumentViewerSidebar.Content mainRef={mainRef}>
+-          <NotificationScrollToTop dependency={documentSetIndex || serverError} target={mainRef.current} />
+-          {moveHasExcessWeight && (
+-            <Grid className={styles.alertContainer}>
+-              <Alert headingLevel="h4" slim type="warning">
+-                <span>This move has excess weight. Edit the PPM net weight to resolve.</span>
+-              </Alert>
+-            </Grid>
+-          )}
+-          <ErrorMessage display={!!serverError}>{serverError}</ErrorMessage>
+-          {documentSets &&
+-            (showOverview ? (
+-              <ReviewDocumentsSidePanel
+-                ppmShipment={mtoShipment.ppmShipment}
+-                weightTickets={weightTickets}
+-                proGearTickets={proGearWeightTickets}
+-                expenseTickets={movingExpenses}
+-                onError={onError}
+-                onSuccess={onConfirmSuccess}
+-                formRef={formRef}
+-              />
+-            ) : (
+-              <>
+-                {currentDocumentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET && (
+-                  <ReviewWeightTicket
+-                    weightTicket={currentDocumentSet.documentSet}
+-                    ppmNumber={1}
+-                    tripNumber={currentTripNumber}
+-                    mtoShipment={mtoShipment}
+-                    order={order}
+-                    mtoShipments={mtoShipments}
+-                    onError={onError}
+-                    onSuccess={onSuccess}
+-                    formRef={formRef}
+-                  />
+-                )}
+-                {currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (
+-                  <ReviewProGear
+-                    proGear={currentDocumentSet.documentSet}
+-                    ppmNumber={1}
+-                    tripNumber={currentTripNumber}
+-                    mtoShipment={mtoShipment}
+-                    onError={onError}
+-                    onSuccess={onSuccess}
+-                    formRef={formRef}
+-                  />
+-                )}
+-                {currentDocumentSet.documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE && (
+-                  <ReviewExpense
+-                    expense={currentDocumentSet.documentSet}
+-                    categoryIndex={currentDocumentCategoryIndex}
+-                    ppmNumber={1}
+-                    tripNumber={currentTripNumber}
+-                    mtoShipment={mtoShipment}
+-                    onError={onError}
+-                    onSuccess={onSuccess}
+-                    formRef={formRef}
+-                  />
+-                )}
+-              </>
+-            ))}
++          <>
++            <NotificationScrollToTop dependency={documentSetIndex || serverError} target={mainRef.current} />
++            {moveHasExcessWeight && (
++              <Grid className={styles.alertContainer}>
++                <Alert headingLevel="h4" slim type="warning">
++                  <span>This move has excess weight. Edit the PPM net weight to resolve.</span>
++                </Alert>
++              </Grid>
++            )}
++            <ErrorMessage display={!!serverError}>{serverError}</ErrorMessage>
++            {documentSets &&
++              (showOverview ? (
++                <ReviewDocumentsSidePanel
++                  ppmShipment={mtoShipment.ppmShipment}
++                  weightTickets={weightTickets}
++                  proGearTickets={proGearWeightTickets}
++                  expenseTickets={movingExpenses}
++                  onError={onError}
++                  onSuccess={onConfirmSuccess}
++                  formRef={formRef}
++                />
++              ) : (
++                PresentExpenseComponent
++              ))}
++          </>
+         </DocumentViewerSidebar.Content>
+         <DocumentViewerSidebar.Footer>
+           <Button className="usa-button--secondary" onClick={onBack} disabled={disableBackButton}>

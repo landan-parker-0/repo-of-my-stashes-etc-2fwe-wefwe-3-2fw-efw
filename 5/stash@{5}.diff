@@ -1,0 +1,1323 @@
+diff --git a/.envrc b/.envrc
+index b93a46c55f..cdde89ede3 100644
+--- a/.envrc
++++ b/.envrc
+@@ -122,8 +122,8 @@ export DB_SSL_MODE=disable
+ # Experimental feature flags, these will be replaced by the config/env/*.env files for live deployments
+ # Multi Move feature flag
+ # This is utilized if flipt config does not receive a URL
+-export FEATURE_FLAG_MULTI_MOVE=true
+-export FEATURE_FLAG_COUNSELOR_MOVE_CREATE=true
++#export FEATURE_FLAG_MULTI_MOVE=true
++#export FEATURE_FLAG_COUNSELOR_MOVE_CREATE=true
+
+ # Okta.mil configuration
+
+diff --git a/pkg/gen/ghcapi/configure_mymove.go b/pkg/gen/ghcapi/configure_mymove.go
+deleted file mode 100644
+index d9d6ddb2b2..0000000000
+Binary files a/pkg/gen/ghcapi/configure_mymove.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/doc.go b/pkg/gen/ghcapi/doc.go
+deleted file mode 100644
+index c19873f675..0000000000
+Binary files a/pkg/gen/ghcapi/doc.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/embedded_spec.go b/pkg/gen/ghcapi/embedded_spec.go
+deleted file mode 100644
+index f649654bd0..0000000000
+Binary files a/pkg/gen/ghcapi/embedded_spec.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/customer/get_customer.go b/pkg/gen/ghcapi/ghcoperations/customer/get_customer.go
+deleted file mode 100644
+index 13cda3bc69..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/customer/get_customer.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/customer/get_customer_parameters.go b/pkg/gen/ghcapi/ghcoperations/customer/get_customer_parameters.go
+deleted file mode 100644
+index b52b48a712..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/customer/get_customer_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/customer/get_customer_responses.go b/pkg/gen/ghcapi/ghcoperations/customer/get_customer_responses.go
+deleted file mode 100644
+index b691559f3c..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/customer/get_customer_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/customer/get_customer_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/customer/get_customer_urlbuilder.go
+deleted file mode 100644
+index 6a47ebf208..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/customer/get_customer_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/customer/update_customer.go b/pkg/gen/ghcapi/ghcoperations/customer/update_customer.go
+deleted file mode 100644
+index 4a6bf76daa..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/customer/update_customer.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/customer/update_customer_parameters.go b/pkg/gen/ghcapi/ghcoperations/customer/update_customer_parameters.go
+deleted file mode 100644
+index 18fb04926d..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/customer/update_customer_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/customer/update_customer_responses.go b/pkg/gen/ghcapi/ghcoperations/customer/update_customer_responses.go
+deleted file mode 100644
+index b51b3d26bc..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/customer/update_customer_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/customer/update_customer_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/customer/update_customer_urlbuilder.go
+deleted file mode 100644
+index 7b2c291da1..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/customer/update_customer_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/create_customer_support_remark_for_move.go b/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/create_customer_support_remark_for_move.go
+deleted file mode 100644
+index 59cc9ed4fb..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/create_customer_support_remark_for_move.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/create_customer_support_remark_for_move_parameters.go b/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/create_customer_support_remark_for_move_parameters.go
+deleted file mode 100644
+index 130357392b..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/create_customer_support_remark_for_move_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/create_customer_support_remark_for_move_responses.go b/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/create_customer_support_remark_for_move_responses.go
+deleted file mode 100644
+index be2f4b1bde..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/create_customer_support_remark_for_move_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/create_customer_support_remark_for_move_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/create_customer_support_remark_for_move_urlbuilder.go
+deleted file mode 100644
+index 5d698538cc..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/create_customer_support_remark_for_move_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/delete_customer_support_remark.go b/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/delete_customer_support_remark.go
+deleted file mode 100644
+index a297b3a670..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/delete_customer_support_remark.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/delete_customer_support_remark_parameters.go b/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/delete_customer_support_remark_parameters.go
+deleted file mode 100644
+index 97d6230ff5..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/delete_customer_support_remark_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/delete_customer_support_remark_responses.go b/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/delete_customer_support_remark_responses.go
+deleted file mode 100644
+index 5152215d37..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/delete_customer_support_remark_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/delete_customer_support_remark_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/delete_customer_support_remark_urlbuilder.go
+deleted file mode 100644
+index 591af7abaa..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/delete_customer_support_remark_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/get_customer_support_remarks_for_move.go b/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/get_customer_support_remarks_for_move.go
+deleted file mode 100644
+index f0bd456048..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/get_customer_support_remarks_for_move.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/get_customer_support_remarks_for_move_parameters.go b/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/get_customer_support_remarks_for_move_parameters.go
+deleted file mode 100644
+index 626a4fb8b9..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/get_customer_support_remarks_for_move_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/get_customer_support_remarks_for_move_responses.go b/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/get_customer_support_remarks_for_move_responses.go
+deleted file mode 100644
+index cf6db5b982..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/get_customer_support_remarks_for_move_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/get_customer_support_remarks_for_move_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/get_customer_support_remarks_for_move_urlbuilder.go
+deleted file mode 100644
+index b3b9723916..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/get_customer_support_remarks_for_move_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/update_customer_support_remark_for_move.go b/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/update_customer_support_remark_for_move.go
+deleted file mode 100644
+index 00a99fa2d8..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/update_customer_support_remark_for_move.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/update_customer_support_remark_for_move_parameters.go b/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/update_customer_support_remark_for_move_parameters.go
+deleted file mode 100644
+index 0b3c6e9467..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/update_customer_support_remark_for_move_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/update_customer_support_remark_for_move_responses.go b/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/update_customer_support_remark_for_move_responses.go
+deleted file mode 100644
+index c09f2f3d9f..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/update_customer_support_remark_for_move_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/update_customer_support_remark_for_move_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/update_customer_support_remark_for_move_urlbuilder.go
+deleted file mode 100644
+index ca740c07d6..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/customer_support_remarks/update_customer_support_remark_for_move_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/create_evaluation_report.go b/pkg/gen/ghcapi/ghcoperations/evaluation_reports/create_evaluation_report.go
+deleted file mode 100644
+index 9a14099b78..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/create_evaluation_report.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/create_evaluation_report_parameters.go b/pkg/gen/ghcapi/ghcoperations/evaluation_reports/create_evaluation_report_parameters.go
+deleted file mode 100644
+index dee804fe21..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/create_evaluation_report_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/create_evaluation_report_responses.go b/pkg/gen/ghcapi/ghcoperations/evaluation_reports/create_evaluation_report_responses.go
+deleted file mode 100644
+index 5c6ae5b87a..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/create_evaluation_report_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/create_evaluation_report_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/evaluation_reports/create_evaluation_report_urlbuilder.go
+deleted file mode 100644
+index 80fc8ee1af..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/create_evaluation_report_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/delete_evaluation_report.go b/pkg/gen/ghcapi/ghcoperations/evaluation_reports/delete_evaluation_report.go
+deleted file mode 100644
+index 57f634a8a9..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/delete_evaluation_report.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/delete_evaluation_report_parameters.go b/pkg/gen/ghcapi/ghcoperations/evaluation_reports/delete_evaluation_report_parameters.go
+deleted file mode 100644
+index 58b9cfc12c..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/delete_evaluation_report_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/delete_evaluation_report_responses.go b/pkg/gen/ghcapi/ghcoperations/evaluation_reports/delete_evaluation_report_responses.go
+deleted file mode 100644
+index 9cbfc739d3..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/delete_evaluation_report_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/delete_evaluation_report_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/evaluation_reports/delete_evaluation_report_urlbuilder.go
+deleted file mode 100644
+index ee442054a6..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/delete_evaluation_report_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/download_evaluation_report.go b/pkg/gen/ghcapi/ghcoperations/evaluation_reports/download_evaluation_report.go
+deleted file mode 100644
+index 8fd37e22ce..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/download_evaluation_report.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/download_evaluation_report_parameters.go b/pkg/gen/ghcapi/ghcoperations/evaluation_reports/download_evaluation_report_parameters.go
+deleted file mode 100644
+index 0a851e1384..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/download_evaluation_report_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/download_evaluation_report_responses.go b/pkg/gen/ghcapi/ghcoperations/evaluation_reports/download_evaluation_report_responses.go
+deleted file mode 100644
+index c498c89df4..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/download_evaluation_report_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/download_evaluation_report_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/evaluation_reports/download_evaluation_report_urlbuilder.go
+deleted file mode 100644
+index 2526bc4fed..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/download_evaluation_report_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/get_evaluation_report.go b/pkg/gen/ghcapi/ghcoperations/evaluation_reports/get_evaluation_report.go
+deleted file mode 100644
+index 6f752a077f..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/get_evaluation_report.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/get_evaluation_report_parameters.go b/pkg/gen/ghcapi/ghcoperations/evaluation_reports/get_evaluation_report_parameters.go
+deleted file mode 100644
+index e1a0cc1305..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/get_evaluation_report_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/get_evaluation_report_responses.go b/pkg/gen/ghcapi/ghcoperations/evaluation_reports/get_evaluation_report_responses.go
+deleted file mode 100644
+index b0816c82cb..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/get_evaluation_report_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/get_evaluation_report_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/evaluation_reports/get_evaluation_report_urlbuilder.go
+deleted file mode 100644
+index 154a867f84..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/get_evaluation_report_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/save_evaluation_report.go b/pkg/gen/ghcapi/ghcoperations/evaluation_reports/save_evaluation_report.go
+deleted file mode 100644
+index 13876f710c..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/save_evaluation_report.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/save_evaluation_report_parameters.go b/pkg/gen/ghcapi/ghcoperations/evaluation_reports/save_evaluation_report_parameters.go
+deleted file mode 100644
+index 2a93b71392..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/save_evaluation_report_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/save_evaluation_report_responses.go b/pkg/gen/ghcapi/ghcoperations/evaluation_reports/save_evaluation_report_responses.go
+deleted file mode 100644
+index 1f251d8239..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/save_evaluation_report_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/save_evaluation_report_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/evaluation_reports/save_evaluation_report_urlbuilder.go
+deleted file mode 100644
+index c3bafb4b0f..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/save_evaluation_report_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/submit_evaluation_report.go b/pkg/gen/ghcapi/ghcoperations/evaluation_reports/submit_evaluation_report.go
+deleted file mode 100644
+index c09ee25d01..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/submit_evaluation_report.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/submit_evaluation_report_parameters.go b/pkg/gen/ghcapi/ghcoperations/evaluation_reports/submit_evaluation_report_parameters.go
+deleted file mode 100644
+index 568345d7e2..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/submit_evaluation_report_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/submit_evaluation_report_responses.go b/pkg/gen/ghcapi/ghcoperations/evaluation_reports/submit_evaluation_report_responses.go
+deleted file mode 100644
+index c9b099e84d..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/submit_evaluation_report_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/submit_evaluation_report_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/evaluation_reports/submit_evaluation_report_urlbuilder.go
+deleted file mode 100644
+index 3eefcfe006..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/evaluation_reports/submit_evaluation_report_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ghc_documents/get_document.go b/pkg/gen/ghcapi/ghcoperations/ghc_documents/get_document.go
+deleted file mode 100644
+index b17be0b43b..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ghc_documents/get_document.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ghc_documents/get_document_parameters.go b/pkg/gen/ghcapi/ghcoperations/ghc_documents/get_document_parameters.go
+deleted file mode 100644
+index 87835a385d..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ghc_documents/get_document_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ghc_documents/get_document_responses.go b/pkg/gen/ghcapi/ghcoperations/ghc_documents/get_document_responses.go
+deleted file mode 100644
+index 6ca584c8cc..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ghc_documents/get_document_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ghc_documents/get_document_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/ghc_documents/get_document_urlbuilder.go
+deleted file mode 100644
+index 1dbc81b033..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ghc_documents/get_document_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/get_move.go b/pkg/gen/ghcapi/ghcoperations/move/get_move.go
+deleted file mode 100644
+index db9024a0c0..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/get_move.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/get_move_counseling_evaluation_reports_list.go b/pkg/gen/ghcapi/ghcoperations/move/get_move_counseling_evaluation_reports_list.go
+deleted file mode 100644
+index 2989281f5a..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/get_move_counseling_evaluation_reports_list.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/get_move_counseling_evaluation_reports_list_parameters.go b/pkg/gen/ghcapi/ghcoperations/move/get_move_counseling_evaluation_reports_list_parameters.go
+deleted file mode 100644
+index ef8796bb2d..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/get_move_counseling_evaluation_reports_list_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/get_move_counseling_evaluation_reports_list_responses.go b/pkg/gen/ghcapi/ghcoperations/move/get_move_counseling_evaluation_reports_list_responses.go
+deleted file mode 100644
+index 4756560f44..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/get_move_counseling_evaluation_reports_list_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/get_move_counseling_evaluation_reports_list_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/move/get_move_counseling_evaluation_reports_list_urlbuilder.go
+deleted file mode 100644
+index a3725b0aae..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/get_move_counseling_evaluation_reports_list_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/get_move_history.go b/pkg/gen/ghcapi/ghcoperations/move/get_move_history.go
+deleted file mode 100644
+index c544b6c9e4..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/get_move_history.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/get_move_history_parameters.go b/pkg/gen/ghcapi/ghcoperations/move/get_move_history_parameters.go
+deleted file mode 100644
+index 8cef504063..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/get_move_history_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/get_move_history_responses.go b/pkg/gen/ghcapi/ghcoperations/move/get_move_history_responses.go
+deleted file mode 100644
+index 47d1f3e409..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/get_move_history_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/get_move_history_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/move/get_move_history_urlbuilder.go
+deleted file mode 100644
+index 8266cad9d5..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/get_move_history_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/get_move_parameters.go b/pkg/gen/ghcapi/ghcoperations/move/get_move_parameters.go
+deleted file mode 100644
+index 33ca21cc20..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/get_move_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/get_move_responses.go b/pkg/gen/ghcapi/ghcoperations/move/get_move_responses.go
+deleted file mode 100644
+index dd24b77d31..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/get_move_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/get_move_shipment_evaluation_reports_list.go b/pkg/gen/ghcapi/ghcoperations/move/get_move_shipment_evaluation_reports_list.go
+deleted file mode 100644
+index d124b8d8f7..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/get_move_shipment_evaluation_reports_list.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/get_move_shipment_evaluation_reports_list_parameters.go b/pkg/gen/ghcapi/ghcoperations/move/get_move_shipment_evaluation_reports_list_parameters.go
+deleted file mode 100644
+index 1538328f9f..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/get_move_shipment_evaluation_reports_list_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/get_move_shipment_evaluation_reports_list_responses.go b/pkg/gen/ghcapi/ghcoperations/move/get_move_shipment_evaluation_reports_list_responses.go
+deleted file mode 100644
+index 063c638d67..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/get_move_shipment_evaluation_reports_list_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/get_move_shipment_evaluation_reports_list_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/move/get_move_shipment_evaluation_reports_list_urlbuilder.go
+deleted file mode 100644
+index 3854b930ca..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/get_move_shipment_evaluation_reports_list_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/get_move_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/move/get_move_urlbuilder.go
+deleted file mode 100644
+index c4e0dc786a..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/get_move_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/search_moves.go b/pkg/gen/ghcapi/ghcoperations/move/search_moves.go
+deleted file mode 100644
+index 980dd840a6..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/search_moves.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/search_moves_parameters.go b/pkg/gen/ghcapi/ghcoperations/move/search_moves_parameters.go
+deleted file mode 100644
+index d35fba4a7a..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/search_moves_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/search_moves_responses.go b/pkg/gen/ghcapi/ghcoperations/move/search_moves_responses.go
+deleted file mode 100644
+index 2887207618..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/search_moves_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/search_moves_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/move/search_moves_urlbuilder.go
+deleted file mode 100644
+index 12f5b61885..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/search_moves_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/set_financial_review_flag.go b/pkg/gen/ghcapi/ghcoperations/move/set_financial_review_flag.go
+deleted file mode 100644
+index 6ff0754f45..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/set_financial_review_flag.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/set_financial_review_flag_parameters.go b/pkg/gen/ghcapi/ghcoperations/move/set_financial_review_flag_parameters.go
+deleted file mode 100644
+index a367095228..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/set_financial_review_flag_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/set_financial_review_flag_responses.go b/pkg/gen/ghcapi/ghcoperations/move/set_financial_review_flag_responses.go
+deleted file mode 100644
+index 376131d716..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/set_financial_review_flag_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/set_financial_review_flag_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/move/set_financial_review_flag_urlbuilder.go
+deleted file mode 100644
+index 059b54a60f..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/set_financial_review_flag_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/update_closeout_office.go b/pkg/gen/ghcapi/ghcoperations/move/update_closeout_office.go
+deleted file mode 100644
+index f1aaf468b3..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/update_closeout_office.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/update_closeout_office_parameters.go b/pkg/gen/ghcapi/ghcoperations/move/update_closeout_office_parameters.go
+deleted file mode 100644
+index 59f62355a5..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/update_closeout_office_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/update_closeout_office_responses.go b/pkg/gen/ghcapi/ghcoperations/move/update_closeout_office_responses.go
+deleted file mode 100644
+index 395068d501..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/update_closeout_office_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move/update_closeout_office_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/move/update_closeout_office_urlbuilder.go
+deleted file mode 100644
+index 6eb86b3b52..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move/update_closeout_office_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move_task_order/get_entitlements.go b/pkg/gen/ghcapi/ghcoperations/move_task_order/get_entitlements.go
+deleted file mode 100644
+index aaefe95f78..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move_task_order/get_entitlements.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move_task_order/get_entitlements_parameters.go b/pkg/gen/ghcapi/ghcoperations/move_task_order/get_entitlements_parameters.go
+deleted file mode 100644
+index 54b54a09fd..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move_task_order/get_entitlements_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move_task_order/get_entitlements_responses.go b/pkg/gen/ghcapi/ghcoperations/move_task_order/get_entitlements_responses.go
+deleted file mode 100644
+index 42973fea3e..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move_task_order/get_entitlements_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move_task_order/get_entitlements_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/move_task_order/get_entitlements_urlbuilder.go
+deleted file mode 100644
+index 7ec7e8326d..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move_task_order/get_entitlements_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move_task_order/get_move_task_order.go b/pkg/gen/ghcapi/ghcoperations/move_task_order/get_move_task_order.go
+deleted file mode 100644
+index fa19658595..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move_task_order/get_move_task_order.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move_task_order/get_move_task_order_parameters.go b/pkg/gen/ghcapi/ghcoperations/move_task_order/get_move_task_order_parameters.go
+deleted file mode 100644
+index a33864f518..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move_task_order/get_move_task_order_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move_task_order/get_move_task_order_responses.go b/pkg/gen/ghcapi/ghcoperations/move_task_order/get_move_task_order_responses.go
+deleted file mode 100644
+index aa9cd10b67..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move_task_order/get_move_task_order_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move_task_order/get_move_task_order_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/move_task_order/get_move_task_order_urlbuilder.go
+deleted file mode 100644
+index 0eb4404265..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move_task_order/get_move_task_order_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_m_t_o_reviewed_billable_weights_at.go b/pkg/gen/ghcapi/ghcoperations/move_task_order/update_m_t_o_reviewed_billable_weights_at.go
+deleted file mode 100644
+index 6af08f9317..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_m_t_o_reviewed_billable_weights_at.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_m_t_o_reviewed_billable_weights_at_parameters.go b/pkg/gen/ghcapi/ghcoperations/move_task_order/update_m_t_o_reviewed_billable_weights_at_parameters.go
+deleted file mode 100644
+index 4dba27881d..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_m_t_o_reviewed_billable_weights_at_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_m_t_o_reviewed_billable_weights_at_responses.go b/pkg/gen/ghcapi/ghcoperations/move_task_order/update_m_t_o_reviewed_billable_weights_at_responses.go
+deleted file mode 100644
+index 83e896b725..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_m_t_o_reviewed_billable_weights_at_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_m_t_o_reviewed_billable_weights_at_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/move_task_order/update_m_t_o_reviewed_billable_weights_at_urlbuilder.go
+deleted file mode 100644
+index 6b5d00f3ba..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_m_t_o_reviewed_billable_weights_at_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_m_t_o_status_service_counseling_completed.go b/pkg/gen/ghcapi/ghcoperations/move_task_order/update_m_t_o_status_service_counseling_completed.go
+deleted file mode 100644
+index 3e328a2ee3..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_m_t_o_status_service_counseling_completed.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_m_t_o_status_service_counseling_completed_parameters.go b/pkg/gen/ghcapi/ghcoperations/move_task_order/update_m_t_o_status_service_counseling_completed_parameters.go
+deleted file mode 100644
+index b197159036..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_m_t_o_status_service_counseling_completed_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_m_t_o_status_service_counseling_completed_responses.go b/pkg/gen/ghcapi/ghcoperations/move_task_order/update_m_t_o_status_service_counseling_completed_responses.go
+deleted file mode 100644
+index 0094a040e6..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_m_t_o_status_service_counseling_completed_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_m_t_o_status_service_counseling_completed_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/move_task_order/update_m_t_o_status_service_counseling_completed_urlbuilder.go
+deleted file mode 100644
+index c8d2c8eca0..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_m_t_o_status_service_counseling_completed_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_move_t_i_o_remarks.go b/pkg/gen/ghcapi/ghcoperations/move_task_order/update_move_t_i_o_remarks.go
+deleted file mode 100644
+index 4a0234ddd4..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_move_t_i_o_remarks.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_move_t_i_o_remarks_parameters.go b/pkg/gen/ghcapi/ghcoperations/move_task_order/update_move_t_i_o_remarks_parameters.go
+deleted file mode 100644
+index 3df5d6da86..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_move_t_i_o_remarks_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_move_t_i_o_remarks_responses.go b/pkg/gen/ghcapi/ghcoperations/move_task_order/update_move_t_i_o_remarks_responses.go
+deleted file mode 100644
+index 0c4a63542e..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_move_t_i_o_remarks_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_move_t_i_o_remarks_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/move_task_order/update_move_t_i_o_remarks_urlbuilder.go
+deleted file mode 100644
+index 116d0bfc1c..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_move_t_i_o_remarks_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_move_task_order_status.go b/pkg/gen/ghcapi/ghcoperations/move_task_order/update_move_task_order_status.go
+deleted file mode 100644
+index ec8f17920a..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_move_task_order_status.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_move_task_order_status_parameters.go b/pkg/gen/ghcapi/ghcoperations/move_task_order/update_move_task_order_status_parameters.go
+deleted file mode 100644
+index bb1ffe4b29..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_move_task_order_status_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_move_task_order_status_responses.go b/pkg/gen/ghcapi/ghcoperations/move_task_order/update_move_task_order_status_responses.go
+deleted file mode 100644
+index 1787fd1ecb..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_move_task_order_status_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_move_task_order_status_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/move_task_order/update_move_task_order_status_urlbuilder.go
+deleted file mode 100644
+index 7c230437a3..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/move_task_order/update_move_task_order_status_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_agent/fetch_m_t_o_agent_list.go b/pkg/gen/ghcapi/ghcoperations/mto_agent/fetch_m_t_o_agent_list.go
+deleted file mode 100644
+index 9ea69f4090..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_agent/fetch_m_t_o_agent_list.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_agent/fetch_m_t_o_agent_list_parameters.go b/pkg/gen/ghcapi/ghcoperations/mto_agent/fetch_m_t_o_agent_list_parameters.go
+deleted file mode 100644
+index 2c213c4ce1..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_agent/fetch_m_t_o_agent_list_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_agent/fetch_m_t_o_agent_list_responses.go b/pkg/gen/ghcapi/ghcoperations/mto_agent/fetch_m_t_o_agent_list_responses.go
+deleted file mode 100644
+index 4c6b5363d3..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_agent/fetch_m_t_o_agent_list_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_agent/fetch_m_t_o_agent_list_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/mto_agent/fetch_m_t_o_agent_list_urlbuilder.go
+deleted file mode 100644
+index fd993b942e..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_agent/fetch_m_t_o_agent_list_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_service_item/get_m_t_o_service_item.go b/pkg/gen/ghcapi/ghcoperations/mto_service_item/get_m_t_o_service_item.go
+deleted file mode 100644
+index fee98cfba3..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_service_item/get_m_t_o_service_item.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_service_item/get_m_t_o_service_item_parameters.go b/pkg/gen/ghcapi/ghcoperations/mto_service_item/get_m_t_o_service_item_parameters.go
+deleted file mode 100644
+index c0f1f26cee..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_service_item/get_m_t_o_service_item_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_service_item/get_m_t_o_service_item_responses.go b/pkg/gen/ghcapi/ghcoperations/mto_service_item/get_m_t_o_service_item_responses.go
+deleted file mode 100644
+index a8aa048dc4..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_service_item/get_m_t_o_service_item_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_service_item/get_m_t_o_service_item_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/mto_service_item/get_m_t_o_service_item_urlbuilder.go
+deleted file mode 100644
+index 99feb3d4f2..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_service_item/get_m_t_o_service_item_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_service_item/list_m_t_o_service_items.go b/pkg/gen/ghcapi/ghcoperations/mto_service_item/list_m_t_o_service_items.go
+deleted file mode 100644
+index 7b08257233..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_service_item/list_m_t_o_service_items.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_service_item/list_m_t_o_service_items_parameters.go b/pkg/gen/ghcapi/ghcoperations/mto_service_item/list_m_t_o_service_items_parameters.go
+deleted file mode 100644
+index 72dbb94fac..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_service_item/list_m_t_o_service_items_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_service_item/list_m_t_o_service_items_responses.go b/pkg/gen/ghcapi/ghcoperations/mto_service_item/list_m_t_o_service_items_responses.go
+deleted file mode 100644
+index f70a9d5e88..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_service_item/list_m_t_o_service_items_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_service_item/list_m_t_o_service_items_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/mto_service_item/list_m_t_o_service_items_urlbuilder.go
+deleted file mode 100644
+index 42361b9461..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_service_item/list_m_t_o_service_items_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_service_item/update_m_t_o_service_item_status.go b/pkg/gen/ghcapi/ghcoperations/mto_service_item/update_m_t_o_service_item_status.go
+deleted file mode 100644
+index fd15c76b0d..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_service_item/update_m_t_o_service_item_status.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_service_item/update_m_t_o_service_item_status_parameters.go b/pkg/gen/ghcapi/ghcoperations/mto_service_item/update_m_t_o_service_item_status_parameters.go
+deleted file mode 100644
+index dad712808c..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_service_item/update_m_t_o_service_item_status_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_service_item/update_m_t_o_service_item_status_responses.go b/pkg/gen/ghcapi/ghcoperations/mto_service_item/update_m_t_o_service_item_status_responses.go
+deleted file mode 100644
+index 1122fd6648..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_service_item/update_m_t_o_service_item_status_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_service_item/update_m_t_o_service_item_status_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/mto_service_item/update_m_t_o_service_item_status_urlbuilder.go
+deleted file mode 100644
+index 76f339c1d6..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_service_item/update_m_t_o_service_item_status_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_service_item/update_service_item_sit_entry_date.go b/pkg/gen/ghcapi/ghcoperations/mto_service_item/update_service_item_sit_entry_date.go
+deleted file mode 100644
+index d352fc5934..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_service_item/update_service_item_sit_entry_date.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_service_item/update_service_item_sit_entry_date_parameters.go b/pkg/gen/ghcapi/ghcoperations/mto_service_item/update_service_item_sit_entry_date_parameters.go
+deleted file mode 100644
+index 96638c0c8d..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_service_item/update_service_item_sit_entry_date_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_service_item/update_service_item_sit_entry_date_responses.go b/pkg/gen/ghcapi/ghcoperations/mto_service_item/update_service_item_sit_entry_date_responses.go
+deleted file mode 100644
+index 5f4b6e2a76..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_service_item/update_service_item_sit_entry_date_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_service_item/update_service_item_sit_entry_date_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/mto_service_item/update_service_item_sit_entry_date_urlbuilder.go
+deleted file mode 100644
+index 2a477f33ee..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_service_item/update_service_item_sit_entry_date_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_shipment/create_m_t_o_shipment.go b/pkg/gen/ghcapi/ghcoperations/mto_shipment/create_m_t_o_shipment.go
+deleted file mode 100644
+index b701c9cbcb..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_shipment/create_m_t_o_shipment.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_shipment/create_m_t_o_shipment_parameters.go b/pkg/gen/ghcapi/ghcoperations/mto_shipment/create_m_t_o_shipment_parameters.go
+deleted file mode 100644
+index d3f2997df7..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_shipment/create_m_t_o_shipment_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_shipment/create_m_t_o_shipment_responses.go b/pkg/gen/ghcapi/ghcoperations/mto_shipment/create_m_t_o_shipment_responses.go
+deleted file mode 100644
+index e09e9ec4c5..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_shipment/create_m_t_o_shipment_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_shipment/create_m_t_o_shipment_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/mto_shipment/create_m_t_o_shipment_urlbuilder.go
+deleted file mode 100644
+index 80a0cf279e..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_shipment/create_m_t_o_shipment_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_shipment/get_shipment.go b/pkg/gen/ghcapi/ghcoperations/mto_shipment/get_shipment.go
+deleted file mode 100644
+index eb07dd5484..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_shipment/get_shipment.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_shipment/get_shipment_parameters.go b/pkg/gen/ghcapi/ghcoperations/mto_shipment/get_shipment_parameters.go
+deleted file mode 100644
+index 39b7f92131..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_shipment/get_shipment_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_shipment/get_shipment_responses.go b/pkg/gen/ghcapi/ghcoperations/mto_shipment/get_shipment_responses.go
+deleted file mode 100644
+index 3105d2a640..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_shipment/get_shipment_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_shipment/get_shipment_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/mto_shipment/get_shipment_urlbuilder.go
+deleted file mode 100644
+index 5bcdd735d7..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_shipment/get_shipment_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_shipment/list_m_t_o_shipments.go b/pkg/gen/ghcapi/ghcoperations/mto_shipment/list_m_t_o_shipments.go
+deleted file mode 100644
+index 1d6949747b..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_shipment/list_m_t_o_shipments.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_shipment/list_m_t_o_shipments_parameters.go b/pkg/gen/ghcapi/ghcoperations/mto_shipment/list_m_t_o_shipments_parameters.go
+deleted file mode 100644
+index e186e4a879..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_shipment/list_m_t_o_shipments_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_shipment/list_m_t_o_shipments_responses.go b/pkg/gen/ghcapi/ghcoperations/mto_shipment/list_m_t_o_shipments_responses.go
+deleted file mode 100644
+index 7aaebb34d5..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_shipment/list_m_t_o_shipments_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_shipment/list_m_t_o_shipments_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/mto_shipment/list_m_t_o_shipments_urlbuilder.go
+deleted file mode 100644
+index 87184b95a9..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_shipment/list_m_t_o_shipments_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_shipment/update_m_t_o_shipment.go b/pkg/gen/ghcapi/ghcoperations/mto_shipment/update_m_t_o_shipment.go
+deleted file mode 100644
+index eb0db5e29a..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_shipment/update_m_t_o_shipment.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_shipment/update_m_t_o_shipment_parameters.go b/pkg/gen/ghcapi/ghcoperations/mto_shipment/update_m_t_o_shipment_parameters.go
+deleted file mode 100644
+index 221db2ce16..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_shipment/update_m_t_o_shipment_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_shipment/update_m_t_o_shipment_responses.go b/pkg/gen/ghcapi/ghcoperations/mto_shipment/update_m_t_o_shipment_responses.go
+deleted file mode 100644
+index 6db7a6650b..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_shipment/update_m_t_o_shipment_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mto_shipment/update_m_t_o_shipment_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/mto_shipment/update_m_t_o_shipment_urlbuilder.go
+deleted file mode 100644
+index 5b05a62e80..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mto_shipment/update_m_t_o_shipment_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/mymove_api.go b/pkg/gen/ghcapi/ghcoperations/mymove_api.go
+deleted file mode 100644
+index 6dc72bb2f0..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/mymove_api.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/acknowledge_excess_weight_risk.go b/pkg/gen/ghcapi/ghcoperations/order/acknowledge_excess_weight_risk.go
+deleted file mode 100644
+index 4a5775ae93..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/acknowledge_excess_weight_risk.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/acknowledge_excess_weight_risk_parameters.go b/pkg/gen/ghcapi/ghcoperations/order/acknowledge_excess_weight_risk_parameters.go
+deleted file mode 100644
+index b0347485f9..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/acknowledge_excess_weight_risk_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/acknowledge_excess_weight_risk_responses.go b/pkg/gen/ghcapi/ghcoperations/order/acknowledge_excess_weight_risk_responses.go
+deleted file mode 100644
+index 9e787116db..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/acknowledge_excess_weight_risk_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/acknowledge_excess_weight_risk_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/order/acknowledge_excess_weight_risk_urlbuilder.go
+deleted file mode 100644
+index 47c48a6347..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/acknowledge_excess_weight_risk_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/counseling_update_allowance.go b/pkg/gen/ghcapi/ghcoperations/order/counseling_update_allowance.go
+deleted file mode 100644
+index 3738597821..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/counseling_update_allowance.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/counseling_update_allowance_parameters.go b/pkg/gen/ghcapi/ghcoperations/order/counseling_update_allowance_parameters.go
+deleted file mode 100644
+index da064dcb3c..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/counseling_update_allowance_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/counseling_update_allowance_responses.go b/pkg/gen/ghcapi/ghcoperations/order/counseling_update_allowance_responses.go
+deleted file mode 100644
+index 3e81047d27..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/counseling_update_allowance_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/counseling_update_allowance_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/order/counseling_update_allowance_urlbuilder.go
+deleted file mode 100644
+index ee72f481d9..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/counseling_update_allowance_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/counseling_update_order.go b/pkg/gen/ghcapi/ghcoperations/order/counseling_update_order.go
+deleted file mode 100644
+index 87f469da7e..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/counseling_update_order.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/counseling_update_order_parameters.go b/pkg/gen/ghcapi/ghcoperations/order/counseling_update_order_parameters.go
+deleted file mode 100644
+index e713fd2354..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/counseling_update_order_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/counseling_update_order_responses.go b/pkg/gen/ghcapi/ghcoperations/order/counseling_update_order_responses.go
+deleted file mode 100644
+index 6eabb9a058..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/counseling_update_order_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/counseling_update_order_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/order/counseling_update_order_urlbuilder.go
+deleted file mode 100644
+index 5835a42eea..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/counseling_update_order_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/get_order.go b/pkg/gen/ghcapi/ghcoperations/order/get_order.go
+deleted file mode 100644
+index 4dc9b7361b..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/get_order.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/get_order_parameters.go b/pkg/gen/ghcapi/ghcoperations/order/get_order_parameters.go
+deleted file mode 100644
+index a37d96bd6d..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/get_order_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/get_order_responses.go b/pkg/gen/ghcapi/ghcoperations/order/get_order_responses.go
+deleted file mode 100644
+index 4a4963f7d2..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/get_order_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/get_order_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/order/get_order_urlbuilder.go
+deleted file mode 100644
+index 177c957da3..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/get_order_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/update_allowance.go b/pkg/gen/ghcapi/ghcoperations/order/update_allowance.go
+deleted file mode 100644
+index cc058e011e..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/update_allowance.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/update_allowance_parameters.go b/pkg/gen/ghcapi/ghcoperations/order/update_allowance_parameters.go
+deleted file mode 100644
+index 9d1a36f919..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/update_allowance_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/update_allowance_responses.go b/pkg/gen/ghcapi/ghcoperations/order/update_allowance_responses.go
+deleted file mode 100644
+index 119b8685e2..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/update_allowance_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/update_allowance_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/order/update_allowance_urlbuilder.go
+deleted file mode 100644
+index d1f41da835..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/update_allowance_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/update_billable_weight.go b/pkg/gen/ghcapi/ghcoperations/order/update_billable_weight.go
+deleted file mode 100644
+index 4d09b1a237..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/update_billable_weight.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/update_billable_weight_parameters.go b/pkg/gen/ghcapi/ghcoperations/order/update_billable_weight_parameters.go
+deleted file mode 100644
+index 796a273c84..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/update_billable_weight_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/update_billable_weight_responses.go b/pkg/gen/ghcapi/ghcoperations/order/update_billable_weight_responses.go
+deleted file mode 100644
+index 5725e416a4..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/update_billable_weight_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/update_billable_weight_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/order/update_billable_weight_urlbuilder.go
+deleted file mode 100644
+index b09e452621..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/update_billable_weight_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/update_max_billable_weight_as_t_i_o.go b/pkg/gen/ghcapi/ghcoperations/order/update_max_billable_weight_as_t_i_o.go
+deleted file mode 100644
+index 09c5ab4de0..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/update_max_billable_weight_as_t_i_o.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/update_max_billable_weight_as_t_i_o_parameters.go b/pkg/gen/ghcapi/ghcoperations/order/update_max_billable_weight_as_t_i_o_parameters.go
+deleted file mode 100644
+index b9404407ab..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/update_max_billable_weight_as_t_i_o_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/update_max_billable_weight_as_t_i_o_responses.go b/pkg/gen/ghcapi/ghcoperations/order/update_max_billable_weight_as_t_i_o_responses.go
+deleted file mode 100644
+index f0a5b9655f..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/update_max_billable_weight_as_t_i_o_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/update_max_billable_weight_as_t_i_o_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/order/update_max_billable_weight_as_t_i_o_urlbuilder.go
+deleted file mode 100644
+index 3f310e176f..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/update_max_billable_weight_as_t_i_o_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/update_order.go b/pkg/gen/ghcapi/ghcoperations/order/update_order.go
+deleted file mode 100644
+index 5f1b2051b2..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/update_order.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/update_order_parameters.go b/pkg/gen/ghcapi/ghcoperations/order/update_order_parameters.go
+deleted file mode 100644
+index acec9c7fb5..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/update_order_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/update_order_responses.go b/pkg/gen/ghcapi/ghcoperations/order/update_order_responses.go
+deleted file mode 100644
+index 62a3e7c744..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/update_order_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/order/update_order_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/order/update_order_urlbuilder.go
+deleted file mode 100644
+index 397d0bf98a..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/order/update_order_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/payment_requests/get_payment_request.go b/pkg/gen/ghcapi/ghcoperations/payment_requests/get_payment_request.go
+deleted file mode 100644
+index 13b2283d70..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/payment_requests/get_payment_request.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/payment_requests/get_payment_request_parameters.go b/pkg/gen/ghcapi/ghcoperations/payment_requests/get_payment_request_parameters.go
+deleted file mode 100644
+index e1cae65b0d..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/payment_requests/get_payment_request_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/payment_requests/get_payment_request_responses.go b/pkg/gen/ghcapi/ghcoperations/payment_requests/get_payment_request_responses.go
+deleted file mode 100644
+index d460661337..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/payment_requests/get_payment_request_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/payment_requests/get_payment_request_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/payment_requests/get_payment_request_urlbuilder.go
+deleted file mode 100644
+index 42f0aa1479..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/payment_requests/get_payment_request_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/payment_requests/get_payment_requests_for_move.go b/pkg/gen/ghcapi/ghcoperations/payment_requests/get_payment_requests_for_move.go
+deleted file mode 100644
+index 36c3861f70..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/payment_requests/get_payment_requests_for_move.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/payment_requests/get_payment_requests_for_move_parameters.go b/pkg/gen/ghcapi/ghcoperations/payment_requests/get_payment_requests_for_move_parameters.go
+deleted file mode 100644
+index 495ed0bf0a..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/payment_requests/get_payment_requests_for_move_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/payment_requests/get_payment_requests_for_move_responses.go b/pkg/gen/ghcapi/ghcoperations/payment_requests/get_payment_requests_for_move_responses.go
+deleted file mode 100644
+index c1eca8a56a..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/payment_requests/get_payment_requests_for_move_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/payment_requests/get_payment_requests_for_move_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/payment_requests/get_payment_requests_for_move_urlbuilder.go
+deleted file mode 100644
+index 8c31a3d51c..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/payment_requests/get_payment_requests_for_move_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/payment_requests/get_shipments_payment_s_i_t_balance.go b/pkg/gen/ghcapi/ghcoperations/payment_requests/get_shipments_payment_s_i_t_balance.go
+deleted file mode 100644
+index 50ad871ad9..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/payment_requests/get_shipments_payment_s_i_t_balance.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/payment_requests/get_shipments_payment_s_i_t_balance_parameters.go b/pkg/gen/ghcapi/ghcoperations/payment_requests/get_shipments_payment_s_i_t_balance_parameters.go
+deleted file mode 100644
+index 6d107c40c8..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/payment_requests/get_shipments_payment_s_i_t_balance_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/payment_requests/get_shipments_payment_s_i_t_balance_responses.go b/pkg/gen/ghcapi/ghcoperations/payment_requests/get_shipments_payment_s_i_t_balance_responses.go
+deleted file mode 100644
+index 635f95ed44..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/payment_requests/get_shipments_payment_s_i_t_balance_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/payment_requests/get_shipments_payment_s_i_t_balance_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/payment_requests/get_shipments_payment_s_i_t_balance_urlbuilder.go
+deleted file mode 100644
+index 6fd2e91f0b..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/payment_requests/get_shipments_payment_s_i_t_balance_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/payment_requests/update_payment_request_status.go b/pkg/gen/ghcapi/ghcoperations/payment_requests/update_payment_request_status.go
+deleted file mode 100644
+index 7014bffd4e..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/payment_requests/update_payment_request_status.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/payment_requests/update_payment_request_status_parameters.go b/pkg/gen/ghcapi/ghcoperations/payment_requests/update_payment_request_status_parameters.go
+deleted file mode 100644
+index 74a15d542e..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/payment_requests/update_payment_request_status_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/payment_requests/update_payment_request_status_responses.go b/pkg/gen/ghcapi/ghcoperations/payment_requests/update_payment_request_status_responses.go
+deleted file mode 100644
+index 104e878e53..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/payment_requests/update_payment_request_status_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/payment_requests/update_payment_request_status_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/payment_requests/update_payment_request_status_urlbuilder.go
+deleted file mode 100644
+index cfbb39e034..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/payment_requests/update_payment_request_status_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/payment_service_item/update_payment_service_item_status.go b/pkg/gen/ghcapi/ghcoperations/payment_service_item/update_payment_service_item_status.go
+deleted file mode 100644
+index 333dfdd7d7..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/payment_service_item/update_payment_service_item_status.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/payment_service_item/update_payment_service_item_status_parameters.go b/pkg/gen/ghcapi/ghcoperations/payment_service_item/update_payment_service_item_status_parameters.go
+deleted file mode 100644
+index 912945f23d..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/payment_service_item/update_payment_service_item_status_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/payment_service_item/update_payment_service_item_status_responses.go b/pkg/gen/ghcapi/ghcoperations/payment_service_item/update_payment_service_item_status_responses.go
+deleted file mode 100644
+index d529726459..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/payment_service_item/update_payment_service_item_status_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/payment_service_item/update_payment_service_item_status_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/payment_service_item/update_payment_service_item_status_urlbuilder.go
+deleted file mode 100644
+index 267d249ec2..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/payment_service_item/update_payment_service_item_status_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/finish_document_review.go b/pkg/gen/ghcapi/ghcoperations/ppm/finish_document_review.go
+deleted file mode 100644
+index bdaf987261..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/finish_document_review.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/finish_document_review_parameters.go b/pkg/gen/ghcapi/ghcoperations/ppm/finish_document_review_parameters.go
+deleted file mode 100644
+index 19ea254de6..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/finish_document_review_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/finish_document_review_responses.go b/pkg/gen/ghcapi/ghcoperations/ppm/finish_document_review_responses.go
+deleted file mode 100644
+index c2b6cb7dd9..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/finish_document_review_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/finish_document_review_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/ppm/finish_document_review_urlbuilder.go
+deleted file mode 100644
+index 4d9e3e1251..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/finish_document_review_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/get_p_p_m_closeout.go b/pkg/gen/ghcapi/ghcoperations/ppm/get_p_p_m_closeout.go
+deleted file mode 100644
+index d2536b933d..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/get_p_p_m_closeout.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/get_p_p_m_closeout_parameters.go b/pkg/gen/ghcapi/ghcoperations/ppm/get_p_p_m_closeout_parameters.go
+deleted file mode 100644
+index 0b766ba8fd..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/get_p_p_m_closeout_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/get_p_p_m_closeout_responses.go b/pkg/gen/ghcapi/ghcoperations/ppm/get_p_p_m_closeout_responses.go
+deleted file mode 100644
+index 38821f3951..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/get_p_p_m_closeout_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/get_p_p_m_closeout_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/ppm/get_p_p_m_closeout_urlbuilder.go
+deleted file mode 100644
+index 44164af2f1..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/get_p_p_m_closeout_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/get_p_p_m_documents.go b/pkg/gen/ghcapi/ghcoperations/ppm/get_p_p_m_documents.go
+deleted file mode 100644
+index 1e794c2ad4..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/get_p_p_m_documents.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/get_p_p_m_documents_parameters.go b/pkg/gen/ghcapi/ghcoperations/ppm/get_p_p_m_documents_parameters.go
+deleted file mode 100644
+index f42e2d87d8..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/get_p_p_m_documents_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/get_p_p_m_documents_responses.go b/pkg/gen/ghcapi/ghcoperations/ppm/get_p_p_m_documents_responses.go
+deleted file mode 100644
+index 6a21b24f07..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/get_p_p_m_documents_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/get_p_p_m_documents_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/ppm/get_p_p_m_documents_urlbuilder.go
+deleted file mode 100644
+index 35d0ce4571..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/get_p_p_m_documents_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/show_a_o_a_packet.go b/pkg/gen/ghcapi/ghcoperations/ppm/show_a_o_a_packet.go
+deleted file mode 100644
+index 2766f01b32..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/show_a_o_a_packet.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/show_a_o_a_packet_parameters.go b/pkg/gen/ghcapi/ghcoperations/ppm/show_a_o_a_packet_parameters.go
+deleted file mode 100644
+index 046c066796..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/show_a_o_a_packet_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/show_a_o_a_packet_responses.go b/pkg/gen/ghcapi/ghcoperations/ppm/show_a_o_a_packet_responses.go
+deleted file mode 100644
+index f7f0bb5e2f..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/show_a_o_a_packet_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/show_a_o_a_packet_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/ppm/show_a_o_a_packet_urlbuilder.go
+deleted file mode 100644
+index 92f3764fe5..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/show_a_o_a_packet_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/update_moving_expense.go b/pkg/gen/ghcapi/ghcoperations/ppm/update_moving_expense.go
+deleted file mode 100644
+index 224c2b2533..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/update_moving_expense.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/update_moving_expense_parameters.go b/pkg/gen/ghcapi/ghcoperations/ppm/update_moving_expense_parameters.go
+deleted file mode 100644
+index 9eecabd5e2..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/update_moving_expense_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/update_moving_expense_responses.go b/pkg/gen/ghcapi/ghcoperations/ppm/update_moving_expense_responses.go
+deleted file mode 100644
+index d4be7d73b0..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/update_moving_expense_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/update_moving_expense_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/ppm/update_moving_expense_urlbuilder.go
+deleted file mode 100644
+index de39727106..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/update_moving_expense_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/update_pro_gear_weight_ticket.go b/pkg/gen/ghcapi/ghcoperations/ppm/update_pro_gear_weight_ticket.go
+deleted file mode 100644
+index 548bc7605a..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/update_pro_gear_weight_ticket.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/update_pro_gear_weight_ticket_parameters.go b/pkg/gen/ghcapi/ghcoperations/ppm/update_pro_gear_weight_ticket_parameters.go
+deleted file mode 100644
+index 31aef97d6d..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/update_pro_gear_weight_ticket_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/update_pro_gear_weight_ticket_responses.go b/pkg/gen/ghcapi/ghcoperations/ppm/update_pro_gear_weight_ticket_responses.go
+deleted file mode 100644
+index a36a4622ce..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/update_pro_gear_weight_ticket_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/update_pro_gear_weight_ticket_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/ppm/update_pro_gear_weight_ticket_urlbuilder.go
+deleted file mode 100644
+index 9cab7f6cd1..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/update_pro_gear_weight_ticket_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/update_weight_ticket.go b/pkg/gen/ghcapi/ghcoperations/ppm/update_weight_ticket.go
+deleted file mode 100644
+index 63d222745a..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/update_weight_ticket.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/update_weight_ticket_parameters.go b/pkg/gen/ghcapi/ghcoperations/ppm/update_weight_ticket_parameters.go
+deleted file mode 100644
+index 9eb43a2798..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/update_weight_ticket_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/update_weight_ticket_responses.go b/pkg/gen/ghcapi/ghcoperations/ppm/update_weight_ticket_responses.go
+deleted file mode 100644
+index fcce2648a0..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/update_weight_ticket_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/ppm/update_weight_ticket_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/ppm/update_weight_ticket_urlbuilder.go
+deleted file mode 100644
+index 42504f88cd..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/ppm/update_weight_ticket_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/pws_violations/get_p_w_s_violations.go b/pkg/gen/ghcapi/ghcoperations/pws_violations/get_p_w_s_violations.go
+deleted file mode 100644
+index 583bacfda5..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/pws_violations/get_p_w_s_violations.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/pws_violations/get_p_w_s_violations_parameters.go b/pkg/gen/ghcapi/ghcoperations/pws_violations/get_p_w_s_violations_parameters.go
+deleted file mode 100644
+index ac1a466992..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/pws_violations/get_p_w_s_violations_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/pws_violations/get_p_w_s_violations_responses.go b/pkg/gen/ghcapi/ghcoperations/pws_violations/get_p_w_s_violations_responses.go
+deleted file mode 100644
+index b18ab1cd2c..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/pws_violations/get_p_w_s_violations_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/pws_violations/get_p_w_s_violations_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/pws_violations/get_p_w_s_violations_urlbuilder.go
+deleted file mode 100644
+index 46e5b445de..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/pws_violations/get_p_w_s_violations_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/queues/get_moves_queue.go b/pkg/gen/ghcapi/ghcoperations/queues/get_moves_queue.go
+deleted file mode 100644
+index 2683d984fe..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/queues/get_moves_queue.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/queues/get_moves_queue_parameters.go b/pkg/gen/ghcapi/ghcoperations/queues/get_moves_queue_parameters.go
+deleted file mode 100644
+index 47e3dee71a..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/queues/get_moves_queue_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/queues/get_moves_queue_responses.go b/pkg/gen/ghcapi/ghcoperations/queues/get_moves_queue_responses.go
+deleted file mode 100644
+index e74af3bb51..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/queues/get_moves_queue_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/queues/get_moves_queue_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/queues/get_moves_queue_urlbuilder.go
+deleted file mode 100644
+index 58e60db93f..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/queues/get_moves_queue_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/queues/get_payment_requests_queue.go b/pkg/gen/ghcapi/ghcoperations/queues/get_payment_requests_queue.go
+deleted file mode 100644
+index 9c6f9dac17..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/queues/get_payment_requests_queue.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/queues/get_payment_requests_queue_parameters.go b/pkg/gen/ghcapi/ghcoperations/queues/get_payment_requests_queue_parameters.go
+deleted file mode 100644
+index 973b21e3c0..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/queues/get_payment_requests_queue_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/queues/get_payment_requests_queue_responses.go b/pkg/gen/ghcapi/ghcoperations/queues/get_payment_requests_queue_responses.go
+deleted file mode 100644
+index 791e2f2937..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/queues/get_payment_requests_queue_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/queues/get_payment_requests_queue_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/queues/get_payment_requests_queue_urlbuilder.go
+deleted file mode 100644
+index a99b6df847..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/queues/get_payment_requests_queue_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/queues/get_services_counseling_queue.go b/pkg/gen/ghcapi/ghcoperations/queues/get_services_counseling_queue.go
+deleted file mode 100644
+index ef38cfda72..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/queues/get_services_counseling_queue.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/queues/get_services_counseling_queue_parameters.go b/pkg/gen/ghcapi/ghcoperations/queues/get_services_counseling_queue_parameters.go
+deleted file mode 100644
+index 3f3df69aee..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/queues/get_services_counseling_queue_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/queues/get_services_counseling_queue_responses.go b/pkg/gen/ghcapi/ghcoperations/queues/get_services_counseling_queue_responses.go
+deleted file mode 100644
+index f75f014d94..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/queues/get_services_counseling_queue_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/queues/get_services_counseling_queue_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/queues/get_services_counseling_queue_urlbuilder.go
+deleted file mode 100644
+index e9f6470a38..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/queues/get_services_counseling_queue_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/queues/list_prime_moves.go b/pkg/gen/ghcapi/ghcoperations/queues/list_prime_moves.go
+deleted file mode 100644
+index 3923f7dfd8..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/queues/list_prime_moves.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/queues/list_prime_moves_parameters.go b/pkg/gen/ghcapi/ghcoperations/queues/list_prime_moves_parameters.go
+deleted file mode 100644
+index 74b49cff4f..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/queues/list_prime_moves_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/queues/list_prime_moves_responses.go b/pkg/gen/ghcapi/ghcoperations/queues/list_prime_moves_responses.go
+deleted file mode 100644
+index 8bb53b97cb..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/queues/list_prime_moves_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/queues/list_prime_moves_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/queues/list_prime_moves_urlbuilder.go
+deleted file mode 100644
+index b76bbe5662..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/queues/list_prime_moves_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/report_violations/associate_report_violations.go b/pkg/gen/ghcapi/ghcoperations/report_violations/associate_report_violations.go
+deleted file mode 100644
+index 7ed7d24683..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/report_violations/associate_report_violations.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/report_violations/associate_report_violations_parameters.go b/pkg/gen/ghcapi/ghcoperations/report_violations/associate_report_violations_parameters.go
+deleted file mode 100644
+index 4eb082affb..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/report_violations/associate_report_violations_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/report_violations/associate_report_violations_responses.go b/pkg/gen/ghcapi/ghcoperations/report_violations/associate_report_violations_responses.go
+deleted file mode 100644
+index b28d30c65e..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/report_violations/associate_report_violations_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/report_violations/associate_report_violations_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/report_violations/associate_report_violations_urlbuilder.go
+deleted file mode 100644
+index 0c0af0e9f4..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/report_violations/associate_report_violations_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/report_violations/get_report_violations_by_report_id.go b/pkg/gen/ghcapi/ghcoperations/report_violations/get_report_violations_by_report_id.go
+deleted file mode 100644
+index 36a811ffe6..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/report_violations/get_report_violations_by_report_id.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/report_violations/get_report_violations_by_report_id_parameters.go b/pkg/gen/ghcapi/ghcoperations/report_violations/get_report_violations_by_report_id_parameters.go
+deleted file mode 100644
+index 9b4cbe0a16..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/report_violations/get_report_violations_by_report_id_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/report_violations/get_report_violations_by_report_id_responses.go b/pkg/gen/ghcapi/ghcoperations/report_violations/get_report_violations_by_report_id_responses.go
+deleted file mode 100644
+index 4bbf9da820..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/report_violations/get_report_violations_by_report_id_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/report_violations/get_report_violations_by_report_id_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/report_violations/get_report_violations_by_report_id_urlbuilder.go
+deleted file mode 100644
+index fd070cd59e..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/report_violations/get_report_violations_by_report_id_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/approve_s_i_t_extension.go b/pkg/gen/ghcapi/ghcoperations/shipment/approve_s_i_t_extension.go
+deleted file mode 100644
+index 3f0e0dab04..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/approve_s_i_t_extension.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/approve_s_i_t_extension_parameters.go b/pkg/gen/ghcapi/ghcoperations/shipment/approve_s_i_t_extension_parameters.go
+deleted file mode 100644
+index 6b42177e17..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/approve_s_i_t_extension_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/approve_s_i_t_extension_responses.go b/pkg/gen/ghcapi/ghcoperations/shipment/approve_s_i_t_extension_responses.go
+deleted file mode 100644
+index 1f06dd7370..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/approve_s_i_t_extension_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/approve_s_i_t_extension_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/shipment/approve_s_i_t_extension_urlbuilder.go
+deleted file mode 100644
+index b487d453b4..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/approve_s_i_t_extension_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/approve_shipment.go b/pkg/gen/ghcapi/ghcoperations/shipment/approve_shipment.go
+deleted file mode 100644
+index 619bd007cd..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/approve_shipment.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/approve_shipment_diversion.go b/pkg/gen/ghcapi/ghcoperations/shipment/approve_shipment_diversion.go
+deleted file mode 100644
+index 63b48bd30d..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/approve_shipment_diversion.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/approve_shipment_diversion_parameters.go b/pkg/gen/ghcapi/ghcoperations/shipment/approve_shipment_diversion_parameters.go
+deleted file mode 100644
+index 303b41dbcb..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/approve_shipment_diversion_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/approve_shipment_diversion_responses.go b/pkg/gen/ghcapi/ghcoperations/shipment/approve_shipment_diversion_responses.go
+deleted file mode 100644
+index b85cdd36c8..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/approve_shipment_diversion_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/approve_shipment_diversion_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/shipment/approve_shipment_diversion_urlbuilder.go
+deleted file mode 100644
+index 6b65d5179e..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/approve_shipment_diversion_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/approve_shipment_parameters.go b/pkg/gen/ghcapi/ghcoperations/shipment/approve_shipment_parameters.go
+deleted file mode 100644
+index 1d3ce107f5..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/approve_shipment_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/approve_shipment_responses.go b/pkg/gen/ghcapi/ghcoperations/shipment/approve_shipment_responses.go
+deleted file mode 100644
+index 1e9cbc2b79..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/approve_shipment_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/approve_shipment_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/shipment/approve_shipment_urlbuilder.go
+deleted file mode 100644
+index 973399fecd..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/approve_shipment_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/create_approved_s_i_t_duration_update.go b/pkg/gen/ghcapi/ghcoperations/shipment/create_approved_s_i_t_duration_update.go
+deleted file mode 100644
+index 7e69baf206..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/create_approved_s_i_t_duration_update.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/create_approved_s_i_t_duration_update_parameters.go b/pkg/gen/ghcapi/ghcoperations/shipment/create_approved_s_i_t_duration_update_parameters.go
+deleted file mode 100644
+index 6c9cf6b166..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/create_approved_s_i_t_duration_update_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/create_approved_s_i_t_duration_update_responses.go b/pkg/gen/ghcapi/ghcoperations/shipment/create_approved_s_i_t_duration_update_responses.go
+deleted file mode 100644
+index 8e3f3f6f2d..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/create_approved_s_i_t_duration_update_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/create_approved_s_i_t_duration_update_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/shipment/create_approved_s_i_t_duration_update_urlbuilder.go
+deleted file mode 100644
+index 4366475a2c..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/create_approved_s_i_t_duration_update_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/delete_shipment.go b/pkg/gen/ghcapi/ghcoperations/shipment/delete_shipment.go
+deleted file mode 100644
+index a030f17618..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/delete_shipment.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/delete_shipment_parameters.go b/pkg/gen/ghcapi/ghcoperations/shipment/delete_shipment_parameters.go
+deleted file mode 100644
+index 08bc880b2c..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/delete_shipment_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/delete_shipment_responses.go b/pkg/gen/ghcapi/ghcoperations/shipment/delete_shipment_responses.go
+deleted file mode 100644
+index fe39e60931..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/delete_shipment_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/delete_shipment_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/shipment/delete_shipment_urlbuilder.go
+deleted file mode 100644
+index 6440e1fc6b..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/delete_shipment_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/deny_s_i_t_extension.go b/pkg/gen/ghcapi/ghcoperations/shipment/deny_s_i_t_extension.go
+deleted file mode 100644
+index 84541c0991..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/deny_s_i_t_extension.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/deny_s_i_t_extension_parameters.go b/pkg/gen/ghcapi/ghcoperations/shipment/deny_s_i_t_extension_parameters.go
+deleted file mode 100644
+index 5a4faeea71..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/deny_s_i_t_extension_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/deny_s_i_t_extension_responses.go b/pkg/gen/ghcapi/ghcoperations/shipment/deny_s_i_t_extension_responses.go
+deleted file mode 100644
+index 9a71d77ef3..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/deny_s_i_t_extension_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/deny_s_i_t_extension_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/shipment/deny_s_i_t_extension_urlbuilder.go
+deleted file mode 100644
+index d1c2628bad..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/deny_s_i_t_extension_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/reject_shipment.go b/pkg/gen/ghcapi/ghcoperations/shipment/reject_shipment.go
+deleted file mode 100644
+index 091eb60c5d..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/reject_shipment.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/reject_shipment_parameters.go b/pkg/gen/ghcapi/ghcoperations/shipment/reject_shipment_parameters.go
+deleted file mode 100644
+index a4ac8d8230..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/reject_shipment_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/reject_shipment_responses.go b/pkg/gen/ghcapi/ghcoperations/shipment/reject_shipment_responses.go
+deleted file mode 100644
+index e28b2f3867..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/reject_shipment_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/reject_shipment_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/shipment/reject_shipment_urlbuilder.go
+deleted file mode 100644
+index 31e58a094a..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/reject_shipment_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_cancellation.go b/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_cancellation.go
+deleted file mode 100644
+index 552850bb41..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_cancellation.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_cancellation_parameters.go b/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_cancellation_parameters.go
+deleted file mode 100644
+index 1a38c9bc5f..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_cancellation_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_cancellation_responses.go b/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_cancellation_responses.go
+deleted file mode 100644
+index 995adf82ac..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_cancellation_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_cancellation_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_cancellation_urlbuilder.go
+deleted file mode 100644
+index 2b947e2b49..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_cancellation_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_diversion.go b/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_diversion.go
+deleted file mode 100644
+index ec62c5ea28..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_diversion.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_diversion_parameters.go b/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_diversion_parameters.go
+deleted file mode 100644
+index d73174c319..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_diversion_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_diversion_responses.go b/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_diversion_responses.go
+deleted file mode 100644
+index aa563d4d6a..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_diversion_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_diversion_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_diversion_urlbuilder.go
+deleted file mode 100644
+index 54e8bf5326..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_diversion_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_reweigh.go b/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_reweigh.go
+deleted file mode 100644
+index c09620f1ca..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_reweigh.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_reweigh_parameters.go b/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_reweigh_parameters.go
+deleted file mode 100644
+index 28f79ca9ea..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_reweigh_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_reweigh_responses.go b/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_reweigh_responses.go
+deleted file mode 100644
+index 21cddadc4c..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_reweigh_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_reweigh_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_reweigh_urlbuilder.go
+deleted file mode 100644
+index d1902ca463..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/request_shipment_reweigh_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/review_shipment_address_update.go b/pkg/gen/ghcapi/ghcoperations/shipment/review_shipment_address_update.go
+deleted file mode 100644
+index d4532a282c..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/review_shipment_address_update.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/review_shipment_address_update_parameters.go b/pkg/gen/ghcapi/ghcoperations/shipment/review_shipment_address_update_parameters.go
+deleted file mode 100644
+index d7d16648a8..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/review_shipment_address_update_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/review_shipment_address_update_responses.go b/pkg/gen/ghcapi/ghcoperations/shipment/review_shipment_address_update_responses.go
+deleted file mode 100644
+index 7ab8362c8d..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/review_shipment_address_update_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/review_shipment_address_update_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/shipment/review_shipment_address_update_urlbuilder.go
+deleted file mode 100644
+index 8d469c47f2..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/review_shipment_address_update_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/update_s_i_t_service_item_customer_expense.go b/pkg/gen/ghcapi/ghcoperations/shipment/update_s_i_t_service_item_customer_expense.go
+deleted file mode 100644
+index 5b7290cafe..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/update_s_i_t_service_item_customer_expense.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/update_s_i_t_service_item_customer_expense_parameters.go b/pkg/gen/ghcapi/ghcoperations/shipment/update_s_i_t_service_item_customer_expense_parameters.go
+deleted file mode 100644
+index 07c5ab5be2..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/update_s_i_t_service_item_customer_expense_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/update_s_i_t_service_item_customer_expense_responses.go b/pkg/gen/ghcapi/ghcoperations/shipment/update_s_i_t_service_item_customer_expense_responses.go
+deleted file mode 100644
+index 318518fa67..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/update_s_i_t_service_item_customer_expense_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/shipment/update_s_i_t_service_item_customer_expense_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/shipment/update_s_i_t_service_item_customer_expense_urlbuilder.go
+deleted file mode 100644
+index 598c3b5e60..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/shipment/update_s_i_t_service_item_customer_expense_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/tac/tac_validation.go b/pkg/gen/ghcapi/ghcoperations/tac/tac_validation.go
+deleted file mode 100644
+index 0788a96be7..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/tac/tac_validation.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/tac/tac_validation_parameters.go b/pkg/gen/ghcapi/ghcoperations/tac/tac_validation_parameters.go
+deleted file mode 100644
+index 1d5c20d367..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/tac/tac_validation_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/tac/tac_validation_responses.go b/pkg/gen/ghcapi/ghcoperations/tac/tac_validation_responses.go
+deleted file mode 100644
+index 0c1c71ce66..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/tac/tac_validation_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/tac/tac_validation_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/tac/tac_validation_urlbuilder.go
+deleted file mode 100644
+index 4c5198ee26..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/tac/tac_validation_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/transportation_office/get_transportation_offices.go b/pkg/gen/ghcapi/ghcoperations/transportation_office/get_transportation_offices.go
+deleted file mode 100644
+index 13c260a565..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/transportation_office/get_transportation_offices.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/transportation_office/get_transportation_offices_parameters.go b/pkg/gen/ghcapi/ghcoperations/transportation_office/get_transportation_offices_parameters.go
+deleted file mode 100644
+index 4ffe186391..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/transportation_office/get_transportation_offices_parameters.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/transportation_office/get_transportation_offices_responses.go b/pkg/gen/ghcapi/ghcoperations/transportation_office/get_transportation_offices_responses.go
+deleted file mode 100644
+index 8d85d77534..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/transportation_office/get_transportation_offices_responses.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/ghcoperations/transportation_office/get_transportation_offices_urlbuilder.go b/pkg/gen/ghcapi/ghcoperations/transportation_office/get_transportation_offices_urlbuilder.go
+deleted file mode 100644
+index 540f7a01ed..0000000000
+Binary files a/pkg/gen/ghcapi/ghcoperations/transportation_office/get_transportation_offices_urlbuilder.go and /dev/null differ
+diff --git a/pkg/gen/ghcapi/server.go b/pkg/gen/ghcapi/server.go
+deleted file mode 100644
+index 7ab2c3d102..0000000000
+Binary files a/pkg/gen/ghcapi/server.go and /dev/null differ
+diff --git a/pkg/gen/ghcmessages/transportation_offices.go b/pkg/gen/ghcmessages/transportation_offices.go
+deleted file mode 100644
+index d964c5c373..0000000000
+Binary files a/pkg/gen/ghcmessages/transportation_offices.go and /dev/null differ
+diff --git a/pkg/gen/ghcmessages/update_allowance_payload.go b/pkg/gen/ghcmessages/update_allowance_payload.go
+deleted file mode 100644
+index d57b814552..0000000000
+Binary files a/pkg/gen/ghcmessages/update_allowance_payload.go and /dev/null differ
+diff --git a/pkg/gen/ghcmessages/update_billable_weight_payload.go b/pkg/gen/ghcmessages/update_billable_weight_payload.go
+deleted file mode 100644
+index 63c423f284..0000000000
+Binary files a/pkg/gen/ghcmessages/update_billable_weight_payload.go and /dev/null differ
+diff --git a/pkg/gen/ghcmessages/update_customer_payload.go b/pkg/gen/ghcmessages/update_customer_payload.go
+deleted file mode 100644
+index 38612984d7..0000000000
+Binary files a/pkg/gen/ghcmessages/update_customer_payload.go and /dev/null differ
+diff --git a/pkg/gen/ghcmessages/update_customer_support_remark_payload.go b/pkg/gen/ghcmessages/update_customer_support_remark_payload.go
+deleted file mode 100644
+index c57e020295..0000000000
+Binary files a/pkg/gen/ghcmessages/update_customer_support_remark_payload.go and /dev/null differ
+diff --git a/pkg/gen/ghcmessages/update_max_billable_weight_as_t_i_o_payload.go b/pkg/gen/ghcmessages/update_max_billable_weight_as_t_i_o_payload.go
+deleted file mode 100644
+index bc473fd5a9..0000000000
+Binary files a/pkg/gen/ghcmessages/update_max_billable_weight_as_t_i_o_payload.go and /dev/null differ
+diff --git a/pkg/gen/ghcmessages/update_moving_expense.go b/pkg/gen/ghcmessages/update_moving_expense.go
+deleted file mode 100644
+index 4caffd07ba..0000000000
+Binary files a/pkg/gen/ghcmessages/update_moving_expense.go and /dev/null differ
+diff --git a/pkg/gen/ghcmessages/update_order_payload.go b/pkg/gen/ghcmessages/update_order_payload.go
+deleted file mode 100644
+index f5a09ceb70..0000000000
+Binary files a/pkg/gen/ghcmessages/update_order_payload.go and /dev/null differ
+diff --git a/pkg/gen/ghcmessages/update_p_p_m_shipment.go b/pkg/gen/ghcmessages/update_p_p_m_shipment.go
+deleted file mode 100644
+index 08c8430f5f..0000000000
+Binary files a/pkg/gen/ghcmessages/update_p_p_m_shipment.go and /dev/null differ
+diff --git a/pkg/gen/ghcmessages/update_payment_request_status_payload.go b/pkg/gen/ghcmessages/update_payment_request_status_payload.go
+deleted file mode 100644
+index b6e8766303..0000000000
+Binary files a/pkg/gen/ghcmessages/update_payment_request_status_payload.go and /dev/null differ
+diff --git a/pkg/gen/ghcmessages/update_pro_gear_weight_ticket.go b/pkg/gen/ghcmessages/update_pro_gear_weight_ticket.go
+deleted file mode 100644
+index 7cf1e0290f..0000000000
+Binary files a/pkg/gen/ghcmessages/update_pro_gear_weight_ticket.go and /dev/null differ
+diff --git a/pkg/gen/ghcmessages/update_s_i_t_service_item_customer_expense.go b/pkg/gen/ghcmessages/update_s_i_t_service_item_customer_expense.go
+deleted file mode 100644
+index 19cd36e970..0000000000
+Binary files a/pkg/gen/ghcmessages/update_s_i_t_service_item_customer_expense.go and /dev/null differ
+diff --git a/pkg/gen/ghcmessages/update_shipment.go b/pkg/gen/ghcmessages/update_shipment.go
+deleted file mode 100644
+index 2a96c086e4..0000000000
+Binary files a/pkg/gen/ghcmessages/update_shipment.go and /dev/null differ
+diff --git a/pkg/gen/ghcmessages/update_weight_ticket.go b/pkg/gen/ghcmessages/update_weight_ticket.go
+deleted file mode 100644
+index edc62b26fc..0000000000
+Binary files a/pkg/gen/ghcmessages/update_weight_ticket.go and /dev/null differ
+diff --git a/pkg/gen/ghcmessages/upload.go b/pkg/gen/ghcmessages/upload.go
+deleted file mode 100644
+index 56cfcdfae9..0000000000
+Binary files a/pkg/gen/ghcmessages/upload.go and /dev/null differ
+diff --git a/pkg/gen/ghcmessages/validation_error.go b/pkg/gen/ghcmessages/validation_error.go
+deleted file mode 100644
+index 7f2c695aa8..0000000000
+Binary files a/pkg/gen/ghcmessages/validation_error.go and /dev/null differ
+diff --git a/pkg/gen/ghcmessages/weight_ticket.go b/pkg/gen/ghcmessages/weight_ticket.go
+deleted file mode 100644
+index 6327939a7c..0000000000
+Binary files a/pkg/gen/ghcmessages/weight_ticket.go and /dev/null differ
+diff --git a/pkg/gen/ghcmessages/weight_tickets.go b/pkg/gen/ghcmessages/weight_tickets.go
+deleted file mode 100644
+index f13786a3ff..0000000000
+Binary files a/pkg/gen/ghcmessages/weight_tickets.go and /dev/null differ

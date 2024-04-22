@@ -1,0 +1,216 @@
+diff --git a/.eslintignore b/.eslintignore
+index dff5f03653..be5e7a7a88 100644
+--- a/.eslintignore
++++ b/.eslintignore
+@@ -1,3 +1,4 @@
+ # Negative filter for storybook config folder as dot folders are ignored by eslint by default
+ # See https://github.com/eslint/eslint/issues/8429#issuecomment-355967308
+ !/.storybook
++./playwright/tests/*.js
+\ No newline at end of file
+diff --git a/jsconfig.json b/jsconfig.json
+index ce0ff3de39..0f05ffb597 100644
+--- a/jsconfig.json
++++ b/jsconfig.json
+@@ -3,5 +3,6 @@
+     "baseUrl": "./src/",
+     "jsx": "react"
+   },
++  "include": ["./playwright/**/*"],
+   "exclude": ["node_modules", "build", "storybook-static"]
+ }
+diff --git a/package.json b/package.json
+index aed9c7b713..3a02af5823 100644
+--- a/package.json
++++ b/package.json
+@@ -108,7 +108,6 @@
+     "clean:reset": "rm -rvf ./node_modules && yarn",
+     "eject": "react-scripts eject",
+     "start": "react-app-rewired start",
+-    "test": "react-app-rewired test --env=jsdom",
+     "test:debug": "react-app-rewired --inspect-brk test --runInBand --env=jsdom",
+     "test:coverage": "react-app-rewired test --coverage --reporters=default --reporters=jest-junit --env=jsdom --coverageDirectory=coverage --maxWorkers=4 --watchAll=false",
+     "test:e2e": "playwright test --trace=on",
+diff --git a/playwright.config.js b/playwright.config.js
+index 2719df63f7..71b73e0d2e 100644
+--- a/playwright.config.js
++++ b/playwright.config.js
+@@ -58,7 +58,14 @@ const config = {
+         ...devices['Desktop Chrome'],
+       },
+     },
+-
++    {
++      name: 'mixed',
++      testMatch: 'mixed/**/*.spec.js',
++      use: {
++        baseURL: process.env.PLAYWRIGHT_MY_URL || 'http://officelocal:3000',
++        ...devices['Desktop Chrome'],
++      },
++    },
+     {
+       // ahobson 2022-12-08: for now, only test desktop chrome for my
+       name: 'my',
+@@ -68,6 +75,7 @@ const config = {
+         ...devices['Desktop Chrome'],
+       },
+     },
++    // ahobson 2022-12-08: for now, only test desktop chrome for my
+     {
+       // ahobson 2022-12-14: for now, only test desktop chrome for office
+       name: 'office',
+diff --git a/playwright/tests/my/milmove/ppms/customerPpmTestFixture.js b/playwright/tests/my/milmove/ppms/customerPpmTestFixture.js
+index 35f5d59400..95d3d395c0 100644
+--- a/playwright/tests/my/milmove/ppms/customerPpmTestFixture.js
++++ b/playwright/tests/my/milmove/ppms/customerPpmTestFixture.js
+@@ -5,6 +5,7 @@
+  */
+
+ // @ts-check
++import { checkA11y } from 'axe-playwright';
+ import {
+   expect,
+   test as customerTest,
+@@ -933,7 +934,7 @@ export class CustomerPpmPage extends CustomerPage {
+  */
+
+ /** @type {import('@playwright/test').Fixtures<CustomerPpmPageTestArgs, {}, import('../../../utils/my/customerTest').CustomerPageTestArgs, import('@playwright/test').PlaywrightWorkerArgs>} */
+-const customerPpmFixtures = {
++export const customerPpmFixtures = {
+   customerPpmPage: async ({ customerPage }, use) => {
+     const customerPpmPage = new CustomerPpmPage(customerPage);
+     await use(customerPpmPage);
+diff --git a/playwright/tests/my/milmove/ppms/entireShipmentOnboarding.spec.js b/playwright/tests/my/milmove/ppms/entireShipmentOnboarding.spec.js
+index d330106d3c..0de4721535 100644
+--- a/playwright/tests/my/milmove/ppms/entireShipmentOnboarding.spec.js
++++ b/playwright/tests/my/milmove/ppms/entireShipmentOnboarding.spec.js
+@@ -4,9 +4,10 @@
+  * instead of `page.getBy*`.
+  */
+
+-// @ts-check
+-import { expect, test, forEachViewport, CustomerPpmPage } from './customerPpmTestFixture';
+-
++// @ts-nocheck
++import { checkA11y, getAxeResults, injectAxe } from 'axe-playwright';
++import { expect, forEachViewport, CustomerPpmPage } from './customerPpmTestFixture';
++import { test } from '../../../customerSetupTest';
+ /**
+  * CustomerPpmOnboardingPage test fixture. Our linting rules (like
+  * no-use-before-define) pushes us towards grouping all these helpers
+@@ -15,7 +16,7 @@ import { expect, test, forEachViewport, CustomerPpmPage } from './customerPpmTes
+  *
+  * @extends CustomerPpmPage
+  */
+-class CustomerPpmOnboardingPage extends CustomerPpmPage {
++export class CustomerPpmOnboardingPage extends CustomerPpmPage {
+   /**
+    * verify page and submit to go to next page
+    */
+@@ -101,19 +102,22 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
+ }
+
+ test.describe('Entire PPM onboarding flow', () => {
+-  /** @type {CustomerPpmOnboardingPage} */
+-  let customerPpmOnboardingPage;
++  test.beforeEach(async ({ page }) => {});
+
++  test.afterEach(async ({ page }) => {
++    const violations = (await getAxeResults(page)).violations;
++    console.log(JSON.stringify(violations));
++  });
+   forEachViewport(async ({ isMobile }) => {
+-    test.beforeEach(async ({ customerPpmPage }) => {
+-      const move = await customerPpmPage.testHarness.buildDraftMoveWithPPMWithDepartureDate();
+-      customerPpmOnboardingPage = new CustomerPpmOnboardingPage(customerPpmPage);
++    test.beforeEach(async ({ customerPpmOnboardingPage, testHarness }) => {
++      const move = await testHarness.buildDraftMoveWithPPMWithDepartureDate(); //setupPageFor(new CustomerPpmOnboardingPage(customerPpmPage));
+       await customerPpmOnboardingPage.signInForPPMWithMove(move);
+     });
+
+-    test('flows through happy path for existing shipment', async () => {
++    test('flows through happy path for existing shipment', async ({ customerPpmOnboardingPage }) => {
+       await customerPpmOnboardingPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
+       await customerPpmOnboardingPage.submitsDateAndLocation();
++
+       await customerPpmOnboardingPage.submitsEstimatedWeightsAndProGear();
+       await customerPpmOnboardingPage.generalVerifyEstimatedIncentivePage({ isMobile });
+       await customerPpmOnboardingPage.submitsAdvancePage({ addAdvance: true, isMobile });
+@@ -122,7 +126,7 @@ test.describe('Entire PPM onboarding flow', () => {
+       await customerPpmOnboardingPage.verifyStep5ExistsAndBtnIsDisabled();
+     });
+
+-    test('happy path with edits and backs', async () => {
++    test('happy path with edits and backs', async ({ customerPpmOnboardingPage }) => {
+       await customerPpmOnboardingPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
+
+       await customerPpmOnboardingPage.submitAndVerifyUpdateDateAndLocation();
+diff --git a/playwright/tests/tsconfig.json b/playwright/tests/tsconfig.json
+index 3d51122292..96dab9ad1a 100644
+--- a/playwright/tests/tsconfig.json
++++ b/playwright/tests/tsconfig.json
+@@ -1,9 +1,10 @@
+ {
+   "compilerOptions": {
+     "allowJs": true,
+-    "checkJs": true,
++    "checkJs": false,
+     "skipLibCheck": true,
+     "noEmit": true
+   },
+-  "include": ["**/*.js"]
++  "include": ["**/*.js","tests/**/*", "playwright/**/*"],
++  "exclude": ["**/mixed/**/*.js","playwright/tests/customerTeardown.js","playwright/tests/customerSetup.js"],
+ }
+diff --git a/playwright/tests/utils/baseTest.js b/playwright/tests/utils/baseTest.js
+index 15a643bb0f..f54b78d4cb 100644
+--- a/playwright/tests/utils/baseTest.js
++++ b/playwright/tests/utils/baseTest.js
+@@ -10,8 +10,6 @@ import * as path from 'path';
+ import { injectAxe } from 'axe-playwright';
+ import { expect } from '@playwright/test';
+
+-import { TestHarness } from './testharness';
+-
+ /**
+  * base test fixture for playwright
+  * See https://playwright.dev/docs/test-fixtures
+@@ -25,7 +23,6 @@ export class BaseTestPage {
+   constructor(page, request) {
+     this.page = page;
+     this.request = request;
+-    this.testHarness = new TestHarness(request);
+   }
+
+   /**
+diff --git a/playwright/tests/utils/my/customerTest.js b/playwright/tests/utils/my/customerTest.js
+index b1d50cb0e1..f9654539e4 100644
+--- a/playwright/tests/utils/my/customerTest.js
++++ b/playwright/tests/utils/my/customerTest.js
+@@ -9,6 +9,7 @@ import * as base from '@playwright/test';
+ import { BaseTestPage } from '../baseTest';
+
+ import WaitForCustomerPage from './waitForCustomerPage';
++import TestHarness from '../testharness';
+
+ /**
+  * devlocal auth user types
+@@ -110,6 +111,7 @@ export function forEachViewport(callbackfn) {
+ /**
+  * @typedef {object} CustomerPageTestArgs - customer page test args
+  * @property {CustomerPage} customerPage  - customer page
++ * @property {TestHarness} testHarness  - customer page
+  */
+
+ /** @type {base.Fixtures<CustomerPageTestArgs, {}, base.PlaywrightTestArgs, base.PlaywrightWorkerArgs>} */
+@@ -118,6 +120,10 @@ const officeFixtures = {
+     const customerPage = new CustomerPage(page, request);
+     await use(customerPage);
+   },
++  testHarness: async ({ request }, use) => {
++    const testHarness = new TestHarness(request);
++    await use(testHarness);
++  },
+ };
+
+ export const test = base.test.extend(officeFixtures);

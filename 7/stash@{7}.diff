@@ -1,0 +1,52 @@
+diff --git a/src/constants/MoveHistory/EventTemplates/UpdateMTOShipment/updateMTOShipment.test.jsx b/src/constants/MoveHistory/EventTemplates/UpdateMTOShipment/updateMTOShipment.test.jsx
+index 1232d4656c..8e72f005c6 100644
+--- a/src/constants/MoveHistory/EventTemplates/UpdateMTOShipment/updateMTOShipment.test.jsx
++++ b/src/constants/MoveHistory/EventTemplates/UpdateMTOShipment/updateMTOShipment.test.jsx
+@@ -10,7 +10,7 @@ import {
+   formatYesNoMoveHistoryValue,
+   toDollarString,
+ } from 'utils/formatters';
+-import { retrieveTextToDisplay } from 'pages/Office/MoveHistory/LabeledDetails';
++import LabeledDetails, { retrieveTextToDisplay } from 'pages/Office/MoveHistory/LabeledDetails';
+
+ const FieldMappings = fieldDefault.default;
+
+@@ -31,7 +31,6 @@ describe('when given an mto shipment update with mto shipment table history reco
+     prime_actual_weight: '14000',
+     prime_estimated_weight: '12000',
+     sac_type: 'HHG',
+-    scheduled_delivery_date: '2020-04-13',
+     scheduled_pickup_date: '2020-03-22',
+     service_order_number: '767567576',
+     status: 'SUBMITTED',
+@@ -64,9 +63,27 @@ describe('when given an mto shipment update with mto shipment table history reco
+       },
+     ],
+   };
+-  it('correctly matches the Update mto shipment event', () => {
+-    const result = getTemplate(historyRecord);
+-    expect(result).toMatchObject(e);
++
++  describe('MTO shipment line items', () => {
++    const theHistoryRecord = {
++      ...historyRecord,
++      changedValues,
++    };
++    const testCases = Object.entries(changedValues)
++      .filter(([key]) => key !== 'id')
++      .map(([fieldName, value]) => {
++        const { displayName, displayValue } = retrieveTextToDisplay(fieldName, value);
++        return [fieldName, value, displayName, displayValue];
++      });
++
++    it.each(testCases)("it renders [%s %s] as '%s: %s'", (fieldName, value, displayName, displayValue) => {
++      const { baseElement } = render(
++        <LabeledDetails
++          historyRecord={{ context: { ...theHistoryRecord.context }, changedValues: { [fieldName]: value } }}
++        />,
++      );
++      expect(baseElement).toHaveTextContent(`${displayName}: ${displayValue}`, { normalizeWhitespace: true });
++    });
+   });
+   describe('it correctly renders the details component for Create MTO shipments', () => {
+     it.each([

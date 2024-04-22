@@ -1,0 +1,638 @@
+diff --git a/playwright/tests/office/auditing/TestActions.js b/playwright/tests/office/auditing/TestActions.js
+new file mode 100644
+index 0000000000..c8b44c0372
+--- /dev/null
++++ b/playwright/tests/office/auditing/TestActions.js
+@@ -0,0 +1,238 @@
++// @ts-nocheck
++import { milmoveUserType } from '../../utils/my/customerTest';
++import './auditUtils';
++import { dateInputOperator } from './auditUtils';
++import { expect } from './auditTestSetup';
++import _ from 'lodash';
++
++const GetUserMoveData = async (testHarness) => {
++  const move = await testHarness.buildMoveWithOrders();
++  const userId = move.Orders.ServiceMember.user_id;
++  return { move, userId };
++};
++
++const trimUrlOperation = (e) => e.trimOuterSymbols('/');
++
++export const customerPageActions = ({ page, helpers }) => ({
++  ...helpers,
++  signInAsExisting: async (userId) => {
++    const currentUrl = page.url();
++    const baseUrl = new URL(currentUrl).origin;
++    const loginPath = '/devlocal-auth/login/';
++    const loginUrl = [baseUrl, loginPath].map(trimUrlOperation).join('/');
++    await page.goto(loginUrl);
++
++    const navigationWaiter = page.waitForURL(({ pathname, ...url }) => pathname === '/');
++
++    await page.locator(`button[value="${userId}"]`).click();
++
++    const test = await navigationWaiter;
++    await page.locator('#title-announcer', { hasText: 'my.move.mil' }).waitFor();
++  },
++  signInAsNew: async () => {
++    await page.goto('http://milmovelocal:3000/devlocal-auth/login');
++    await page.locator(`button[data-hook="new-user-login-${milmoveUserType}"]`).click();
++  },
++});
++
++/**
++ * Create a Household Good Shipment as a move owner (servicemember)
++ */
++export const performMoveOwnerCreatesHHG = ({ page, helpers, baseURLS, testHarness }) =>
++  (async ({
++    signInAsExisting,
++    signInAsNew,
++    signOut,
++    waitForLoading,
++    utils,
++    fast: { clickTextAsync, typeInto, typeAndBlur, selectValue },
++  }) => {
++    const { move, userId } = await GetUserMoveData(testHarness);
++
++    await page.goto(baseURLS.my);
++    await signInAsExisting(userId);
++    //start seting up your shipments...
++    await navigateToHHGForm(page, move.id);
++    await fillHHGForm(page, utils);
++  })({ ...customerPageActions({ page, helpers }) });
++
++const fillHHGForm = async (page, { formatRelativeDate }) => {
++  const hhgFormData = {
++    preferredPickupDate: formatRelativeDate(5),
++    preferredDeliveryDate: formatRelativeDate(20),
++    useExistingAddress: true,
++    releasingAgentDetails: {
++      firstName: 'larry',
++      lastName: 'thombson',
++      phoneNumber: '555-555-5555',
++      email: 'lthompson@test.test',
++    },
++    releasingAgentDetails: {
++      firstName: 'larrisson',
++      lastName: 'thornbsonson',
++      phoneNumber: '555-555-5555',
++      email: 'lthornbsonson@test.test',
++    },
++    destination: {
++      street: '142 E Barrel Hoop Circle',
++      city: 'Joshua Tree',
++      state: 'CA',
++      postalCode: '92252',
++    },
++  };
++
++  const REQUESTED_PICKUP_DATE_SELECTOR = '#requestedPickupDate';
++  const pickupDateElement = page.locator(REQUESTED_PICKUP_DATE_SELECTOR);
++  //await expect(pickupDateElement).toBeVisible();
++  await pickupDateElement.focus();
++
++  await dateInputOperator(page, hhgFormData.preferredPickupDate);
++
++  console.log();
++  //preferred pickup date
++  //today + 5;
++  //pickup location
++  //use my current address box
++  //releasing agent
++  //first name, last name, phone number, email
++  //destination info
++  //preferred delivery date today + 20
++  //street, city, state, zip
++  //receiving agent
++  //first name, last name, phone number, email
++};
++
++const navigateToHHGForm = async (page, moveId) => {
++  const MOVING_INFO_PATH = 'moves/{0}/moving-info'.format(moveId).trimOuterSymbols('/');
++  const movingInfoUrlCheck = ({ pathname }) => pathname.trimOuterSymbols('/') === MOVING_INFO_PATH;
++
++  const SHIPMENT_TYPE_PATH = 'moves/{0}/shipment-type'.format(moveId).trimOuterSymbols('/');
++  const shipmentTypeUrlCheck = ({ pathname }) => pathname.trimOuterSymbols('/') === SHIPMENT_TYPE_PATH;
++
++  const NEW_HHG_SHIPMENT_PATH = 'moves/{0}/new-shipment'.format(moveId).trimOuterSymbols('/');
++  const hhgNewShipmentUrlCheck = ({ pathname, searchParams }) => {
++    const queryObject = Object.fromEntries(searchParams.entries());
++    const correctUrl = pathname.trimOuterSymbols('/') === NEW_HHG_SHIPMENT_PATH;
++    const correctQueryValue = _.isEqual(queryObject, { type: 'HHG' });
++    return correctUrl && correctQueryValue;
++  };
++
++  const waitForMovingInfoPath = page.waitForURL(movingInfoUrlCheck);
++  const SETUP_SHIPMENT_BUTTON = 'shipment-selection-btn';
++  await page.getByTestId(SETUP_SHIPMENT_BUTTON).click();
++  await waitForMovingInfoPath;
++
++  const waitForShipmentTypePath = page.waitForURL(shipmentTypeUrlCheck);
++  const NEXT_WIZARD_BUTTON = 'wizardNextButton';
++  await page.getByTestId(NEXT_WIZARD_BUTTON).click();
++  await waitForShipmentTypePath;
++
++  // select HHG radio button
++  await page.locator('label[for="HHG"]').click();
++
++  const waitForNewHHGShipmentPath = page.waitForURL(hhgNewShipmentUrlCheck);
++  await page.getByTestId(NEXT_WIZARD_BUTTON).click();
++  await waitForNewHHGShipmentPath;
++};
++
++// test.describe('SM Creates HHG Shipment', () => {
++
++// test('A customer can create, edit, and delete an HHG shipment', async ({ page, customerPage }) => {
++//     // Generate a new onboarded user with orders and log in
++//     const { move, userId } = await GetUserMoveData();
++
++//     await customerPage.signInAsExistingCustomer(userId);
++
++//     // Navigate to create a new shipment
++//     await customerPage.waitForPage.home();
++//     await page.getByTestId('shipment-selection-btn').click();
++//     await customerPage.waitForPage.aboutShipments();
++//     await customerPage.navigateForward();
++//     await customerPage.waitForPage.selectShipmentType();
++
++//     // Create an HHG shipment
++//     await page.getByText('Movers pack and ship it, paid by the government').click();
++//     await customerPage.navigateForward();
++
++//     // Fill in form to create HHG shipment
++//     await customerPage.waitForPage.hhgShipment();
++//     await page.getByLabel('Preferred pickup date').fill('25 Dec 2022');
++//     await page.getByLabel('Preferred pickup date').blur();
++//     await page.getByText('Use my current address').click();
++//     await page.getByLabel('Preferred delivery date').fill('25 Dec 2022');
++//     await page.getByLabel('Preferred delivery date').blur();
++//     await page.getByTestId('remarks').fill('Grandfather antique clock');
++//     await customerPage.navigateForward();
++
++//     // Verify that form submitted
++//     await customerPage.waitForPage.reviewShipments();
++//     await expect(page.getByText('Grandfather antique clock')).toBeVisible();
++//     await expect(page.getByTestId('ShipmentContainer').getByText('123 Any Street')).toBeVisible();
++
++//     // Navigate to edit shipment from the review page
++//     await page.getByTestId('edit-shipment-btn').click();
++//     await customerPage.waitForPage.hhgShipment();
++
++//     // Update form (adding pickup and delivery address)
++//     const pickupAddress = await page.getByRole('group', { name: 'Pickup location' });
++//     await pickupAddress.getByLabel('Address 1').fill('7 Q St');
++//     await pickupAddress.getByLabel('Address 2').clear();
++//     await pickupAddress.getByLabel('City').fill('Atco');
++//     await pickupAddress.getByLabel('State').selectOption({ label: 'NJ' });
++//     await pickupAddress.getByLabel('ZIP').fill('08004');
++//     // Secondary pickup address
++//     await pickupAddress.getByText('Yes').click();
++//     await pickupAddress.getByLabel('Address 1').nth(1).fill('8 Q St');
++//     await pickupAddress.getByLabel('Address 2').nth(1).clear();
++//     await pickupAddress.getByLabel('City').nth(1).fill('Atco');
++//     await pickupAddress.getByLabel('State').nth(1).selectOption({ label: 'NJ' });
++//     await pickupAddress.getByLabel('ZIP').nth(1).fill('08004');
++
++//     const deliveryAddress = await page.getByRole('group', { name: 'Delivery location' });
++//     await deliveryAddress.getByText('Yes').nth(0).click();
++//     await deliveryAddress.getByLabel('Address 1').nth(0).fill('9 W 2nd Ave');
++//     await deliveryAddress.getByLabel('Address 2').nth(0).fill('P.O. Box 456');
++//     await deliveryAddress.getByLabel('City').nth(0).fill('Hollywood');
++//     await deliveryAddress.getByLabel('State').nth(0).selectOption({ label: 'MD' });
++//     await deliveryAddress.getByLabel('ZIP').nth(0).fill('20636');
++//     // Secondary delivery address
++//     await deliveryAddress.getByText('Yes').nth(1).click();
++//     await deliveryAddress.getByLabel('Address 1').nth(1).fill('9 Q St');
++//     await deliveryAddress.getByLabel('Address 2').nth(1).clear();
++//     await deliveryAddress.getByLabel('City').nth(1).fill('Atco');
++//     await deliveryAddress.getByLabel('State').nth(1).selectOption({ label: 'NJ' });
++//     await deliveryAddress.getByLabel('ZIP').nth(1).fill('08004');
++//     await customerPage.navigateForward();
++
++//     // Verify that shipment updated
++//     await customerPage.waitForPage.reviewShipments();
++//     await expect(page.getByTestId('ShipmentContainer').getByText('7 Q St')).toBeVisible();
++//     await expect(page.getByTestId('ShipmentContainer').getByText('8 Q St')).toBeVisible();
++//     await expect(page.getByTestId('ShipmentContainer').getByText('9 W 2nd Ave')).toBeVisible();
++//     await expect(page.getByTestId('ShipmentContainer').getByText('9 Q St')).toBeVisible();
++
++//     // Navigate to homepage and delete shipment
++//     await customerPage.navigateBack();
++//     await customerPage.waitForPage.home();
++//     // Remove secondary pickup and delivery addresses
++//     await page.getByTestId('shipment-list-item-container').getByRole('button', { name: 'Edit' }).click();
++//     await customerPage.waitForPage.hhgShipment();
++//     await pickupAddress.getByText('No').click();
++//     await deliveryAddress.getByText('No', { exact: true }).nth(1).click();
++//     await customerPage.navigateForward();
++
++//     await customerPage.waitForPage.reviewShipments();
++//     await expect(page.getByTestId('ShipmentContainer').getByText('7 Q St')).toBeVisible();
++//     // Make sure secondary pickup and delivery addresses are gone now
++//     await expect(page.getByTestId('ShipmentContainer').getByText('8 Q St')).toBeHidden();
++//     await expect(page.getByTestId('ShipmentContainer').getByText('9 Q St')).toBeHidden();
++//     await customerPage.navigateBack();
++//     await customerPage.waitForPage.home();
++//     await page.getByRole('button', { name: 'Delete' }).click();
++//     await page.getByTestId('modal').getByTestId('button').click();
++
++//     await expect(page.getByText('The shipment was deleted.')).toBeVisible();
++//     await expect(page.getByTestId('stepContainer3').getByText('Set up shipments')).toBeVisible();
++//   });
++
++// });
+diff --git a/playwright/tests/office/auditing/auditHistoryFlow.spec.js b/playwright/tests/office/auditing/auditHistoryFlow.spec.js
+new file mode 100644
+index 0000000000..5f53ef71ae
+--- /dev/null
++++ b/playwright/tests/office/auditing/auditHistoryFlow.spec.js
+@@ -0,0 +1,224 @@
++// @ts-nocheck
++import { PrimeSimulatorUserType } from '../../utils/office/officeTest';
++import { performMoveOwnerCreatesHHG } from './TestActions';
++import { test, expect, AuditTestPage } from './auditTestSetup';
++import './auditUtils';
++
++const GetHelpers = ({ page, helpers }) => ({
++  ...helpers,
++  signInAsNewPrimeSimulatorUser: async () => {
++    await page.goto('/devlocal-auth/login');
++    await page.locator(`button[data-hook="new-user-login-${PrimeSimulatorUserType}"]`).click();
++    await page.getByRole('heading', { name: 'Moves available to Prime' }).waitFor();
++  },
++});
++
++const AUDIT_HISTORY_TEST_SCENARIO_CREATE_SIT = ({ page, helpers, baseURLS, testHarness }) =>
++  (async ({
++    waitForLoading,
++    signInAsNewPrimeSimulatorUser,
++    signOut,
++    utils,
++    fast: { clickTextAsync, typeInto, typeAndBlur, selectValue },
++  }) => {
++    const FillDestinationDetailFields = async ({
++      estimatedWeight,
++      actualWeight,
++      address: { street, city, state, postalCode },
++    }) => {
++      const selectors = {
++        estimatedWeight: 'input[name="estimatedWeight"]',
++        actualWeight: 'input[name="actualWeight"]',
++        address: {
++          street: 'input[name="destinationAddress.streetAddress1"]',
++          city: 'input[name="destinationAddress.city"]',
++          state: 'select[name="destinationAddress.state"]',
++          postalCode: 'input[name="destinationAddress.postalCode"]',
++        },
++      };
++
++      await typeInto(selectors.estimatedWeight, `{backspace}${estimatedWeight}`);
++      await typeInto(selectors.actualWeight, `{backspace}${actualWeight}`);
++      await typeInto(selectors.address.street, `${street}`);
++      await typeInto(selectors.address.city, `${city}`);
++      await selectValue(selectors.address.state, { label: state });
++      await typeInto(selectors.address.postalCode, `${postalCode}`);
++    };
++
++    const checkShipmentWeights = async ({
++      scheduledPickupDate: sPickupDate,
++      actualPickupDate: aPickupDate,
++      scheduledDeliveryDate: sDeliveryDate,
++      actualDeliveryDate: aDeliveryDate,
++      estimatedWeight,
++      actualWeight,
++      address: { street, city, state, postalCode },
++    }) => {
++      const SCHEDULED_PICKUP_DATE_LABEL = 'Scheduled Pickup Date:';
++      const SCHEDULED_PICKUP_DATE_VALUE = utils.formatNumericDate(sPickupDate);
++      const SCHEDULED_PICKUP_DATE_CONTENT = `${SCHEDULED_PICKUP_DATE_LABEL}${SCHEDULED_PICKUP_DATE_VALUE}`;
++
++      const ACTUAL_PICKUP_DATE_LABEL = 'Actual Pickup Date:';
++      const ACTUAL_PICKUP_DATE_VALUE = utils.formatNumericDate(aPickupDate);
++      const ACTUAL_PICKUP_DATE_CONTENT = `${ACTUAL_PICKUP_DATE_LABEL}${ACTUAL_PICKUP_DATE_VALUE}`;
++
++      const SCHEDULED_DELIVERY_DATE_LABEL = 'Scheduled Delivery Date:';
++      const SCHEDULED_DELIVERY_DATE_VALUE = utils.formatNumericDate(sDeliveryDate);
++      const SCHEDULED_DELIVERY_DATE_CONTENT = `${SCHEDULED_DELIVERY_DATE_LABEL}${SCHEDULED_DELIVERY_DATE_VALUE}`;
++
++      const ACTUAL_DELIVERY_DATE_LABEL = 'Actual Delivery Date:';
++      const ACTUAL_DELIVERY_DATE_VALUE = utils.formatNumericDate(aDeliveryDate);
++      const ACTUAL_DELIVERY_DATE_CONTENT = `${ACTUAL_DELIVERY_DATE_LABEL}${ACTUAL_DELIVERY_DATE_VALUE}`;
++
++      const ESTIMATED_WEIGHT_LABEL = 'Estimated Weight:';
++      const ESTIMATED_WEIGHT_VALUE = estimatedWeight;
++      const ESTIMATED_WEIGHT_CONTENT = utils.textWithNoTrailingNumbers(
++        `${ESTIMATED_WEIGHT_LABEL}${ESTIMATED_WEIGHT_VALUE}`,
++      );
++
++      const ACTUAL_WEIGHT_LABEL = 'Actual Weight:';
++      const ACTUAL_WEIGHT_VALUE = actualWeight;
++      const ACTUAL_WEIGHT_CONTENT = utils.textWithNoTrailingNumbers(`${ACTUAL_WEIGHT_LABEL}${ACTUAL_WEIGHT_VALUE}`);
++
++      const DESTINATION_ADDRESS_LABEL = 'Destination Address:';
++      const DESTINATION_ADDRESS_VALUE = `${street}, ${city}, ${state} ${postalCode}`;
++      const DESTINATION_ADDRESS_CONTENT = `${DESTINATION_ADDRESS_LABEL}${DESTINATION_ADDRESS_VALUE}`;
++
++      const textToCheck = [
++        SCHEDULED_PICKUP_DATE_CONTENT,
++        ACTUAL_PICKUP_DATE_CONTENT,
++        SCHEDULED_DELIVERY_DATE_CONTENT,
++        ACTUAL_DELIVERY_DATE_CONTENT,
++        ESTIMATED_WEIGHT_CONTENT,
++        ACTUAL_WEIGHT_CONTENT,
++        DESTINATION_ADDRESS_CONTENT,
++      ].map(async (content) => expect(page.getByText(content)).toBeVisible());
++
++      await textToCheck.reduce((chain, waiter) => chain.then(() => waiter), Promise.resolve());
++    };
++
++    const MOVE_CODE_COLUMN_SELECTOR = 'moveCode-0';
++
++    /**
++     * select the move from the list
++     * wait for the the available moves page to load
++     * waits for the move details page to load
++     * */
++    const NavigateToMoveDetailsScreen = async (move_selector) => {
++      await page.locator(move_selector).fill(moveLocator);
++      await page.locator(move_selector).press('Enter');
++
++      // TODO TestIds indicate a dimension of significance.
++      // naming the attribute to something with respect to the data might be of use.
++      // having a centralized approach to deriving attributes across the presentation layer
++      // would help when it comes to element associations
++      await page.getByTestId(MOVE_CODE_COLUMN_SELECTOR).click();
++      await waitForLoading();
++      await expect(page.getByText(moveLocator)).toBeVisible();
++    };
++
++    const DAY_11TH = utils.formatRelativeDate(11);
++    const DAY_12TH = utils.formatRelativeDate(12);
++
++    const [
++      { relativeDate: scheduledDeliveryDate, formattedDate: formattedScheduledDeliveryDate },
++      { relativeDate: actualDeliveryDate, formattedDate: formattedActualDeliveryDate },
++      { relativeDate: scheduledPickupDate, formattedDate: formattedScheduledPickupDate },
++      { relativeDate: actualPickupDate, formattedDate: formattedActualPickupDate },
++    ] = [DAY_11TH, DAY_12TH, DAY_11TH, DAY_12TH];
++
++    const SCHEDULED_DELIVERY_DATE_INPUT_SELECTOR = 'input[name="scheduledDeliveryDate"]';
++    const ACTUAL_DELIVERY_DATE_INPUT_SELECTOR = 'input[name="actualDeliveryDate"]';
++    const SCHEDULED_PICKUP_DATE_INPUT_SELECTOR = 'input[name="scheduledPickupDate"]';
++    const ACTUAL_PICKUP_DATE_INPUT_SELECTOR = 'input[name="actualPickupDate"]';
++
++    const EXPECT_URL_MOVE_DETAILS_FORMAT = '/simulator/moves/{0}/details';
++    const EXPECT_URL_SHIPMENTS_VALUE_FORMAT = '/simulator/moves/{0}/shipments';
++
++    const INPUT_ACTION_ENTRIES = [
++      { selector: SCHEDULED_DELIVERY_DATE_INPUT_SELECTOR, value: formattedScheduledDeliveryDate },
++      { selector: ACTUAL_DELIVERY_DATE_INPUT_SELECTOR, value: formattedActualDeliveryDate },
++      { selector: SCHEDULED_PICKUP_DATE_INPUT_SELECTOR, value: formattedScheduledPickupDate },
++      { selector: ACTUAL_PICKUP_DATE_INPUT_SELECTOR, value: formattedActualPickupDate },
++    ];
++
++    const MOVE_CODE_SELECTOR = '#moveCode';
++
++    const destinationFieldValues = {
++      estimatedWeight: 7500,
++      actualWeight: 8000,
++      address: {
++        street: '142 E Barrel Hoop Circle',
++        city: 'Joshua Tree',
++        state: 'CA',
++        postalCode: '92252',
++      },
++    };
++
++    //validate sit values against the UI
++    const sitValues = {
++      ...destinationFieldValues,
++      scheduledDeliveryDate,
++      actualDeliveryDate,
++      scheduledPickupDate,
++      actualPickupDate,
++    };
++
++    // --------------[BEGIN TEST]---------------- //
++
++    const move = await testHarness.buildPrimeSimulatorMoveNeedsShipmentUpdate();
++    const moveLocator = move.locator;
++    const moveID = move.id;
++    const EXPECT_MOVE_DETAILS_URL_VALUE = EXPECT_URL_MOVE_DETAILS_FORMAT.format(moveID);
++    const EXPECT_SHIPMENT_URL_VALUE = EXPECT_URL_SHIPMENTS_VALUE_FORMAT.format(moveID);
++
++    await page.goto(baseURLS.office);
++
++    await signInAsNewPrimeSimulatorUser();
++    await NavigateToMoveDetailsScreen(MOVE_CODE_SELECTOR);
++
++    expect(page.url()).toContain(EXPECT_MOVE_DETAILS_URL_VALUE);
++
++    await page.getByText('Update Shipment').click();
++
++    expect(page.url()).toContain(EXPECT_SHIPMENT_URL_VALUE);
++
++    await INPUT_ACTION_ENTRIES.reduce(
++      async (chain, { selector, value }) => chain.then(() => typeAndBlur(selector, value)),
++      Promise.resolve(),
++    );
++
++    await FillDestinationDetailFields(destinationFieldValues);
++
++    const SAVE_BUTTON_TEXT = 'Save';
++    await clickTextAsync(SAVE_BUTTON_TEXT);
++
++    const EXPECT_SUCCESSFUL_SHIPMENT_UPDATE = 'Successfully updated shipment';
++    await expect(page.getByText(EXPECT_SUCCESSFUL_SHIPMENT_UPDATE)).toHaveCount(1);
++
++    expect(page.url()).toContain(EXPECT_MOVE_DETAILS_URL_VALUE);
++
++    await checkShipmentWeights(sitValues);
++
++    await signOut();
++    // --------------[END TEST]---------------- //
++  })(GetHelpers({ page, helpers }));
++
++export const AUDIT_HISTORY_TEST_SCENARIO_UPDATE_SIT = ({ auditTestPage, helpers: {} }) => {};
++
++const SCENARIOS = {
++  CREATING_SHIPMENT_CAUSES_SIT_CALCULATION: async ({ pageInstance }) => {
++    await AUDIT_HISTORY_TEST_SCENARIO_CREATE_SIT(pageInstance);
++    await performMoveOwnerCreatesHHG(pageInstance);
++  },
++  UPDATING_SHIPMENT_CAUSES_SIT_CALCULATION: async () => expect(1).toBe(1),
++};
++
++const TESTS = Object.entries(SCENARIOS).map(([key, testFunction]) => ({
++  testLabel: key.split('_').join(' '),
++  testFunction,
++}));
++
++test.describe('Prime Updates SIT', () => {
++  test(TESTS[0].testLabel, TESTS[0].testFunction);
++});
+diff --git a/playwright/tests/office/auditing/auditHistoryTestSteps.js b/playwright/tests/office/auditing/auditHistoryTestSteps.js
+new file mode 100644
+index 0000000000..7e7ca25eda
+--- /dev/null
++++ b/playwright/tests/office/auditing/auditHistoryTestSteps.js
+@@ -0,0 +1 @@
++import { expect } from '../../utils/office/officeTest';
+diff --git a/playwright/tests/office/auditing/auditTestSetup.js b/playwright/tests/office/auditing/auditTestSetup.js
+new file mode 100644
+index 0000000000..6f0cd1f7c5
+--- /dev/null
++++ b/playwright/tests/office/auditing/auditTestSetup.js
+@@ -0,0 +1,74 @@
++import TestHarness from '../../utils/testharness';
++import * as base from '@playwright/test';
++import { formatRelativeDate, formatNumericDate, textWithNoTrailingNumbers } from './auditUtils';
++export const { expect } = base;
++/**
++ * audit test fixture for playwright
++ * See https://playwright.dev/docs/test-fixtures
++ */
++export class AuditTestPage {
++  /**
++   * Create an BaseTestPage.
++   * @param {import('@playwright/test').Page} page
++   * @param {import('@playwright/test').APIRequestContext} request
++   */
++  constructor(page, request) {
++    this.page = page;
++    this.request = request;
++
++    const baseMilmoveLocal = 'http://milmovelocal:3000';
++    const baseOfficeLocal = 'http://officelocal:3000';
++    const baseAdminLocal = 'http://adminlocal:3000';
++
++    this.baseURLS = {
++      my: process.env.PLAYWRIGHT_MY_URL || baseMilmoveLocal,
++      office: process.env.PLAYWRIGHT_OFFICE_URL || baseOfficeLocal,
++      admin: process.env.PLAYWRIGHT_ADMIN_URL || baseAdminLocal,
++    };
++
++    this.testHarness = new TestHarness(request);
++
++    this.helpers = {
++      waitForLoading: async () => {
++        await expect(page.locator('button:has-text("Sign out")')).toHaveCount(1, { timeout: 10000 });
++        await expect(page.locator('h2[data-name="loading-placeholder"]')).toHaveCount(0);
++      },
++      signOut: async () => {
++        await this.page.getByText('Sign out').click();
++      },
++      utils: {
++        formatRelativeDate,
++        formatNumericDate,
++        textWithNoTrailingNumbers,
++      },
++      fast: {
++        focusSelector: async (selector) => await page.locator(selector).focus(),
++        clickTextAsync: async (selector) => await page.getByText(selector).click(),
++        typeInto: async (selector, value) =>
++          (async (locator, value) => locator.focus().then(() => locator.type(value)))(page.locator(selector), value),
++        typeAndBlur: async (selector, value) => {
++          const locator = page.locator(selector);
++          await locator.type(value);
++          await locator.blur();
++        },
++        selectValue: async (selector, selectPayload) => await page.locator(selector).selectOption(selectPayload),
++        }
++    };
++  }
++}
++
++/**
++ * @typedef {object} AuditTestArgs
++ * @property {AuditTestPage} pageInstance
++ */
++
++/** @type {base.Fixtures<AuditTestArgs, {}, base.PlaywrightTestArgs & base.PlaywrightTestOptions, base.PlaywrightWorkerArgs & base.PlaywrightWorkerOptions>} */
++const auditFixtures = {
++  pageInstance: async ({ page, request }, use) => {
++    const thePage = new AuditTestPage(page, request);
++    page.goto('about_blank');
++    await use(thePage);
++  },
++};
++
++export const test = base.test.extend(auditFixtures);
+diff --git a/playwright/tests/office/auditing/auditUtils.js b/playwright/tests/office/auditing/auditUtils.js
+new file mode 100644
+index 0000000000..b6628fd291
+--- /dev/null
++++ b/playwright/tests/office/auditing/auditUtils.js
+@@ -0,0 +1,71 @@
++// @ts-ignore
++String.prototype.format = function (...args) {
++  return this.replace(/{(\d+)}/g, (match, index) => (args[index] !== undefined ? args[index] : match));
++};
++
++// @ts-ignore
++String.prototype.trimOuterSymbols = function(symbol) {
++  return this.replace(new RegExp(`^\\${symbol}+|\\${symbol}+$`, 'g'), '');
++}
++
++// @ts-ignore
++String.prototype.filterYear = function() {
++  return this.replace(/.*?(\b\d{4}\b).*?/g, '$1');
++}
++
++export const formatRelativeDate = (daysInterval) => {
++  const relativeDate = new Date();
++  relativeDate.setDate(relativeDate.getDate() + daysInterval);
++  const formattedDay = relativeDate.toLocaleDateString(undefined, { day: '2-digit' });
++  const formattedMonth = relativeDate.toLocaleDateString(undefined, {
++    month: 'short',
++  });
++  const formattedYear = relativeDate.toLocaleDateString(undefined, {
++    year: 'numeric',
++  });
++  const formattedDate = `${formattedDay} ${formattedMonth} ${formattedYear}`;
++
++  return {
++    relativeDate,
++    formattedDate,
++  };
++};
++
++export const formatNumericDate = (date) => {
++  const formattedDay = date.toLocaleDateString(undefined, { day: '2-digit' });
++  const formattedMonth = date.toLocaleDateString(undefined, {
++    month: '2-digit',
++  });
++  const formattedYear = date.toLocaleDateString(undefined, {
++    year: 'numeric',
++  });
++
++  return [formattedYear, formattedMonth, formattedDay].join('-');
++};
++
++export const textWithNoTrailingNumbers = (value) => RegExp(`${value}$`);
++
++const DAY_PICKER_PARENT_CLASS = 'div.DayPicker-wrapper';
++const DAY_PICKER_YEAR_CLASS = 'div.DayPicker-Caption';
++const DAY_PICKER_PREVIOUS = 'div.DayPicker-NavButton--prev';
++const DAY_PICKER_NEXT = 'div .DayPicker-NavButton--next';
++const DAY_PICKER_DAYS = 'div.DayPicker-Week'
++
++export const dateInputOperator = async (page, dateValue) => {
++  const navPrevious = page.locator(DAY_PICKER_PREVIOUS, { state: 'attached'});
++  const navNext = page.locator(DAY_PICKER_NEXT, { state: 'attached'});
++
++  const yearElement = page.locator(DAY_PICKER_YEAR_CLASS, { state: 'attached'});
++  const monthYearText = await yearElement.textContent();//.filterYear();
++  const startYear = monthYearText.filterYear();
++
++  const dayElementLocator = page.locator(DAY_PICKER_DAYS, { state: 'attached'});
++  const datElementsQuery = await dayElementLocator.getByText(/\d/g, { state: 'attached' });
++  const dayElements = await datElementsQuery.all();
++
++  const values = dayElements.map(e => e.textContent());
++
++  await navNext.click();
++}
++
++export {};

@@ -1,0 +1,13 @@
+diff --git a/.envrc b/.envrc
+index 5c974409b8..e4e0138614 100644
+--- a/.envrc
++++ b/.envrc
+@@ -122,7 +122,7 @@ export DB_SSL_MODE=disable
+ # Experimental feature flags, these will be replaced by the config/env/*.env files for live deployments
+ # Multi Move feature flag
+ # This is utilized if flipt config does not receive a URL
+-export FEATURE_FLAG_MULTI_MOVE=true
++#export FEATURE_FLAG_MULTI_MOVE=true
+
+ # Okta.mil configuration
+

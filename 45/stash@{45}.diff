@@ -1,0 +1,12 @@
+diff --git a/src/pages/PrimeUI/MoveTaskOrder/MoveDetails.jsx b/src/pages/PrimeUI/MoveTaskOrder/MoveDetails.jsx
+index f5fdeddaed..de8f33fe23 100644
+--- a/src/pages/PrimeUI/MoveTaskOrder/MoveDetails.jsx
++++ b/src/pages/PrimeUI/MoveTaskOrder/MoveDetails.jsx
+@@ -149,6 +149,7 @@ const MoveDetails = ({ setFlashMessage }) => {
+                       Create Shipment
+                     </Link>
+                   </div>
++                  {/* pull the map func to the upper scope and render based on shipment type. ppms will have ppm specific functional components */}
+                   {mtoShipments?.map((mtoShipment) => {
+                     return (
+                       <div key={mtoShipment.id}>

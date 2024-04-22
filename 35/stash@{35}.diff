@@ -1,0 +1,204 @@
+diff --git a/migrations/app/schema/20221129184114_redifine_audit_tables.up.sql b/migrations/app/schema/20221129184114_redifine_audit_tables.up.sql
+index 6c0721f46c..fd57603ed8 100644
+--- a/migrations/app/schema/20221129184114_redifine_audit_tables.up.sql
++++ b/migrations/app/schema/20221129184114_redifine_audit_tables.up.sql
+@@ -70,8 +70,8 @@ SELECT add_audit_history_table(
+ 		'updated_at',
+ 		'move_id',
+ 		'mto_shipment_id',
+-		're_service_id',
+-		'sit_destination_final_address_id',
++		're_service_id'
++		,'sit_destination_final_address_id',
+ 		'sit_origin_hhg_original_address_id',
+ 		'sit_origin_hhg_actual_address_id'
+    	]
+diff --git a/pkg/models/mto_shipments.go b/pkg/models/mto_shipments.go
+index 2ed16f69c9..10eeec1a79 100644
+--- a/pkg/models/mto_shipments.go
++++ b/pkg/models/mto_shipments.go
+@@ -47,6 +47,7 @@ const (
+ // These are meant to be the default number of SIT days that a customer is allowed to have. They should be used when
+ // creating a shipment and setting the initial value. Other values will likely be added to this once we deal with
+ // different types of customers.
++// configure these values using configuration management in the future
+ const (
+ 	// DefaultServiceMemberSITDaysAllowance is the default number of SIT days a service member is allowed
+ 	DefaultServiceMemberSITDaysAllowance = 90
+diff --git a/src/pages/Office/MoveHistory/LabeledDetails.jsx b/src/pages/Office/MoveHistory/LabeledDetails.jsx
+index 4566b8c560..c463a7e07c 100644
+--- a/src/pages/Office/MoveHistory/LabeledDetails.jsx
++++ b/src/pages/Office/MoveHistory/LabeledDetails.jsx
+@@ -18,73 +18,88 @@ import {
+   toDollarString,
+ } from 'utils/formatters';
+
+-const retrieveTextToDisplay = (fieldName, value) => {
++const retrieveTextToDisplay = ({ fieldName, value }) => {
+   const emptyValue = '—';
+   const displayName = fieldMappings[fieldName];
+-  let displayValue = value;
+-
+-  if (displayName === fieldMappings.storage_in_transit) {
+-    displayValue = `${displayValue} days`;
+-  } else if (weightFields[fieldName]) {
+-    // turn string value into number so it can be formatted correctly
+-    displayValue = formatWeight(Number(displayValue));
+-  } else if (optionFields[displayValue]) {
+-    displayValue = optionFields[displayValue];
+-  } else if (dateFields[fieldName]) {
+-    displayValue = formatCustomerDate(displayValue);
+-  } else if (booleanFields[fieldName]) {
+-    displayValue = formatYesNoMoveHistoryValue(displayValue);
+-  } else if (monetaryFields[fieldName]) {
+-    displayValue = toDollarString(formatCents(displayValue));
+-  }
+-
+-  if (!displayValue) {
+-    displayValue = emptyValue;
+-  }
++  const displayValue = value;
++
++  // lets flatten all of the field objects by their keys and see if there are any duplicates...
++  // we are mapping displayValues to the field formatters
++  const buildKeyFormatter = (fields, formatter) =>
++    Object.fromEntries(Object.entries(fields).map(([field]) => [field, formatter]));
++
++  // keys is just an array of strings that represent the keys of an object.
++  // we assign formatter to the object at the key, and return the accumulator {}
++  const reduceKeysToFunctions = (accumulator, formatters) => ({ ...accumulator, ...formatters });
++
++  const fieldFormatterSet = ((b) => {
++    const sitField = { [fieldMappings.storage_in_transit]: true };
++    return [
++      b(sitField, ({ input }) => `${input} days`),
++      b(weightFields, ({ input }) => formatWeight(Number(input))),
++      b(optionFields, ({ input }) => optionFields[input]),
++      b(dateFields, ({ input }) => formatCustomerDate(input)),
++      b(booleanFields, ({ input }) => formatYesNoMoveHistoryValue(input)),
++      b(monetaryFields, ({ input }) => toDollarString(formatCents(input))),
++    ];
++  })(buildKeyFormatter).reduce(reduceKeysToFunctions, {});
++
++  const itemsToCheck = [displayName, fieldName, displayValue];
++  const check = (values) =>
++    values.filter((v) => fieldFormatterSet[v]).map((v) => ({ format: fieldFormatterSet[v] }))[0];
++  const checkedValue = check(itemsToCheck)?.format({ input: displayValue });
++
++  const result = checkedValue ?? displayValue;
+
+   return {
+     displayName,
+-    displayValue,
++    displayValue: result || emptyValue,
+   };
+ };
+
++/* eslint-disable camelcase */
+ const LabeledDetails = ({ historyRecord }) => {
+-  const changedValuesToUse = historyRecord.changedValues;
+-  let shipmentDisplay = '';
++  const {
++    shipment_type = undefined,
++    service_item_name = undefined,
++    ...changedValuesToUse
++  } = historyRecord.changedValues;
++
++  const shipmentDisplay = [];
+
+   // Check for shipment_type to use it as a header for the row
+-  if ('shipment_type' in changedValuesToUse) {
+-    shipmentDisplay = shipmentTypes[changedValuesToUse.shipment_type];
+-    shipmentDisplay += ` shipment #${changedValuesToUse.shipment_id_display}`;
+-    delete changedValuesToUse.shipment_type;
+-  }
++  if (shipment_type)
++    shipmentDisplay.push(shipmentTypes[shipment_type], ` shipment #${changedValuesToUse.shipment_id_display}`);
+
+-  if ('service_item_name' in changedValuesToUse) {
+-    shipmentDisplay += `, ${changedValuesToUse.service_item_name}`;
+-    delete changedValuesToUse.service_item_name;
+-  }
++  if (service_item_name) shipmentDisplay.push(`, ${service_item_name}`);
+
+   /* Filter out empty values unless they used to be non-empty
+      These values may be non-nullish in oldValues and nullish in changedValues */
+-  const dbFieldsToDisplay = Object.keys(fieldMappings).filter((dbField) => {
+-    return (
++  const flatMapFieldValueFilterOp = (dbField) => {
++    const hasValues =
+       changedValuesToUse[dbField] ||
+-      (dbField in changedValuesToUse && historyRecord.oldValues && historyRecord.oldValues[dbField])
+-    );
+-  });
++      (dbField in changedValuesToUse && historyRecord.oldValues && historyRecord.oldValues[dbField]);
++    if (!hasValues) return [];
++    return retrieveTextToDisplay({ fieldName: dbField, value: changedValuesToUse[dbField] });
++  };
++
++  // let's filter empty values while transforming the data
++  const dbFilterAndProduceFieldValues = Object.keys(fieldMappings).flatMap(flatMapFieldValueFilterOp);
++
++  const buildElementsFromFieldValues = ({ displayName, displayValue }, index) => (
++    <div key={index}>
++      <b>{displayName}</b>: {displayValue}
++    </div>
++  );
++
++  const labelDetailItems = dbFilterAndProduceFieldValues.map(buildElementsFromFieldValues);
++
++  const shipmentDisplayContent = shipmentDisplay.join('');
+
+   return (
+     <>
+-      <span className={styles.shipmentType}>{shipmentDisplay}</span>
+-      {dbFieldsToDisplay.map((modelField) => {
+-        const { displayName, displayValue } = retrieveTextToDisplay(modelField, changedValuesToUse[modelField]);
+-
+-        return (
+-          <div key={modelField}>
+-            <b>{displayName}</b>: {displayValue}
+-          </div>
+-        );
+-      })}
++      <span className={styles.shipmentType}>{shipmentDisplayContent}</span>
++      {labelDetailItems}
+     </>
+   );
+ };
+diff --git a/src/pages/Office/MoveHistory/MoveHistory.test.jsx b/src/pages/Office/MoveHistory/MoveHistory.test.jsx
+index 87d8ee316e..dbce93293a 100644
+--- a/src/pages/Office/MoveHistory/MoveHistory.test.jsx
++++ b/src/pages/Office/MoveHistory/MoveHistory.test.jsx
+@@ -135,17 +135,17 @@ describe('MoveHistory', () => {
+       expect(screen.getByText('Move history (2)')).toBeInTheDocument();
+       expect(screen.getByRole('table')).toBeInTheDocument();
+
+-      expect(screen.getByTestId('move-history-date-time-0')).toHaveTextContent('09 Mar 22 15:33');
+       expect(screen.getByTestId('move-history-event-0')).toHaveTextContent('Approved move');
+       expect(screen.getByTestId('move-history-details-0')).toBeInTheDocument();
+       expect(screen.getByTestId('move-history-modified-by-0')).toBeInTheDocument();
+
+-      expect(screen.getByTestId('move-history-date-time-1')).toHaveTextContent('08 Mar 22 18:28');
+       expect(screen.getByTestId('move-history-event-1')).toHaveTextContent('Approved shipment');
+       expect(screen.getByTestId('move-history-details-1')).toBeInTheDocument();
+       expect(screen.getByTestId('move-history-modified-by-1')).toBeInTheDocument();
+
+       expect(screen.getByTestId('pagination')).toBeInTheDocument();
++      expect(screen.getByTestId('move-history-date-time-0')).toHaveTextContent('09 Mar 22 15:33');
++      expect(screen.getByTestId('move-history-date-time-1')).toHaveTextContent('08 Mar 22 18:28');
+     },
+   );
+ });
+diff --git a/src/utils/formatMtoShipment.js b/src/utils/formatMtoShipment.js
+index afa61abca3..a786336ea8 100644
+--- a/src/utils/formatMtoShipment.js
++++ b/src/utils/formatMtoShipment.js
+@@ -396,6 +396,7 @@ export function getMtoShipmentLabel({ context }) {
+     mtoShipmentLabels.shipment_type = context[0].shipment_type;
+   }
+   if (context[0].shipment_id_abbr) {
++    // we could uppercase using css rather than on the data.
+     mtoShipmentLabels.shipment_id_display = context[0].shipment_id_abbr.toUpperCase();
+   }
+   if (context[0].name) {

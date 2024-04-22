@@ -1,0 +1,73 @@
+diff --git a/src/pages/Office/MoveHistory/LabeledDetails.jsx b/src/pages/Office/MoveHistory/LabeledDetails.jsx
+index 4566b8c560..90f59d44f9 100644
+--- a/src/pages/Office/MoveHistory/LabeledDetails.jsx
++++ b/src/pages/Office/MoveHistory/LabeledDetails.jsx
+@@ -48,43 +48,47 @@ const retrieveTextToDisplay = (fieldName, value) => {
+   };
+ };
+
+-const LabeledDetails = ({ historyRecord }) => {
+-  const changedValuesToUse = historyRecord.changedValues;
++const LabeledDetails = ({ historyRecord: { oldValues = undefined, changedValues } }) => {
+   let shipmentDisplay = '';
+
++  const { shipment_type = undefined, service_item_name = undefined, ...changedValuesToUse } = changedValues;
++
+   // Check for shipment_type to use it as a header for the row
+-  if ('shipment_type' in changedValuesToUse) {
+-    shipmentDisplay = shipmentTypes[changedValuesToUse.shipment_type];
++  if (shipment_type) {
++    shipmentDisplay = shipmentTypes[shipment_type];
+     shipmentDisplay += ` shipment #${changedValuesToUse.shipment_id_display}`;
+-    delete changedValuesToUse.shipment_type;
+   }
+
+-  if ('service_item_name' in changedValuesToUse) {
+-    shipmentDisplay += `, ${changedValuesToUse.service_item_name}`;
+-    delete changedValuesToUse.service_item_name;
++  if (service_item_name) {
++    shipmentDisplay += `, ${service_item_name}`;
+   }
+
+   /* Filter out empty values unless they used to be non-empty
+      These values may be non-nullish in oldValues and nullish in changedValues */
+   const dbFieldsToDisplay = Object.keys(fieldMappings).filter((dbField) => {
+-    return (
+-      changedValuesToUse[dbField] ||
+-      (dbField in changedValuesToUse && historyRecord.oldValues && historyRecord.oldValues[dbField])
+-    );
++    const field = changedValuesToUse[dbField] ||
++      (dbField in changedValuesToUse && oldValues && oldValues[dbField]);
++
++    const modelValue = changedValuesToUse[field];
++    return { field, modelValue };
+   });
++
++
++  const buildLabel = ({displayName, displayValue}, index) => (
++    <div key={index}>
++      <b>{displayName}</b>: {displayValue}
++    </div>
++  );
+
++  const buildLabelSetup = (func) => (item, index) => buildLabel(func(item), index);
++
++  const mapLabelsToDisplayText = ({ field, modelValue }) => retrieveTextToDisplay(field, modelValue);
++  const displayFields = dbFieldsToDisplay.map(buildLabelSetup(mapLabelsToDisplayText));
++
+   return (
+     <>
+       <span className={styles.shipmentType}>{shipmentDisplay}</span>
+-      {dbFieldsToDisplay.map((modelField) => {
+-        const { displayName, displayValue } = retrieveTextToDisplay(modelField, changedValuesToUse[modelField]);
+-
+-        return (
+-          <div key={modelField}>
+-            <b>{displayName}</b>: {displayValue}
+-          </div>
+-        );
+-      })}
++      {displayFields}
+     </>
+   );
+ };

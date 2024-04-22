@@ -1,0 +1,204 @@
+diff --git a/src/components/PrimeUI/Shipment/Shipment.jsx b/src/components/PrimeUI/Shipment/Shipment.jsx
+index e6d2ca3dc4..0f404d1543 100644
+--- a/src/components/PrimeUI/Shipment/Shipment.jsx
++++ b/src/components/PrimeUI/Shipment/Shipment.jsx
+@@ -43,6 +43,69 @@ const Shipment = ({ shipment, moveId, onDelete }) => {
+     onDelete(shipmentID);
+   };
+
++  const createRowDiv = ({ label: labelContent, classes, items }, index) => (
++    <div key={index} className={classes}>
++      <dt>{labelContent}</dt>
++      {items.map((value, i) => (
++        <dd key={i}>{value}</dd>
++      ))}
++    </div>
++  );
++
++  const labelValue = (label, ...items) => {
++    const [names, ...remaining] = items;
++    const result = names?.classNames ? remaining : items;
++    const classes = classnames(...(names?.classNames ?? [descriptionListStyles.row]));
++    return { label, classes, items: result };
++  };
++
++  const buildCommonShipmentProperties = ({
++    id,
++    status,
++    eTag,
++    requestedPickupDate,
++    scheduledPickupDate,
++    actualPickupDate,
++    scheduledDeliveryDate,
++    actualDeliveryDate,
++    primeEstimatedWeight,
++    primeActualWeight,
++  }) => [
++    labelValue('Status', status),
++    labelValue('Shipment ID', id),
++    labelValue('Shipment eTag', eTag),
++    labelValue('Requested Pickup Date', requestedPickupDate),
++    labelValue('Scheduled Pickup Date', scheduledPickupDate),
++    labelValue('Actual Pickup Date', actualPickupDate),
++    labelValue('Scheduled Delivery Date', scheduledDeliveryDate),
++    labelValue('Actual delivery Date', actualDeliveryDate),
++    labelValue('Estimated Weight', primeEstimatedWeight),
++    labelValue('Actual Weight', primeActualWeight),
++  ];
++
++  const buildShipmentReweigh = (
++    { id, weight, reweighUrl, verificationReason, requestedAt } = { weight: 'Missing' },
++  ) => {
++    if (!id) return [];
++    return [
++      labelValue(
++        'Reweigh Weight',
++        { classNames: [descriptionListStyles.row, { [styles.missingInfoError]: weight === 'Missing' }] },
++        weight,
++        <Link to={reweighUrl}>Edit</Link>,
++      ),
++    ]
++      .concat(
++        verificationReason ? labelValue('Reweigh Remarks', verificationReason) : [],
++        labelValue('Reweigh Requested Date', formatDateFromIso(requestedAt, 'YYYY-MM-DD')),
++      )
++      .filter(Boolean);
++  };
++
++  const shipmentPropertyElements = buildCommonShipmentProperties(shipment)
++    .concat(buildShipmentReweigh({ ...shipment?.reweigh, reweighUrl: editReweighUrl }))
++    .map(createRowDiv);
++
+   return (
+     <dl className={descriptionListStyles.descriptionList}>
+       <div className={classnames(descriptionListStyles.row, styles.shipmentHeader)}>
+@@ -73,71 +136,7 @@ const Shipment = ({ shipment, moveId, onDelete }) => {
+         onClose={setIsDeleteModalVisible}
+         onSubmit={handleDeleteShipment}
+       />
+-      <div className={descriptionListStyles.row}>
+-        <dt>Status:</dt>
+-        <dd>{shipment.status}</dd>
+-      </div>
+-      <div className={descriptionListStyles.row}>
+-        <dt>Shipment ID:</dt>
+-        <dd>{shipment.id}</dd>
+-      </div>
+-      <div className={descriptionListStyles.row}>
+-        <dt>Shipment eTag:</dt>
+-        <dd>{shipment.eTag}</dd>
+-      </div>
+-      <div className={descriptionListStyles.row}>
+-        <dt>Requested Pickup Date:</dt>
+-        <dd>{shipment.requestedPickupDate}</dd>
+-      </div>
+-      <div className={descriptionListStyles.row}>
+-        <dt>Scheduled Pickup Date:</dt>
+-        <dd>{shipment.scheduledPickupDate}</dd>
+-      </div>
+-      <div className={descriptionListStyles.row}>
+-        <dt>Actual Pickup Date:</dt>
+-        <dd>{shipment.actualPickupDate}</dd>
+-      </div>
+-      <div className={descriptionListStyles.row}>
+-        <dt>Scheduled Delivery Date:</dt>
+-        <dd>{shipment.scheduledDeliveryDate}</dd>
+-      </div>
+-      <div className={descriptionListStyles.row}>
+-        <dt>Actual Delivery Date:</dt>
+-        <dd>{shipment.actualDeliveryDate}</dd>
+-      </div>
+-      <div className={descriptionListStyles.row}>
+-        <dt>Estimated Weight:</dt>
+-        <dd>{shipment.primeEstimatedWeight}</dd>
+-      </div>
+-      <div className={descriptionListStyles.row}>
+-        <dt>Actual Weight:</dt>
+-        <dd>{shipment.primeActualWeight}</dd>
+-      </div>
+-      {shipment.reweigh?.id && (
+-        <>
+-          <div
+-            className={classnames(descriptionListStyles.row, { [styles.missingInfoError]: !shipment.reweigh.weight })}
+-          >
+-            <dt>Reweigh Weight:</dt>
+-            <dd data-testid="reweigh">{!shipment.reweigh.weight ? 'Missing' : shipment.reweigh.weight}</dd>
+-            <dd>
+-              <Link to={editReweighUrl}>Edit</Link>
+-            </dd>
+-          </div>
+-          {shipment.reweigh.verificationReason && (
+-            <div className={descriptionListStyles.row}>
+-              <dt>Reweigh Remarks:</dt>
+-              <dd>{shipment.reweigh.verificationReason}</dd>
+-            </div>
+-          )}
+-        </>
+-      )}
+-      {shipment.reweigh?.id && (
+-        <div className={descriptionListStyles.row}>
+-          <dt>Reweigh Requested Date:</dt>
+-          <dd>{formatDateFromIso(shipment.reweigh.requestedAt, 'YYYY-MM-DD')}</dd>
+-        </div>
+-      )}
++      {shipmentPropertyElements}
+       <div className={descriptionListStyles.row}>
+         <dt>Pickup Address:</dt>
+         <dd>{formatPrimeAPIShipmentAddress(shipment.pickupAddress)}</dd>
+diff --git a/src/pages/PrimeUI/MoveTaskOrder/MoveDetails.jsx b/src/pages/PrimeUI/MoveTaskOrder/MoveDetails.jsx
+index f5fdeddaed..0f6a59bb10 100644
+--- a/src/pages/PrimeUI/MoveTaskOrder/MoveDetails.jsx
++++ b/src/pages/PrimeUI/MoveTaskOrder/MoveDetails.jsx
+@@ -100,6 +100,43 @@ const MoveDetails = ({ setFlashMessage }) => {
+
+   const { mtoShipments, paymentRequests } = moveTaskOrder;
+
++  const createPPMShipmentElement = () => {};
++
++  const createHHGShipmentElement = () => {};
++
++  const createShipmentElement = (mtoShipment) => {};
++
++  const mtoShipmentItems = mtoShipments?.map((mtoShipment) => {
++    return (
++      <div key={mtoShipment.id}>
++        <Shipment shipment={mtoShipment} moveId={moveTaskOrder.id} onDelete={handleDeleteShipment} />
++        <div className={styles.serviceItemHeader}>
++          {moveTaskOrder.mtoServiceItems?.length > 0 && <h2>Service Items</h2>}
++          <Link to="../mto-service-items/update" relative="path" className="usa-button usa-button-secondary">
++            Update Service Items
++          </Link>
++        </div>
++        {moveTaskOrder.mtoServiceItems?.map((serviceItem) => {
++          if (serviceItem.mtoShipmentID === mtoShipment.id) {
++            return (
++              <div className={styles.paymentRequestRows} key={serviceItem.id}>
++                <h3>{serviceItem.reServiceName}</h3>
++                <Link
++                  to={`../mto-service-items/${serviceItem.id}/upload`}
++                  relative="path"
++                  className="usa-button usa-button-secondary"
++                >
++                  Upload Document for {serviceItem.reServiceName}
++                </Link>
++              </div>
++            );
++          }
++          return <div />;
++        })}
++      </div>
++    );
++  });
++
+   return (
+     <div>
+       <div className={classnames('grid-container-desktop-lg', 'usa-prose', styles.MoveDetails)}>
+@@ -149,6 +186,8 @@ const MoveDetails = ({ setFlashMessage }) => {
+                       Create Shipment
+                     </Link>
+                   </div>
++                  {/* pull the map func to the upper scope and render based on shipment type. ppms will have ppm specific functional components */}
++                  {/* mto shipment collection */}
+                   {mtoShipments?.map((mtoShipment) => {
+                     return (
+                       <div key={mtoShipment.id}>

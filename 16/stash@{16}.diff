@@ -1,0 +1,15 @@
+diff --git a/src/constants/MoveHistory/historyForOfficeUserActions/officeUserInteractionWithPPM.test.js b/src/constants/MoveHistory/historyForOfficeUserActions/officeUserInteractionWithPPM.test.js
+new file mode 100644
+index 0000000000..09610e39a6
+--- /dev/null
++++ b/src/constants/MoveHistory/historyForOfficeUserActions/officeUserInteractionWithPPM.test.js
+@@ -0,0 +1,9 @@
++import { render, screen } from '@testing-library/react';
++
++import getTemplate from 'constants/MoveHistory/TemplateManager';
++
++describe('sevices counselor creates a ppm', () => {
++  it('the audit history displays accordingly', () => {
++    //
++  });
++});

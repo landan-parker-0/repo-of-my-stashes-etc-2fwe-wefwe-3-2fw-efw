@@ -1,0 +1,107 @@
+diff --git a/src/pages/MyMove/Multi-Moves/MultiMovesLandingPage.jsx b/src/pages/MyMove/Multi-Moves/MultiMovesLandingPage.jsx
+index 187ce5cf68..75aed402f7 100644
+--- a/src/pages/MyMove/Multi-Moves/MultiMovesLandingPage.jsx
++++ b/src/pages/MyMove/Multi-Moves/MultiMovesLandingPage.jsx
+@@ -34,15 +34,18 @@ import {
+   selectServiceMemberFromLoggedInUser,
+ } from 'store/entities/selectors';
+
+-const MultiMovesLandingPage = () => {
++const MultiMovesLandingPage = ({ ...props }) => {
++  const { move } = props;
++  const moves = { currentMove: [move], previousMoves: [] };
++  console.log(props);
+   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
+   const navigate = useNavigate();
+
+   // ! This is just used for testing and viewing different variations of data that MilMove will use
+   // user can add params of ?moveData=PCS, etc to view different views
+-  let moves;
+   const currentUrl = new URL(window.location.href);
+   const moveDataSource = currentUrl.searchParams.get('moveData');
++  /*
+   switch (moveDataSource) {
+     case 'PCS':
+       moves = mockMovesPCS;
+@@ -66,6 +69,8 @@ const MultiMovesLandingPage = () => {
+       moves = mockMovesPCS;
+       break;
+   }
++  */
++
+   // ! end of test data
+   useEffect(() => {
+     const fetchData = async () => {
+@@ -100,7 +105,7 @@ const MultiMovesLandingPage = () => {
+   // if they have previous moves, they'll need to validate their profile
+   // if they do not have previous moves, then they don't need to validate
+   const handleCreateMoveBtnClick = () => {
+-    if (moves.previousMoves.length > 0) {
++    if (moves?.previousMoves.length > 0) {
+       const profileEditPath = customerRoutes.PROFILE_PATH;
+       navigate(profileEditPath, { state: { needsToVerifyProfile: true } });
+     } else {
+@@ -133,7 +138,7 @@ const MultiMovesLandingPage = () => {
+             </Button>
+           </div>
+           <div className={styles.movesContainer}>
+-            {moves.currentMove.length > 0 ? (
++            {moves?.currentMove?.length > 0 ? (
+               <>
+                 <div data-testid="currentMoveHeader">
+                   <MultiMovesMoveHeader title="Current Move" />
+@@ -150,7 +155,7 @@ const MultiMovesLandingPage = () => {
+                 <div>You do not have a current move.</div>
+               </>
+             )}
+-            {moves.previousMoves.length > 0 ? (
++            {(moves?.previousMoves?.length > 0 && (
+               <>
+                 <div data-testid="prevMovesHeader">
+                   <MultiMovesMoveHeader title="Previous Moves" />
+@@ -159,14 +164,15 @@ const MultiMovesLandingPage = () => {
+                   <MultiMovesMoveContainer moves={moves.previousMoves} />
+                 </div>
+               </>
+-            ) : (
+-              <>
+-                <div data-testid="prevMovesHeader">
+-                  <MultiMovesMoveHeader title="Previous Moves" />
+-                </div>
+-                <div>You have no previous moves.</div>
+-              </>
+-            )}
++            )) ||
++              (moves?.anyMoves?.length > 0 && (
++                <>
++                  <div data-testid="prevMovesHeader">
++                    <MultiMovesMoveHeader title="Previous Moves" />
++                  </div>
++                  <div>You have no previous moves.</div>
++                </>
++              ))}
+           </div>
+         </div>
+       </div>
+diff --git a/src/pages/MyMove/Multi-Moves/MultiMovesMoveContainer/MultiMovesMoveContainer.jsx b/src/pages/MyMove/Multi-Moves/MultiMovesMoveContainer/MultiMovesMoveContainer.jsx
+index 1ffe09bd2e..b9f82a1167 100644
+--- a/src/pages/MyMove/Multi-Moves/MultiMovesMoveContainer/MultiMovesMoveContainer.jsx
++++ b/src/pages/MyMove/Multi-Moves/MultiMovesMoveContainer/MultiMovesMoveContainer.jsx
+@@ -75,7 +75,7 @@ const MultiMovesMoveContainer = ({ moves }) => {
+     <React.Fragment key={index}>
+       <div className={styles.moveContainer}>
+         <div className={styles.heading} key={index}>
+-          <h3>#{m.moveCode}</h3>
++          <h3>#{m.locator}</h3>
+           {m.status !== 'APPROVED' ? (
+             <Button
+               data-testid="goToMoveBtn"
+@@ -121,7 +121,7 @@ const MultiMovesMoveContainer = ({ moves }) => {
+                       <div className={styles.innerWrapper}>
+                         <div className={styles.shipmentTypeHeading}>
+                           <h4>{generateShipmentTypeTitle(s.shipmentType)}</h4>
+-                          <h5>#{m.moveCode}</h5>
++                          <h5>#{m.locator}</h5>
+                         </div>
+                       </div>
+                     </ShipmentContainer>

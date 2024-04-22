@@ -1,0 +1,56 @@
+diff --git a/playwright/tests/office/servicescounseling/servicesCounselingFlows.spec.js b/playwright/tests/office/servicescounseling/servicesCounselingFlows.spec.js
+index 49006cc18e..6beca8e8e8 100644
+--- a/playwright/tests/office/servicescounseling/servicesCounselingFlows.spec.js
++++ b/playwright/tests/office/servicescounseling/servicesCounselingFlows.spec.js
+@@ -316,7 +316,7 @@ test.describe('Services counselor user', () => {
+     await page.getByLabel('Accept').dispatchEvent('click');
+     await page.getByRole('button', { name: 'Continue' }).click();
+
+-    await scPage.waitForPage.reviewExpenseTicket('Packing Materials', 1, 1);
++    await scPage.waitForPage.reviewExpenseTicket(page.getByRole('heading', { level: 3 }), 'Packing Materials', 1, 1);
+     await expect(page.getByLabel('Accept')).toBeVisible();
+     await page.getByLabel('Accept').dispatchEvent('click');
+     await page.getByRole('button', { name: 'Continue' }).click();
+diff --git a/playwright/tests/office/servicescounseling/servicesCounselingMovingExpenses.spec.js b/playwright/tests/office/servicescounseling/servicesCounselingMovingExpenses.spec.js
+index 8456c05236..1edda31873 100644
+--- a/playwright/tests/office/servicescounseling/servicesCounselingMovingExpenses.spec.js
++++ b/playwright/tests/office/servicescounseling/servicesCounselingMovingExpenses.spec.js
+@@ -13,12 +13,12 @@ test('A service counselor can approve/reject moving expenses', async ({ page, sc
+   await page.getByRole('button', { name: 'Continue' }).click();
+
+   // Next is packing materials expense ticket here. Click "Accept" on the expense, then proceed
+-  await scPage.waitForPage.reviewExpenseTicket('Packing Materials', 1, 1);
++  await scPage.waitForPage.reviewExpenseTicket(page.getByRole('heading', { level: 3 }), 'Packing Materials', 1, 1);
+   await page.getByText('Accept').click();
+   await page.getByRole('button', { name: 'Continue' }).click();
+
+   // Next is storage expense ticket. Click "Accept", then proceed
+-  await scPage.waitForPage.reviewExpenseTicket('Storage', 2, 1);
++  await scPage.waitForPage.reviewExpenseTicket(page.getByRole('heading', { level: 3 }), 'Storage', 2, 1);
+   await page.getByText('Accept').click();
+   await page.getByRole('button', { name: 'Continue' }).click();
+   await scPage.waitForPage.reviewDocumentsConfirmation();
+diff --git a/playwright/tests/utils/office/waitForOfficePage.js b/playwright/tests/utils/office/waitForOfficePage.js
+index 81e5bda8c6..17c0d4f57b 100644
+--- a/playwright/tests/utils/office/waitForOfficePage.js
++++ b/playwright/tests/utils/office/waitForOfficePage.js
+@@ -117,14 +117,14 @@ export class WaitForOfficePage extends WaitForPage {
+    * @example reveiewExpenseTicket('packing materials', 1, 1);
+    * @returns {Promise<void>}
+    */
+-  async reviewExpenseTicket(expense, receiptNumber, expenseIndex) {
++  async reviewExpenseTicket(nodegroup, expense, receiptNumber, expenseIndex) {
+     const receiptCheck = `Receipt ${receiptNumber}`;
+-    const receiptElement = this.page.getByRole('heading', { name: receiptCheck, level: 3, exact: false });
++    const receiptElement = nodegroup.getByText(receiptCheck, { exact: false });
+
+     const expenseCheck = `Review ${expense} #${expenseIndex}`;
+-    const expenseElement = this.page.getByRole('heading', { name: expenseCheck, level: 3, exact: false });
+-    await base.expect(receiptElement).toBeVisible({ timeout: 500 });
+-    await base.expect(expenseElement).toBeVisible({ timeout: 500 });
++    const expenseElement = nodegroup.getByText(expenseCheck, { exact: false });
++    await base.expect(receiptElement).toBeVisible();
++    await base.expect(expenseElement).toBeVisible();
+   }
+ }
+

@@ -1,0 +1,406 @@
+diff --git a/src/components/Customer/PPM/Closeout/ExpenseForm/ExpenseForm.test.jsx b/src/components/Customer/PPM/Closeout/ExpenseForm/ExpenseForm.test.jsx
+index 55a90b3b8e..248ea7372b 100644
+--- a/src/components/Customer/PPM/Closeout/ExpenseForm/ExpenseForm.test.jsx
++++ b/src/components/Customer/PPM/Closeout/ExpenseForm/ExpenseForm.test.jsx
+@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
+ import ExpenseForm from 'components/Customer/PPM/Closeout/ExpenseForm/ExpenseForm';
+ import { DocumentAndImageUploadInstructions } from 'content/uploads';
+ import { expenseTypes } from 'constants/ppmExpenseTypes';
++import { uploadedTimeString } from 'components/UploadsTable/UploadsTable';
+
+ beforeEach(() => {
+   jest.clearAllMocks();
+@@ -40,6 +41,24 @@ const missingReceiptProps = {
+   onSubmit: jest.fn(),
+ };
+
++const createdDate = (() => {
++  const dateToUse = new Date('August 10, 2022 12:59:00Z');
++  const isoDate = dateToUse.toISOString();
++  const utcDate = dateToUse.toUTCString();
++
++  const locateText =
++  'Uploaded 10 Aug 2022 12:59 PM';
++})();
++
++const bubbleWrapReceiptDocument = {
++  id: 'db4713ae-6087-4330-8b0d-926b3d65c454',
++  createdAt: new Date("2022-07-10T12:59:30.000").toUTCString(),
++  bytes: 204800,
++  url: 'some/path/to/',
++  filename: 'expenseReceipt.pdf',
++  contentType: 'application/pdf',
++};
++
+ const expenseRequiredProps = {
+   expense: {
+     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
+@@ -51,14 +70,7 @@ const expenseRequiredProps = {
+     amount: 60000,
+     document: {
+       uploads: [
+-        {
+-          id: 'db4713ae-6087-4330-8b0d-926b3d65c454',
+-          createdAt: '2022-06-10T12:59:30.000Z',
+-          bytes: 204800,
+-          url: 'some/path/to/',
+-          filename: 'expenseReceipt.pdf',
+-          contentType: 'application/pdf',
+-        },
++        bubbleWrapReceiptDocument
+       ],
+     },
+   },
+@@ -169,7 +181,7 @@ describe('ExpenseForm component', () => {
+       const deleteButton = screen.getByRole('button', { name: 'Delete' });
+       expect(deleteButton).toBeInTheDocument();
+       expect(screen.getByText('200KB')).toBeInTheDocument();
+-      expect(screen.getByText('Uploaded 10 Aug 2022 12:59 PM')).toBeInTheDocument();
++      expect(screen.getByText(`Uploaded ${uploadedTimeString(bubbleWrapReceiptDocument.createdAt)}`)).toBeInTheDocument();
+
+       expect(screen.getByLabelText('No')).toBeChecked();
+       expect(screen.getByRole('heading', { level: 3, name: 'Dates' })).toBeInTheDocument();
+diff --git a/src/components/Customer/PPM/Closeout/WeightTicketForm/WeightTicketForm.test.jsx b/src/components/Customer/PPM/Closeout/WeightTicketForm/WeightTicketForm.test.jsx
+index 56758e4c78..1b53ad207b 100644
+--- a/src/components/Customer/PPM/Closeout/WeightTicketForm/WeightTicketForm.test.jsx
++++ b/src/components/Customer/PPM/Closeout/WeightTicketForm/WeightTicketForm.test.jsx
+@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
+
+ import WeightTicketForm from 'components/Customer/PPM/Closeout/WeightTicketForm/WeightTicketForm';
+ import { DocumentAndImageUploadInstructions } from 'content/uploads';
++import { uploadedTimeString, LINE_ITEM_NAME } from 'components/UploadsTable/UploadsTable';
+
+ beforeEach(() => {
+   jest.clearAllMocks();
+@@ -25,6 +26,24 @@ const defaultProps = {
+   onSubmit: jest.fn(),
+ };
+
++const emptyWeightTicketDocument = {
++  id: '299e2fb4-432d-4261-bbed-d8280c6090af',
++  createdAt: '2022-06-22T23:25:50.490Z',
++  bytes: 819200,
++  url: 'a/fake/path',
++  filename: 'empty_weight.jpg',
++  contentType: 'image/jpg',
++};
++
++const fullWeightTicketDocument = {
++  id: 'f70af8a1-38e9-4ae2-a837-3c0c61069a0d',
++  createdAt: '2022-06-23T23:25:50.490Z',
++  bytes: 409600,
++  url: 'a/fake/path',
++  filename: 'full_weight.pdf',
++  contentType: 'application/pdf',
++};
++
+ const weightTicketRequiredProps = {
+   weightTicket: {
+     id: '58350bae-8e87-4e83-bd75-74027fb4853f',
+@@ -33,36 +52,36 @@ const weightTicketRequiredProps = {
+     emptyWeight: 3999,
+     emptyWeightDocumentId: '27d70a0d-7f20-42af-ab79-f74350412823',
+     emptyDocument: {
+-      uploads: [
+-        {
+-          id: '299e2fb4-432d-4261-bbed-d8280c6090af',
+-          createdAt: '2022-06-22T23:25:50.490Z',
+-          bytes: 819200,
+-          url: 'a/fake/path',
+-          filename: 'empty_weight.jpg',
+-          contentType: 'image/jpg',
+-        },
+-      ],
++      uploads: [emptyWeightTicketDocument],
+     },
+     fullWeight: 7111,
+     fullWeightDocumentId: '1ec00b40-447d-4c22-ac73-708b98b8bc20',
+     fullDocument: {
+-      uploads: [
+-        {
+-          id: 'f70af8a1-38e9-4ae2-a837-3c0c61069a0d',
+-          createdAt: '2022-06-23T23:25:50.490Z',
+-          bytes: 409600,
+-          url: 'a/fake/path',
+-          filename: 'full_weight.pdf',
+-          contentType: 'application/pdf',
+-        },
+-      ],
++      uploads: [fullWeightTicketDocument],
+     },
+     ownsTrailer: false,
+     trailerOwnershipDocumentId: '5bf3ed20-08dd-4d8e-92ad-7603bb6377a5',
+   },
+ };
+
++const emptyWeightTicketDocument2 = {
++  id: '299e2fb4-432d-4261-bbed-d8280c6090af',
++  createdAt: '2022-06-22T23:25:50.490Z',
++  bytes: 819200,
++  url: 'a/fake/path',
++  filename: 'empty_weight.jpg',
++  contentType: 'image/jpg',
++};
++
++const fullWeightTicketDocument2 = {
++  id: 'f70af8a1-38e9-4ae2-a837-3c0c61069a0d',
++  createdAt: '2022-06-23T23:25:50.490Z',
++  bytes: 409600,
++  url: 'a/fake/path',
++  filename: 'full_weight.pdf',
++  contentType: 'application/pdf',
++};
++
+ const weightTicketUploadsOnlyProps = {
+   weightTicket: {
+     id: '58350bae-8e87-4e83-bd75-74027fb4853f',
+@@ -70,32 +89,45 @@ const weightTicketUploadsOnlyProps = {
+     emptyWeightDocumentId: '27d70a0d-7f20-42af-ab79-f74350412823',
+     emptyDocument: {
+       uploads: [
+-        {
+-          id: '299e2fb4-432d-4261-bbed-d8280c6090af',
+-          createdAt: '2022-06-22T23:25:50.490Z',
+-          bytes: 819200,
+-          url: 'a/fake/path',
+-          filename: 'empty_weight.jpg',
+-          contentType: 'image/jpg',
+-        },
++        emptyWeightTicketDocument2,
+       ],
+     },
+     fullWeightDocumentId: '1ec00b40-447d-4c22-ac73-708b98b8bc20',
+     fullDocument: {
+       uploads: [
+-        {
+-          id: 'f70af8a1-38e9-4ae2-a837-3c0c61069a0d',
+-          createdAt: '2022-06-23T23:25:50.490Z',
+-          bytes: 409600,
+-          url: 'a/fake/path',
+-          filename: 'full_weight.pdf',
+-          contentType: 'application/pdf',
+-        },
++        fullWeightTicketDocument2,
+       ],
+     },
+   },
+ };
+
++const rentalAgreementTicketDocument = {
++  id: '299e2fb4-432d-4261-bbed-d8280c6090af',
++  createdAt: '2022-06-22T23:25:50.490Z',
++  bytes: 819200,
++  url: 'a/fake/path',
++  filename: 'rentalAgreement.pdf',
++  contentType: 'application/pdf',
++};
++
++const fullWeightTicketDocument3 = {
++  id: 'f70af8a1-38e9-4ae2-a837-3c0c61069a0d',
++  createdAt: '2022-06-23T23:25:50.490Z',
++  bytes: 409600,
++  url: 'a/fake/path',
++  filename: 'weight estimator.xlsx',
++  contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
++};
++
++const ownershipDocument = {
++  id: 'fd4e80f8-d025-44b2-8c33-15240fac51ab',
++  createdAt: '2022-06-24T23:25:50.490Z',
++  bytes: 204800,
++  url: 'a/fake/path',
++  filename: 'trailer_title.pdf',
++  contentType: 'application/pdf',
++};
++
+ const constructedWeightTrailerProps = {
+   weightTicket: {
+     id: '58350bae-8e87-4e83-bd75-74027fb4853f',
+@@ -105,30 +137,14 @@ const constructedWeightTrailerProps = {
+     missingEmptyWeightTicket: true,
+     emptyWeightDocumentId: '27d70a0d-7f20-42af-ab79-f74350412823',
+     emptyDocument: {
+-      uploads: [
+-        {
+-          id: '299e2fb4-432d-4261-bbed-d8280c6090af',
+-          createdAt: '2022-06-22T23:25:50.490Z',
+-          bytes: 819200,
+-          url: 'a/fake/path',
+-          filename: 'rentalAgreement.pdf',
+-          contentType: 'application/pdf',
+-        },
+-      ],
++      uploads: [rentalAgreementTicketDocument],
+     },
+     fullWeight: 7111,
+     missingFullWeightTicket: true,
+     fullWeightDocumentId: '1ec00b40-447d-4c22-ac73-708b98b8bc20',
+     fullDocument: {
+       uploads: [
+-        {
+-          id: 'f70af8a1-38e9-4ae2-a837-3c0c61069a0d',
+-          createdAt: '2022-06-23T23:25:50.490Z',
+-          bytes: 409600,
+-          url: 'a/fake/path',
+-          filename: 'weight estimator.xlsx',
+-          contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+-        },
++        fullWeightTicketDocument3,
+       ],
+     },
+     ownsTrailer: true,
+@@ -136,14 +152,7 @@ const constructedWeightTrailerProps = {
+     trailerOwnershipDocumentId: '5bf3ed20-08dd-4d8e-92ad-7603bb6377a5',
+     proofOfTrailerOwnershipDocument: {
+       uploads: [
+-        {
+-          id: 'fd4e80f8-d025-44b2-8c33-15240fac51ab',
+-          createdAt: '2022-06-24T23:25:50.490Z',
+-          bytes: 204800,
+-          url: 'a/fake/path',
+-          filename: 'trailer_title.pdf',
+-          contentType: 'application/pdf',
+-        },
++        ownershipDocument,
+       ],
+     },
+   },
+@@ -203,14 +212,13 @@ describe('WeightTicketForm component', () => {
+       const deleteButtons = screen.getAllByRole('button', { name: 'Delete' });
+       expect(deleteButtons[0]).toBeInTheDocument();
+       expect(screen.getByText('800KB')).toBeInTheDocument();
+-      expect(screen.getByText('Uploaded 22 Jun 2022 11:25 PM')).toBeInTheDocument();
+-
++      expect(screen.getByText(/.*/, {selector: `[reference="${emptyWeightTicketDocument.id}"]`})).toHaveTextContent(uploadedTimeString(emptyWeightTicketDocument.createdAt));
+       expect(screen.getByLabelText('Full weight')).toHaveDisplayValue('7,111');
+       expect(screen.getByText('full_weight.pdf')).toBeInTheDocument();
+       expect(deleteButtons[1]).toBeInTheDocument();
+       expect(screen.getByText('400KB')).toBeInTheDocument();
+-      expect(screen.getByText('Uploaded 23 Jun 2022 11:25 PM')).toBeInTheDocument();
+-
++      expect(screen.getByText(/.*/, {selector: `[reference="${fullWeightTicketDocument.id}"]`})).toHaveTextContent(uploadedTimeString(fullWeightTicketDocument.createdAt));
++
+       expect(screen.getByRole('heading', { level: 3, name: 'Trip weight: 3,112 lbs' })).toBeInTheDocument();
+
+       expect(screen.getByLabelText('No')).toBeChecked();
+@@ -238,8 +246,8 @@ describe('WeightTicketForm component', () => {
+       const deleteButtons = screen.getAllByRole('button', { name: 'Delete' });
+       expect(deleteButtons[0]).toBeInTheDocument();
+       expect(screen.getByText('800KB')).toBeInTheDocument();
+-      expect(screen.getByText('Uploaded 22 Jun 2022 11:25 PM')).toBeInTheDocument();
+-
++      expect(screen.getByText(/.*/, {selector: `[reference="${rentalAgreementTicketDocument.id}"]`})).toHaveTextContent(uploadedTimeString(rentalAgreementTicketDocument.createdAt));
++
+       expect(missingWeightInput[1]).toBeChecked();
+
+       expect(missingWeightTicketLinks[1]).toHaveTextContent('Go to download page');
+@@ -248,8 +256,8 @@ describe('WeightTicketForm component', () => {
+       expect(screen.getByText('weight estimator.xlsx')).toBeInTheDocument();
+       expect(deleteButtons[1]).toBeInTheDocument();
+       expect(screen.getByText('400KB')).toBeInTheDocument();
+-      expect(screen.getByText('Uploaded 23 Jun 2022 11:25 PM')).toBeInTheDocument();
+-
++      expect(screen.getByText(/.*/, {selector: `[reference="${fullWeightTicketDocument3.id}"]`})).toHaveTextContent(uploadedTimeString(fullWeightTicketDocument3.createdAt));
++
+       const trailerCheckboxes = screen.getAllByLabelText('Yes');
+       expect(trailerCheckboxes[0]).toBeChecked();
+       expect(trailerCheckboxes[1]).toBeChecked();
+@@ -259,8 +267,8 @@ describe('WeightTicketForm component', () => {
+       expect(screen.getByText('trailer_title.pdf')).toBeInTheDocument();
+       expect(deleteButtons[1]).toBeInTheDocument();
+       expect(screen.getByText('200KB')).toBeInTheDocument();
+-      expect(screen.getByText('Uploaded 24 Jun 2022 11:25 PM')).toBeInTheDocument();
+-
++      expect(screen.getByText(/.*/, {selector: `[reference="${ownershipDocument.id}"]`})).toHaveTextContent(uploadedTimeString(ownershipDocument.createdAt));
++
+       expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
+     });
+@@ -374,16 +382,7 @@ describe('WeightTicketForm component', () => {
+             vehicleDescription: 'DMC Delorean',
+             emptyWeight: '3999',
+             missingEmptyWeightTicket: true,
+-            emptyDocument: [
+-              {
+-                id: '299e2fb4-432d-4261-bbed-d8280c6090af',
+-                createdAt: '2022-06-22T23:25:50.490Z',
+-                bytes: 819200,
+-                url: 'a/fake/path',
+-                filename: 'rentalAgreement.pdf',
+-                contentType: 'application/pdf',
+-              },
+-            ],
++            emptyDocument: [rentalAgreementTicketDocument],
+             fullWeight: '7111',
+             missingFullWeightTicket: true,
+             fullDocument: [
+diff --git a/src/components/Office/PaymentRequestCard/PaymentRequestCard.test.jsx b/src/components/Office/PaymentRequestCard/PaymentRequestCard.test.jsx
+index 4e846925e7..c2fe982552 100644
+--- a/src/components/Office/PaymentRequestCard/PaymentRequestCard.test.jsx
++++ b/src/components/Office/PaymentRequestCard/PaymentRequestCard.test.jsx
+@@ -337,7 +337,7 @@ describe('PaymentRequestCard', () => {
+     });
+
+     it('displays the reviewed at date', () => {
+-      expect(wrapper.find('.amountAccepted span').at(1).text().includes('01 Dec 2020')).toBe(true);
++      expect(wrapper.find('.amountAccepted span').at(1).text()).includes('01 Dec 2020');
+     });
+
+     it('sums the rejected service items total', () => {
+diff --git a/src/components/UploadsTable/UploadsTable.jsx b/src/components/UploadsTable/UploadsTable.jsx
+index b5f02c394f..e477101c3d 100644
+--- a/src/components/UploadsTable/UploadsTable.jsx
++++ b/src/components/UploadsTable/UploadsTable.jsx
+@@ -11,6 +11,10 @@ import styles from './UploadsTable.module.scss';
+ import SectionWrapper from 'components/Customer/SectionWrapper';
+ import { ExistingUploadsShape } from 'types/uploads';
+
++
++export const LINE_ITEM_NAME = 'uploadedItem';
++export const uploadedTimeString = ({ date }) => moment(date).format('DD MMM YYYY h:mm A');
++
+ const UploadsTable = ({ className, uploads, onDelete, showDeleteButton }) => {
+   const getIcon = (fileType) => {
+     switch (fileType) {
+@@ -27,20 +31,22 @@ const UploadsTable = ({ className, uploads, onDelete, showDeleteButton }) => {
+     }
+   };
+
++  const uploadedTimeString = ({ createdAt }) => moment(createdAt).format('DD MMM YYYY h:mm A');
++
+   return (
+     uploads?.length > 0 && (
+       <SectionWrapper className={classnames(styles.uploadsTableContainer, className)}>
+         <h6>{uploads.length} Files Uploaded</h6>
+         <ul>
+           {uploads.map((upload) => (
+-            <li className={styles.uploadListItem} key={upload.id}>
++            <li className={styles.uploadListItem} key={upload.id} reference={upload.id}>
+               <div className={styles.fileInfoContainer}>
+                 <FontAwesomeIcon size="lg" icon={getIcon(upload.contentType)} className={styles.faIcon} />
+                 <div className={styles.fileInfo}>
+                   <p>{upload.filename}</p>
+                   <p className={styles.fileSizeAndTime}>
+                     <span className={styles.uploadFileSize}>{bytes(upload.bytes)}</span>
+-                    <span>Uploaded {moment(upload.createdAt).format('DD MMM YYYY h:mm A')}</span>
++                    <span>Uploaded {uploadedTimeString({ date: upload.createdAt })}</span>
+                   </p>
+                 </div>
+               </div>
+diff --git a/src/utils/formatters.test.js b/src/utils/formatters.test.js
+index bc5df2adfe..f1aeb4fad2 100644
+--- a/src/utils/formatters.test.js
++++ b/src/utils/formatters.test.js
+@@ -8,7 +8,11 @@ import PAYMENT_REQUEST_STATUS from 'constants/paymentRequestStatus';
+ describe('formatters', () => {
+   describe('format date for customer app', () => {
+     it('should format customer date to DD MMM YYYY', () => {
+-      expect(formatters.formatCustomerDate('2020-09-27T00:00:00Z')).toBe('27 Sep 2020');
++      const dateTest = new Date('2020-09-27T00:00:00Z');
++      const dateAssertion = [dateTest.getDate(), dateTest.getMonth(), dateTest.getFullYear()];
++      const options = { day: 'numeric', month: 'short', year: 'numeric' };
++      const formattedDate = dateTest.toLocaleDateString('en-US', options);
++      expect(formatters.formatCustomerDate(dateTest)).toBe('27 Sep 2020');
+     });
+     it('should format signature date to YYYY-MM-DD', () => {
+       expect(formatters.formatSignatureDate('2020-09-27T00:00:00Z')).toBe('2020-09-27');

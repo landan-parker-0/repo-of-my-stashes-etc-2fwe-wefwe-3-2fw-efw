@@ -1,0 +1,410 @@
+diff --git a/src/components/Office/PPM/ReviewDocumentsSidePanel/ReviewDocumentsSidePanel.jsx b/src/components/Office/PPM/ReviewDocumentsSidePanel/ReviewDocumentsSidePanel.jsx
+index 513c2c6e4c..46c1edf1ab 100644
+--- a/src/components/Office/PPM/ReviewDocumentsSidePanel/ReviewDocumentsSidePanel.jsx
++++ b/src/components/Office/PPM/ReviewDocumentsSidePanel/ReviewDocumentsSidePanel.jsx
+@@ -1,4 +1,4 @@
+-import React from 'react';
++import React, { useEffect, useRef } from 'react';
+ import { useMutation } from '@tanstack/react-query';
+ import { Form } from '@trussworks/react-uswds';
+ import { Formik } from 'formik';
+@@ -19,8 +19,8 @@ import PPMDocumentsStatus from 'constants/ppms';
+ export default function ReviewDocumentsSidePanel({
+   ppmShipment,
+   ppmNumber,
+-  formRef,
+   onSuccess,
++  setSubmitAction,
+   onError,
+   expenseTickets,
+   proGearTickets,
+@@ -34,7 +34,18 @@ export default function ReviewDocumentsSidePanel({
+     onError,
+   });
+
++  const formRef = useRef();
++  useEffect(() => {
++    let isLoaded = true;
++    setSubmitAction(() => () => (isLoaded ? formRef.current.handleSubmit : console.log('what')));
++    return () => {
++      isLoaded = false;
++      formRef.current = null;
++    };
++  }, []);
++
+   const handleSubmit = () => {
++    console.log('hit action');
+     patchDocumentsSetStatusMutation({
+       ppmShipmentId: ppmShipment.id,
+       eTag: ppmShipment.eTag,
+@@ -150,9 +161,9 @@ export default function ReviewDocumentsSidePanel({
+ ReviewDocumentsSidePanel.propTypes = {
+   ppmShipment: PPMShipmentShape,
+   ppmNumber: number,
+-  formRef: object,
+   onSuccess: func,
+   onError: func,
++  setSubmitAction: func,
+   expenseTickets: arrayOf(ExpenseShape),
+   proGearTickets: arrayOf(ProGearTicketShape),
+   weightTickets: arrayOf(WeightTicketShape),
+@@ -161,7 +172,7 @@ ReviewDocumentsSidePanel.propTypes = {
+ ReviewDocumentsSidePanel.defaultProps = {
+   ppmShipment: undefined,
+   ppmNumber: 1,
+-  formRef: null,
++  setSubmitAction: () => {},
+   onSuccess: () => {},
+   onError: () => {},
+   expenseTickets: [],
+diff --git a/src/components/Office/PPM/ReviewExpense/ReviewExpense.jsx b/src/components/Office/PPM/ReviewExpense/ReviewExpense.jsx
+index d4eec73c9a..5b61aee423 100644
+--- a/src/components/Office/PPM/ReviewExpense/ReviewExpense.jsx
++++ b/src/components/Office/PPM/ReviewExpense/ReviewExpense.jsx
+@@ -1,4 +1,4 @@
+-import React from 'react';
++import React, { useEffect, useRef } from 'react';
+ import { useMutation } from '@tanstack/react-query';
+ import { func, number, object } from 'prop-types';
+ import { Formik } from 'formik';
+@@ -58,7 +58,7 @@ export default function ReviewExpense({
+   ppmNumber,
+   onError,
+   onSuccess,
+-  formRef,
++  setSubmitAction,
+ }) {
+   const { movingExpenseType, description, amount, paidWithGtcc, sitStartDate, sitEndDate, status, reason } =
+     expense || {};
+@@ -67,9 +67,8 @@ export default function ReviewExpense({
+     onSuccess,
+     onError,
+   });
+-
++  console.log(patchExpenseMutation);
+   const ppmShipment = mtoShipment?.ppmShipment;
+-
+   const initialValues = {
+     movingExpenseType: movingExpenseType || '',
+     description: description || '',
+@@ -80,8 +79,18 @@ export default function ReviewExpense({
+     status: status || '',
+     reason: reason || '',
+   };
++  const formRef = useRef();
++  useEffect(() => {
++    let isLoaded = true;
++    setSubmitAction(() => (values) => (isLoaded ? formRef.current.handleSubmit(values) : console.log('what')));
++    return () => {
++      isLoaded = false;
++      formRef.current = null;
++    };
++  }, []);
+
+   const handleSubmit = (values) => {
++    console.log('submitting expense');
+     const payload = {
+       ppmShipmentId: expense.ppmShipmentId,
+       description: expense.description,
+@@ -257,12 +266,12 @@ ReviewExpense.propTypes = {
+   tripNumber: number.isRequired,
+   ppmNumber: number.isRequired,
+   onSuccess: func,
+-  formRef: object,
++  setSubmitAction: func,
+ };
+
+ ReviewExpense.defaultProps = {
+   expense: undefined,
+   mtoShipment: undefined,
+   onSuccess: null,
+-  formRef: null,
++  setSubmitAction: () => {},
+ };
+diff --git a/src/components/Office/PPM/ReviewWeightTicket/ReviewWeightTicket.jsx b/src/components/Office/PPM/ReviewWeightTicket/ReviewWeightTicket.jsx
+index 0eb9264297..aa24ddf1ca 100644
+--- a/src/components/Office/PPM/ReviewWeightTicket/ReviewWeightTicket.jsx
++++ b/src/components/Office/PPM/ReviewWeightTicket/ReviewWeightTicket.jsx
+@@ -1,4 +1,4 @@
+-import React, { useEffect, useState } from 'react';
++import React, { useEffect, useRef, useState } from 'react';
+ import { useMutation } from '@tanstack/react-query';
+ import { func, number, object, PropTypes } from 'prop-types';
+ import { Field, Formik } from 'formik';
+@@ -50,7 +50,7 @@ export default function ReviewWeightTicket({
+   ppmNumber,
+   onError,
+   onSuccess,
+-  formRef,
++  setSubmitAction,
+ }) {
+   const [canEditRejection, setCanEditRejection] = useState(true);
+
+@@ -64,6 +64,22 @@ export default function ReviewWeightTicket({
+
+   const weightAllowance = order.entitlement?.totalWeight;
+
++  const formRef = useRef();
++  console.log('what is ppm');
++
++  console.log(setSubmitAction);
++  useEffect(() => {
++    let isLoaded = true;
++    setSubmitAction(() => () => {
++      console.log('review expense submit');
++      if (isLoaded) formRef.current.handleSubmit();
++    });
++
++    return () => {
++      isLoaded = false;
++    };
++  }, []);
++
+   const handleSubmit = (values) => {
+     const ownsTrailer = values.ownsTrailer === 'true';
+     const trailerMeetsCriteria = ownsTrailer ? values.trailerMeetsCriteria === 'true' : false;
+@@ -132,7 +148,10 @@ export default function ReviewWeightTicket({
+         initialValues={initialValues}
+         validationSchema={validationSchema}
+         innerRef={formRef}
+-        onSubmit={handleSubmit}
++        onSubmit={(values) => {
++          console.log('what is this');
++          handleSubmit(values);
++        }}
+         enableReinitialize
+         validateOnMount
+       >
+@@ -328,15 +347,15 @@ ReviewWeightTicket.propTypes = {
+   tripNumber: number.isRequired,
+   ppmNumber: number.isRequired,
+   onSuccess: func,
+-  formRef: object,
+   mtoShipments: PropTypes.arrayOf(ShipmentShape),
+   order: OrderShape.isRequired,
++  setSubmitAction: func,
+ };
+
+ ReviewWeightTicket.defaultProps = {
+   weightTicket: null,
+   mtoShipment: null,
+   onSuccess: null,
+-  formRef: null,
+   mtoShipments: [],
++  setSubmitAction: () => {},
+ };
+diff --git a/src/pages/Office/PPM/ReviewDocuments/ReviewDocuments.jsx b/src/pages/Office/PPM/ReviewDocuments/ReviewDocuments.jsx
+index 6ea8eccf83..da7f76a10a 100644
+--- a/src/pages/Office/PPM/ReviewDocuments/ReviewDocuments.jsx
++++ b/src/pages/Office/PPM/ReviewDocuments/ReviewDocuments.jsx
+@@ -29,6 +29,40 @@ const DOCUMENT_TYPES = {
+   MOVING_EXPENSE: 'MOVING_EXPENSE',
+ };
+
++const componentMap = [
++  {
++    name: DOCUMENT_TYPES.MOVING_EXPENSE,
++    component: ReviewExpense,
++    specialProps: ({ documentSet: expense, ...values }) => ({ ...values, expense }),
++  },
++  {
++    name: DOCUMENT_TYPES.WEIGHT_TICKET,
++    component: ReviewWeightTicket,
++    specialProps: ({ documentSet: weightTicket, order, ...values }) => ({ ...values, order, weightTicket }),
++  },
++  {
++    name: DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET,
++    component: ReviewProGear,
++    specialProps: ({ documentSet: proGear, ...values }) => ({ ...values, proGear }),
++  },
++].reduce((acc, item) => {
++  acc[item.name] = item;
++  return acc;
++}, {});
++
++const CreateExpenseComponentFromModel = ({ setType, documentSet, ...props }) => {
++  const ComponentResult = componentMap[setType];
++  // explicitly listing documentSet here is significant because it is a required parameter for specialProps,
++  // whereas, ...props are any props that may be specific to the component it is applied to.
++  return React.createElement(
++    ComponentResult.component,
++    ComponentResult.specialProps({
++      documentSet,
++      ...props,
++    }),
++  );
++};
++
+ export const ReviewDocuments = () => {
+   const { shipmentId, moveCode } = useParams();
+   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
+@@ -44,6 +78,7 @@ export const ReviewDocuments = () => {
+   const weightTickets = documents?.WeightTickets ?? [];
+   const proGearWeightTickets = documents?.ProGearWeightTickets ?? [];
+   const movingExpenses = documents?.MovingExpenses ?? [];
++  const [submitForm, setSubmitAction] = useState(() => () => console.log('blank'));
+
+   const moveWeightTotal = calculateWeightRequested(mtoShipments);
+   useEffect(() => {
+@@ -123,12 +158,20 @@ export const ReviewDocuments = () => {
+   }
+
+   const navigate = useNavigate();
+-
+-  const formRef = useRef();
+   const mainRef = useRef();
+
+-  const [serverError, setServerError] = useState(null);
+-  const [showOverview, setShowOverview] = useState(false);
++  const [serverError, onServerError] = useState(null);
++  const [showOverview, onShowOverview] = useState(false);
++
++  const setServerError = (input) => {
++    console.log('error');
++    onServerError(input);
++  };
++  const setShowOverview = (input) => {
++    console.log('over 1');
++    onShowOverview(input);
++    console.log('over 2');
++  };
+
+   const queryClient = useQueryClient();
+
+@@ -154,6 +197,7 @@ export const ReviewDocuments = () => {
+     } else {
+       setShowOverview(true);
+     }
++    console.log('after success');
+   };
+
+   const getAllUploads = () => {
+@@ -172,9 +216,8 @@ export const ReviewDocuments = () => {
+
+   const onContinue = () => {
+     setServerError(null);
+-    if (formRef.current) {
+-      formRef.current.handleSubmit();
+-    }
++    submitForm();
++    console.log('after continue');
+   };
+
+   if (isLoading) return <LoadingPlaceholder />;
+@@ -192,6 +235,24 @@ export const ReviewDocuments = () => {
+
+   const currentTripNumber = currentDocumentSet.tripNumber + 1;
+   const currentDocumentCategoryIndex = currentDocumentSet.categoryIndex + 1;
++  // bag of expense specific properties
++  const expenseModel = {
++    mtoShipment,
++    mtoShipments,
++    order,
++    categoryIndex: currentDocumentCategoryIndex,
++  };
++
++  const PresentExpenseComponent = CreateExpenseComponentFromModel({
++    ...expenseModel,
++    ppmNumber: 1,
++    tripNumber: currentTripNumber,
++    setType: currentDocumentSet.documentSetType,
++    documentSet: currentDocumentSet.documentSet,
++    onError,
++    onSuccess,
++    setSubmitAction,
++  });
+
+   const formatDocumentSetDisplay = documentSetIndex + 1;
+
+@@ -211,66 +272,31 @@ export const ReviewDocuments = () => {
+         hyperlink={reviewShipmentWeightsLink}
+       >
+         <DocumentViewerSidebar.Content mainRef={mainRef}>
+-          <NotificationScrollToTop dependency={documentSetIndex || serverError} target={mainRef.current} />
+-          {moveHasExcessWeight && (
+-            <Grid className={styles.alertContainer}>
+-              <Alert headingLevel="h4" slim type="warning">
+-                <span>This move has excess weight. Edit the PPM net weight to resolve.</span>
+-              </Alert>
+-            </Grid>
+-          )}
+-          <ErrorMessage display={!!serverError}>{serverError}</ErrorMessage>
+-          {documentSets &&
+-            (showOverview ? (
+-              <ReviewDocumentsSidePanel
+-                ppmShipment={mtoShipment.ppmShipment}
+-                weightTickets={weightTickets}
+-                proGearTickets={proGearWeightTickets}
+-                expenseTickets={movingExpenses}
+-                onError={onError}
+-                onSuccess={onConfirmSuccess}
+-                formRef={formRef}
+-              />
+-            ) : (
+-              <>
+-                {currentDocumentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET && (
+-                  <ReviewWeightTicket
+-                    weightTicket={currentDocumentSet.documentSet}
+-                    ppmNumber={1}
+-                    tripNumber={currentTripNumber}
+-                    mtoShipment={mtoShipment}
+-                    order={order}
+-                    mtoShipments={mtoShipments}
+-                    onError={onError}
+-                    onSuccess={onSuccess}
+-                    formRef={formRef}
+-                  />
+-                )}
+-                {currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (
+-                  <ReviewProGear
+-                    proGear={currentDocumentSet.documentSet}
+-                    ppmNumber={1}
+-                    tripNumber={currentTripNumber}
+-                    mtoShipment={mtoShipment}
+-                    onError={onError}
+-                    onSuccess={onSuccess}
+-                    formRef={formRef}
+-                  />
+-                )}
+-                {currentDocumentSet.documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE && (
+-                  <ReviewExpense
+-                    expense={currentDocumentSet.documentSet}
+-                    categoryIndex={currentDocumentCategoryIndex}
+-                    ppmNumber={1}
+-                    tripNumber={currentTripNumber}
+-                    mtoShipment={mtoShipment}
+-                    onError={onError}
+-                    onSuccess={onSuccess}
+-                    formRef={formRef}
+-                  />
+-                )}
+-              </>
+-            ))}
++          <>
++            <NotificationScrollToTop dependency={documentSetIndex || serverError} target={mainRef.current} />
++            {moveHasExcessWeight && (
++              <Grid className={styles.alertContainer}>
++                <Alert headingLevel="h4" slim type="warning">
++                  <span>This move has excess weight. Edit the PPM net weight to resolve.</span>
++                </Alert>
++              </Grid>
++            )}
++            <ErrorMessage display={!!serverError}>{serverError}</ErrorMessage>
++            {documentSets &&
++              (showOverview ? (
++                <ReviewDocumentsSidePanel
++                  ppmShipment={mtoShipment.ppmShipment}
++                  weightTickets={weightTickets}
++                  proGearTickets={proGearWeightTickets}
++                  expenseTickets={movingExpenses}
++                  onError={onError}
++                  onSuccess={onConfirmSuccess}
++                  setSubmitAction={setSubmitAction}
++                />
++              ) : (
++                PresentExpenseComponent
++              ))}
++          </>
+         </DocumentViewerSidebar.Content>
+         <DocumentViewerSidebar.Footer>
+           <Button className="usa-button--secondary" onClick={onBack} disabled={disableBackButton}>

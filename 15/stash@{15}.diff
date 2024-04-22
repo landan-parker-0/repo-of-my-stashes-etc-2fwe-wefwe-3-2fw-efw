@@ -1,0 +1,1275 @@
+diff --git a/src/constants/MoveHistory/EventTemplates/CreateMTOServiceItem/createMTOServiceItemCustomerContacts.test.jsx b/src/constants/MoveHistory/EventTemplates/CreateMTOServiceItem/createMTOServiceItemCustomerContacts.test.jsx
+index ff2e9a2091..d209271e21 100644
+--- a/src/constants/MoveHistory/EventTemplates/CreateMTOServiceItem/createMTOServiceItemCustomerContacts.test.jsx
++++ b/src/constants/MoveHistory/EventTemplates/CreateMTOServiceItem/createMTOServiceItemCustomerContacts.test.jsx
+@@ -56,15 +56,14 @@ describe('when given a Create basic service item customer contacts history recor
+   describe('when given a specific set of details', () => {
+     it.each([
+       ['First available delivery date', ': 15 Nov 2022', firstHistoryRecord],
+-      ['First available delivery time', ': 1400z', firstHistoryRecord],
++      ['First available delivery time', ': 1400Z', firstHistoryRecord],
+       ['Second available delivery date', ': 16 Nov 2022', secondHistoryRecord],
+       ['Second available delivery time', ': 1500Z', secondHistoryRecord],
+     ])('for label %s it displays the proper details value %s', async (label, value, record) => {
+       const template = getTemplate(record);
+-
+-      render(template.getDetails(record));
+-      expect(screen.getByText(label, { exact: false })).toBeInTheDocument();
+-      expect(screen.getByText(value, { exact: false })).toBeInTheDocument();
++      const { baseElement } = render(template.getDetails(record));
++      expect(baseElement).toHaveTextContent(label, { normalizeWhitespace: false });
++      expect(baseElement).toHaveTextContent(value, { normalizeWhitespace: false });
+     });
+   });
+ });
+diff --git a/src/constants/MoveHistory/EventTemplates/CreateMTOServiceItem/createMTOServiceItemUpdateMoveStatus.jsx b/src/constants/MoveHistory/EventTemplates/CreateMTOServiceItem/createMTOServiceItemUpdateMoveStatus.jsx
+index e77061bc9b..c745e723c3 100644
+--- a/src/constants/MoveHistory/EventTemplates/CreateMTOServiceItem/createMTOServiceItemUpdateMoveStatus.jsx
++++ b/src/constants/MoveHistory/EventTemplates/CreateMTOServiceItem/createMTOServiceItemUpdateMoveStatus.jsx
+@@ -5,11 +5,11 @@ import a from 'constants/MoveHistory/Database/Actions';
+ import t from 'constants/MoveHistory/Database/Tables';
+ import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
+
+-const formatChangedValues = (historyRecord) => {
+-  const newChangedValues = { ...historyRecord.changedValues, status: historyRecord.oldValues.status };
++const formatChangedValues = ({ changedValues, oldValues, ...theHistoryRecord }) => {
+   return {
+-    ...historyRecord,
+-    changedValues: newChangedValues,
++    ...theHistoryRecord,
++    changedValues: { ...changedValues, status: oldValues.status },
++    oldValues: { ...oldValues, status: '' },
+   };
+ };
+
+diff --git a/src/constants/MoveHistory/EventTemplates/CreateMTOServiceItem/createMTOServiceItemUpdateMoveStatus.test.jsx b/src/constants/MoveHistory/EventTemplates/CreateMTOServiceItem/createMTOServiceItemUpdateMoveStatus.test.jsx
+index b12c689bb1..9eb9b4258e 100644
+--- a/src/constants/MoveHistory/EventTemplates/CreateMTOServiceItem/createMTOServiceItemUpdateMoveStatus.test.jsx
++++ b/src/constants/MoveHistory/EventTemplates/CreateMTOServiceItem/createMTOServiceItemUpdateMoveStatus.test.jsx
+@@ -11,6 +11,7 @@ describe('when given a move status update with create mto service item history r
+     oldValues: {
+       status: 'Approved',
+     },
++    changedValues: {},
+   };
+   const template = getTemplate(historyRecord);
+   it('correctly matches the create MTO service item event', () => {
+@@ -19,7 +20,7 @@ describe('when given a move status update with create mto service item history r
+   });
+   describe('when given a specific set of details', () => {
+     it.each([['status', 'Approved']])('for label %s it displays the proper details value %s', async (label, value) => {
+-      render(template.getDetails(historyRecord));
++      const { baseElement } = render(template.getDetails(historyRecord));
+       expect(screen.getByText(value, { exact: false })).toBeInTheDocument();
+     });
+   });
+diff --git a/src/constants/MoveHistory/EventTemplates/CreateUpload/CreatePPMUpload.jsx b/src/constants/MoveHistory/EventTemplates/CreateUpload/CreatePPMUpload.jsx
+index 9a5890d664..6f1a6d6447 100644
+--- a/src/constants/MoveHistory/EventTemplates/CreateUpload/CreatePPMUpload.jsx
++++ b/src/constants/MoveHistory/EventTemplates/CreateUpload/CreatePPMUpload.jsx
+@@ -3,15 +3,14 @@ import React from 'react';
+ import o from 'constants/MoveHistory/UIDisplay/Operations';
+ import a from 'constants/MoveHistory/Database/Actions';
+ import t from 'constants/MoveHistory/Database/Tables';
+-import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
++import { getMtoShipmentLabel, formatForShipmentLabel } from 'utils/formatMtoShipment';
+ import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
+-import { formatDataForPPM } from 'utils/formatPPMData';
+
+ const formatChangedValues = (historyRecord) => {
+   const newChangedValues = {
+     ...historyRecord.changedValues,
+     ...getMtoShipmentLabel(historyRecord),
+-    ...formatDataForPPM(historyRecord),
++    ...formatForShipmentLabel(historyRecord),
+   };
+
+   return { ...historyRecord, changedValues: newChangedValues };
+diff --git a/src/constants/MoveHistory/EventTemplates/CreateUpload/CreatePPMUpload.test.jsx b/src/constants/MoveHistory/EventTemplates/CreateUpload/CreatePPMUpload.test.jsx
+index 2bad8878b3..e0903f378c 100644
+--- a/src/constants/MoveHistory/EventTemplates/CreateUpload/CreatePPMUpload.test.jsx
++++ b/src/constants/MoveHistory/EventTemplates/CreateUpload/CreatePPMUpload.test.jsx
+@@ -8,7 +8,7 @@ import { ppmExpenseTypes } from 'constants/ppmExpenseTypes';
+ import { PPM_UPLOAD_TYPES, PPM_UPLOAD_TYPES_LABELS } from 'constants/ppmUploadTypes';
+
+ const expenseTypes = ppmExpenseTypes.map((expense) => [expense.value, expense.key]);
+-const uploadTypes = PPM_UPLOAD_TYPES.map((uploadType) => [PPM_UPLOAD_TYPES_LABELS[uploadType], uploadType]);
++const uploadTypes = Object.entries(PPM_UPLOAD_TYPES_LABELS);
+
+ describe('When given a created pro-gear set history record', () => {
+   const historyRecord = {
+@@ -44,11 +44,11 @@ describe('When given a created pro-gear set history record', () => {
+   });
+
+   describe('properly renders the details of ', () => {
+-    it.each(uploadTypes)('%s', (label, uploadType) => {
++    it.each(uploadTypes)('%s', (uploadType, label) => {
+       historyRecord.context[0].upload_type = uploadType;
+       const template = getTemplate(historyRecord);
+
+-      render(template.getDetails(historyRecord));
++      const { baseElement } = render(template.getDetails(historyRecord));
+       expect(screen.getByText('Document type')).toBeInTheDocument();
+       expect(screen.getByText(`: ${label}`)).toBeInTheDocument();
+       expect(screen.getByText('Filename')).toBeInTheDocument();
+diff --git a/src/constants/MoveHistory/EventTemplates/DeleteMovingExpense/DeleteMovingExpenseUserUploads.jsx b/src/constants/MoveHistory/EventTemplates/DeleteMovingExpense/DeleteMovingExpenseUserUploads.jsx
+index a0b1a97158..860a94c24d 100644
+--- a/src/constants/MoveHistory/EventTemplates/DeleteMovingExpense/DeleteMovingExpenseUserUploads.jsx
++++ b/src/constants/MoveHistory/EventTemplates/DeleteMovingExpense/DeleteMovingExpenseUserUploads.jsx
+@@ -3,15 +3,14 @@ import React from 'react';
+ import o from 'constants/MoveHistory/UIDisplay/Operations';
+ import a from 'constants/MoveHistory/Database/Actions';
+ import t from 'constants/MoveHistory/Database/Tables';
+-import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
++import { getMtoShipmentLabel, formatForShipmentLabel } from 'utils/formatMtoShipment';
+ import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
+-import { formatDataForPPM } from 'utils/formatPPMData';
+
+ const formatChangedValues = (historyRecord) => {
+   const newChangedValues = {
+     ...historyRecord.changedValues,
+     ...getMtoShipmentLabel(historyRecord),
+-    ...formatDataForPPM(historyRecord),
++    ...formatForShipmentLabel(historyRecord),
+   };
+
+   return { ...historyRecord, changedValues: newChangedValues };
+diff --git a/src/constants/MoveHistory/EventTemplates/DeleteProGearWeightTicket/DeleteProGearWeightTicketUserUploads.jsx b/src/constants/MoveHistory/EventTemplates/DeleteProGearWeightTicket/DeleteProGearWeightTicketUserUploads.jsx
+index 43ef25e13e..7ab9f223ab 100644
+--- a/src/constants/MoveHistory/EventTemplates/DeleteProGearWeightTicket/DeleteProGearWeightTicketUserUploads.jsx
++++ b/src/constants/MoveHistory/EventTemplates/DeleteProGearWeightTicket/DeleteProGearWeightTicketUserUploads.jsx
+@@ -3,15 +3,14 @@ import React from 'react';
+ import o from 'constants/MoveHistory/UIDisplay/Operations';
+ import a from 'constants/MoveHistory/Database/Actions';
+ import t from 'constants/MoveHistory/Database/Tables';
+-import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
++import { getMtoShipmentLabel, formatForShipmentLabel } from 'utils/formatMtoShipment';
+ import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
+-import { formatDataForPPM } from 'utils/formatPPMData';
+
+ const formatChangedValues = (historyRecord) => {
+   const newChangedValues = {
+     ...historyRecord.changedValues,
+     ...getMtoShipmentLabel(historyRecord),
+-    ...formatDataForPPM(historyRecord),
++    ...formatForShipmentLabel(historyRecord),
+   };
+
+   return { ...historyRecord, changedValues: newChangedValues };
+diff --git a/src/constants/MoveHistory/EventTemplates/DeleteWeightTicket/DeleteWeightTicketUserUploads.jsx b/src/constants/MoveHistory/EventTemplates/DeleteWeightTicket/DeleteWeightTicketUserUploads.jsx
+index 44786121d7..a0263d06d9 100644
+--- a/src/constants/MoveHistory/EventTemplates/DeleteWeightTicket/DeleteWeightTicketUserUploads.jsx
++++ b/src/constants/MoveHistory/EventTemplates/DeleteWeightTicket/DeleteWeightTicketUserUploads.jsx
+@@ -3,15 +3,14 @@ import React from 'react';
+ import o from 'constants/MoveHistory/UIDisplay/Operations';
+ import a from 'constants/MoveHistory/Database/Actions';
+ import t from 'constants/MoveHistory/Database/Tables';
+-import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
++import { getMtoShipmentLabel, formatForShipmentLabel } from 'utils/formatMtoShipment';
+ import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
+-import { formatDataForPPM } from 'utils/formatPPMData';
+
+ const formatChangedValues = (historyRecord) => {
+   const newChangedValues = {
+     ...historyRecord.changedValues,
+     ...getMtoShipmentLabel(historyRecord),
+-    ...formatDataForPPM(historyRecord),
++    ...formatForShipmentLabel(historyRecord),
+   };
+
+   return { ...historyRecord, changedValues: newChangedValues };
+diff --git a/src/constants/MoveHistory/EventTemplates/UpdateAddress/createAddress.test.jsx b/src/constants/MoveHistory/EventTemplates/UpdateAddress/createAddress.test.jsx
+index be640c3d4a..e270efa502 100644
+--- a/src/constants/MoveHistory/EventTemplates/UpdateAddress/createAddress.test.jsx
++++ b/src/constants/MoveHistory/EventTemplates/UpdateAddress/createAddress.test.jsx
+@@ -40,9 +40,11 @@ describe('when given an insert with address table history record', () => {
+       async (type, value) => {
+         const newChangedValues = { ...changedValues, [type]: address };
+         const context = [{ address_type: type }];
+-        render(result.getDetails({ ...historyRecord, changedValues: newChangedValues, context }));
+-        expect(screen.getByText(LABEL[type])).toBeInTheDocument();
+-        expect(screen.getByText(value, { exact: false })).toBeInTheDocument();
++        const { baseElement } = render(
++          result.getDetails({ ...historyRecord, changedValues: newChangedValues, context }),
++        );
++        expect(baseElement).toHaveTextContent(LABEL[type], { normalizeWhitespace: true });
++        expect(baseElement).toHaveTextContent(value, { normalizeWhitespace: true });
+       },
+     );
+   });
+diff --git a/src/constants/MoveHistory/EventTemplates/UpdateCloseoutOffice/updateCloseoutOffice.test.jsx b/src/constants/MoveHistory/EventTemplates/UpdateCloseoutOffice/updateCloseoutOffice.test.jsx
+index 41cfb2400b..327da1e1b6 100644
+--- a/src/constants/MoveHistory/EventTemplates/UpdateCloseoutOffice/updateCloseoutOffice.test.jsx
++++ b/src/constants/MoveHistory/EventTemplates/UpdateCloseoutOffice/updateCloseoutOffice.test.jsx
+@@ -18,7 +18,6 @@ describe('when given an updateCloseoutOffice history record', () => {
+   it('renders the default details in the details column when updateCloseoutOffice key is not present ', () => {
+     const template = getTemplate(historyRecord);
+     const ren = render(template.getDetails(historyRecord));
+-    ren.debug();
+     expect(screen.getByText('-')).toBeInTheDocument();
+   });
+
+@@ -29,7 +28,6 @@ describe('when given an updateCloseoutOffice history record', () => {
+     };
+     const template = getTemplate(newHistoryRecord);
+     const ren = render(template.getDetails(newHistoryRecord));
+-    ren.debug();
+     expect(screen.getByText('Closeout office')).toBeInTheDocument();
+   });
+ });
+diff --git a/src/constants/MoveHistory/EventTemplates/UpdateMTOShipment/UpdateMTOShipmentPPMDetails.jsx b/src/constants/MoveHistory/EventTemplates/UpdateMTOShipment/UpdateMTOShipmentPPMDetails.jsx
+index cf71b0e6be..ab04a5df02 100644
+--- a/src/constants/MoveHistory/EventTemplates/UpdateMTOShipment/UpdateMTOShipmentPPMDetails.jsx
++++ b/src/constants/MoveHistory/EventTemplates/UpdateMTOShipment/UpdateMTOShipmentPPMDetails.jsx
+@@ -4,14 +4,14 @@ import o from 'constants/MoveHistory/UIDisplay/Operations';
+ import a from 'constants/MoveHistory/Database/Actions';
+ import t from 'constants/MoveHistory/Database/Tables';
+ import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
+-import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
+-import { formatDataForPPM } from 'utils/formatPPMData';
++import { getMtoShipmentLabel, formatForShipmentLabel } from 'utils/formatMtoShipment';
+
+-const formatChangedValues = (historyRecord) => {
++export const formatChangedValues = (historyRecord) => {
++  const theLabel = getMtoShipmentLabel(historyRecord);
+   const newChangedValues = {
+     ...historyRecord.changedValues,
+-    ...getMtoShipmentLabel(historyRecord),
+-    ...formatDataForPPM(historyRecord),
++    ...theLabel,
++    ...formatForShipmentLabel(historyRecord),
+   };
+
+   return { ...historyRecord, changedValues: newChangedValues };
+diff --git a/src/constants/MoveHistory/EventTemplates/UpdateMTOShipment/UpdateMTOShipmentPPMDetails.test.jsx b/src/constants/MoveHistory/EventTemplates/UpdateMTOShipment/UpdateMTOShipmentPPMDetails.test.jsx
+index eae8c90143..e086e4f948 100644
+--- a/src/constants/MoveHistory/EventTemplates/UpdateMTOShipment/UpdateMTOShipmentPPMDetails.test.jsx
++++ b/src/constants/MoveHistory/EventTemplates/UpdateMTOShipment/UpdateMTOShipmentPPMDetails.test.jsx
+@@ -1,177 +1,152 @@
+-import { render, screen } from '@testing-library/react';
+-
+ import o from 'constants/MoveHistory/UIDisplay/Operations';
+ import a from 'constants/MoveHistory/Database/Actions';
+ import t from 'constants/MoveHistory/Database/Tables';
+-import getTemplate from 'constants/MoveHistory/TemplateManager';
+ import e from 'constants/MoveHistory/EventTemplates/UpdateMTOShipment/UpdateMTOShipmentPPMDetails';
++import getTemplate from 'constants/MoveHistory/TemplateManager';
++import {
++  assertAuditHistoryLineItemLabel,
++  getTestEntries,
++  testAuditHistory,
++} from 'constants/MoveHistory/AuditHistoryTestUtility/historyTestHelper';
+
+-describe('when given a PPM shipment update', () => {
+-  const historyRecord = {
++describe('line item history for ppm shipments', () => {
++  const theHistoryRecordWithContext = {
+     action: a.UPDATE,
+     eventName: o.updateMTOShipment,
+     tableName: t.ppm_shipments,
+-    changedValues: {
+-      destination_postal_code: '59801',
+-      estimated_weight: 2233,
+-      expected_departure_date: '2023-12-08',
+-      pickup_postal_code: '20906',
+-      secondary_destination_postal_code: '59802',
+-      secondary_pickup_postal_code: '20832',
+-      sit_estimated_departure_date: '2020-04-13',
+-      sit_estimated_entry_date: '2020-03-22',
+-      sit_estimated_weight: '6877',
+-      sit_expected: true,
+-    },
+     context: [
+       {
+         shipment_type: 'PPM',
+-        shipment_id_abbr: '12992',
++        shipment_id_abbr: 'ABC123',
+       },
+     ],
+   };
++  describe('Decorates the entry to', () => {
++    it('Associate the event mapping correctly', () => {
++      const result = getTemplate(theHistoryRecordWithContext);
++      expect(result).toMatchObject(e);
++    });
+
+-  const weightRecord = {
+-    action: a.UPDATE,
+-    eventName: o.updateMTOShipment,
+-    tableName: t.ppm_shipments,
+-    changedValues: {
+-      estimated_weight: '1234',
+-      has_pro_gear: true,
+-      pro_gear_weight: '321',
+-      spouse_pro_gear_weight: '34',
+-    },
+-    context: [
+-      {
+-        shipment_type: 'PPM',
+-        shipment_id_abbr: '12992',
+-      },
+-    ],
+-  };
++    const entryTitles = [
++      [theHistoryRecordWithContext.action, theHistoryRecordWithContext.eventName, theHistoryRecordWithContext.tableName]
++        .join('|')
++        .toLowerCase(),
++    ];
+
+-  const advanceRecord = {
+-    action: a.UPDATE,
+-    eventName: o.updateMTOShipment,
+-    tableName: t.ppm_shipments,
+-    changedValues: {
+-      advance_amount_requested: 598600,
+-      advance_status: 'APPROVED',
+-      has_requested_advance: true,
+-    },
+-    context: [
+-      {
+-        shipment_type: 'PPM',
+-        shipment_id_abbr: '12992',
+-      },
+-    ],
+-  };
++    it.each(entryTitles)('Properly display the entry title of [ %s ]', () => {
++      assertAuditHistoryLineItemLabel(theHistoryRecordWithContext);
++    });
++  });
+
+-  const incentiveRecord = {
+-    action: a.UPDATE,
+-    eventName: o.updateMTOShipment,
+-    tableName: t.ppm_shipments,
+-    changedValues: {
+-      final_incentive: 46855239,
+-    },
+-    context: [
+-      {
+-        shipment_type: 'PPM',
+-        shipment_id_abbr: '12992',
++  describe('History line items', () => {
++    const shipmentHistoryRecord = {
++      ...theHistoryRecordWithContext,
++      changedValues: {
++        destination_postal_code: '59801',
++        estimated_weight: '2233',
++        expected_departure_date: '2023-12-08',
++        pickup_postal_code: '20906',
++        secondary_destination_postal_code: '59802',
++        secondary_pickup_postal_code: '20832',
++        sit_estimated_departure_date: '2020-04-13',
++        sit_estimated_entry_date: '2020-03-22',
++        sit_estimated_weight: '6877',
++        sit_expected: true,
+       },
+-    ],
+-  };
++    };
+
+-  const w2Record = {
+-    action: a.UPDATE,
+-    eventName: o.updateMTOShipment,
+-    tableName: t.ppm_shipments,
+-    changedValues: {
+-      actual_destination_postal_code: '20889',
+-      actual_move_date: '2024-02-01',
+-      actual_pickup_postal_code: '59801',
+-      advance_amount_received: 2278600,
+-      has_received_advance: true,
+-      w2_address_id: '6c1df26c-76bc-42c4-9c7f-c626a78739d3',
+-    },
+-    context: [
+-      {
+-        shipment_id_abbr: '125d1',
+-        shipment_type: 'PPM',
+-        w2_address:
+-          '{"id":"6c1df26c-76bc-42c4-9c7f-c626a78739d3","street_address_1":"123 Dad St","street_address_2":null,"city":"Missoula","state":"MT","postal_code":"59801","created_at":"2024-02-15T08:39:41.692044","updated_at":"2024-02-16T03:36:51.388835","street_address_3":null,"country":null}',
++    it.each(getTestEntries(shipmentHistoryRecord))(
++      'Appropriately display for: %s',
++      (testLabel, { changed, context }) => {
++        testAuditHistory(shipmentHistoryRecord, { changed, context });
+       },
+-    ],
+-  };
+-
+-  it('correctly matches the the event', () => {
+-    const result = getTemplate(historyRecord);
+-    expect(result).toMatchObject(e);
+-  });
+-  it('displays the correct label for shipment', () => {
+-    const result = getTemplate(historyRecord);
+-    render(result.getDetails(historyRecord));
+-    expect(screen.getByText('PPM shipment #12992')).toBeInTheDocument();
+-  });
+-  describe('it correctly renders the shipment details', () => {
+-    it.each([
+-      ['Estimated weight', ': 2,233 lbs'],
+-      ['Expected departure date', ': 08 Dec 2023'],
+-      ['Sit expected', ': Yes'],
+-      ['SIT estimated storage start', ': 22 Mar 2020'],
+-      ['SIT estimated storage end', ': 13 Apr 2020'],
+-      ['SIT estimated storage weight', ': 6,877 lbs'],
+-      ['Pickup postal code', ': 20906'],
+-      ['Destination postal code', ': 59801'],
+-      ['Secondary pickup postal code', ': 20832'],
+-      ['Secondary destination postal code', ': 59802'],
+-    ])('displays the correct details value for %s', async (label, value) => {
+-      const result = getTemplate(historyRecord);
+-      render(result.getDetails(historyRecord));
+-      expect(screen.getByText(label)).toBeInTheDocument();
+-      expect(screen.getByText(value)).toBeInTheDocument();
+-    });
+-  });
+-  describe('it correctly renders the weight details', () => {
+-    it.each([
+-      ['Pro-gear', ': Yes'],
+-      ['Pro-gear weight', ': 321 lbs'],
+-      ['Spouse pro-gear weight', ': 34 lbs'],
+-      ['Estimated weight', ': 1,234 lbs'],
+-    ])('displays the correct details value for %s', async (label, value) => {
+-      const result = getTemplate(weightRecord);
+-      render(result.getDetails(weightRecord));
+-      expect(screen.getByText(label)).toBeInTheDocument();
+-      expect(screen.getByText(value)).toBeInTheDocument();
+-    });
++    );
+   });
+-  describe('it correctly renders the advance details', () => {
+-    it.each([
+-      ['Advance amount requested', ': $5,986.00'],
+-      ['Advance requested', ': Yes'],
+-      ['Advance status', ': APPROVED'],
+-    ])('displays the correct details value for %s', async (label, value) => {
+-      const result = getTemplate(advanceRecord);
+-      render(result.getDetails(advanceRecord));
+-      expect(screen.getByText(label)).toBeInTheDocument();
+-      expect(screen.getByText(value)).toBeInTheDocument();
++
++  describe('weight history', () => {
++    const weightHistoryRecord = {
++      ...theHistoryRecordWithContext,
++      changedValues: {
++        estimated_weight: '1234',
++        has_pro_gear: true,
++        pro_gear_weight: '321',
++        spouse_pro_gear_weight: '34',
++      },
++    };
++    it.each(getTestEntries(weightHistoryRecord))('Appropriately display for: %s', (testLabel, { changed, context }) => {
++      testAuditHistory(weightHistoryRecord, { changed, context });
+     });
+   });
+-  it('it correctly renders the final incentive amount in dollars', () => {
+-    const result = getTemplate(incentiveRecord);
+-    render(result.getDetails(incentiveRecord));
+-    expect(screen.getByText('Final incentive')).toBeInTheDocument();
+-    expect(screen.getByText(': $468,552.39')).toBeInTheDocument();
++
++  describe('advance history', () => {
++    const advanceHistoryRecord = {
++      ...theHistoryRecordWithContext,
++      changedValues: {
++        advance_amount_requested: 598600,
++        advance_status: 'APPROVED',
++        has_requested_advance: true,
++      },
++    };
++    it.each(getTestEntries(advanceHistoryRecord))(
++      'Appropriately display for: %s',
++      (testLabel, { changed, context }) => {
++        testAuditHistory(advanceHistoryRecord, { changed, context });
++      },
++    );
+   });
+-  it('it correctly renders details of a customer completing a PPM', () => {
+-    const result = getTemplate(w2Record);
+-    render(result.getDetails(w2Record));
+-    expect(screen.getByText('W2 Address')).toBeInTheDocument();
+-    expect(screen.getByText(': 123 Dad St, Missoula, MT 59801')).toBeInTheDocument();
+-    expect(screen.getByText('Departure date')).toBeInTheDocument();
+-    expect(screen.getByText(': 01 Feb 2024')).toBeInTheDocument();
+-    expect(screen.getByText('Starting ZIP')).toBeInTheDocument();
+-    expect(screen.getByText(': 59801')).toBeInTheDocument();
+-    expect(screen.getByText('Ending ZIP')).toBeInTheDocument();
+-    expect(screen.getByText(': 20889')).toBeInTheDocument();
++
++  describe('incentive history', () => {
++    const incentiveHistoryRecord = {
++      ...theHistoryRecordWithContext,
++      changedValues: {
++        final_incentive: 46855239,
++      },
++    };
++
++    it.each(getTestEntries(incentiveHistoryRecord))(
++      'Appropriately display for: %s',
++      (testLabel, { changed, context }) => {
++        testAuditHistory(incentiveHistoryRecord, { changed, context });
++      },
++    );
++
++    const w2AddressValue = {
++      id: '6c1df26c-76bc-42c4-9c7f-c626a78739d3',
++      street_address_1: '123 Dad St',
++      street_address_2: null,
++      city: 'Missoula',
++      state: 'MT',
++      postal_code: '59801',
++      created_at: '2024-02-15T08:39:41.692044',
++      updated_at: '2024-02-16T03:36:51.388835',
++      street_address_3: null,
++      country: null,
++    };
++
++    const incentiveCompletionRecord = {
++      ...theHistoryRecordWithContext,
++      changedValues: {
++        destination_postal_code: '20889',
++        actual_move_date: '2024-02-01',
++        actual_pickup_postal_code: '59801',
++        advance_amount_received: 2278600,
++        has_received_advance: true,
++        w2_address_id: '6c1df26c-76bc-42c4-9c7f-c626a78739d3',
++      },
++      context: [
++        {
++          shipment_id_abbr: 'INC123',
++          shipment_type: 'PPM',
++          w2_address: JSON.stringify(w2AddressValue),
++        },
++      ],
++    };
++
++    it.each(getTestEntries(incentiveCompletionRecord))(
++      'Appropriately display for: %s',
++      (testLabel, { changed, context }) => {
++        testAuditHistory(incentiveCompletionRecord, { changed, context });
++      },
++    );
+   });
+ });
+diff --git a/src/constants/MoveHistory/EventTemplates/UpdateMTOShipment/updateMTOShipment.jsx b/src/constants/MoveHistory/EventTemplates/UpdateMTOShipment/updateMTOShipment.jsx
+index 5f44fdcee4..929bffa3c0 100644
+--- a/src/constants/MoveHistory/EventTemplates/UpdateMTOShipment/updateMTOShipment.jsx
++++ b/src/constants/MoveHistory/EventTemplates/UpdateMTOShipment/updateMTOShipment.jsx
+@@ -6,7 +6,7 @@ import t from 'constants/MoveHistory/Database/Tables';
+ import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
+ import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
+
+-const formatChangedValues = (historyRecord) => {
++export const formatChangedValues = (historyRecord) => {
+   const { changedValues } = historyRecord;
+   const newChangedValues = {
+     ...changedValues,
+diff --git a/src/constants/MoveHistory/EventTemplates/UpdateMTOShipment/updateMTOShipment.test.jsx b/src/constants/MoveHistory/EventTemplates/UpdateMTOShipment/updateMTOShipment.test.jsx
+index 1232d4656c..c7b75710b8 100644
+--- a/src/constants/MoveHistory/EventTemplates/UpdateMTOShipment/updateMTOShipment.test.jsx
++++ b/src/constants/MoveHistory/EventTemplates/UpdateMTOShipment/updateMTOShipment.test.jsx
+@@ -1,18 +1,13 @@
+-import { render, screen } from '@testing-library/react';
+-
+-import getTemplate from 'constants/MoveHistory/TemplateManager';
++import o from 'constants/MoveHistory/UIDisplay/Operations';
++import a from 'constants/MoveHistory/Database/Actions';
++import t from 'constants/MoveHistory/Database/Tables';
+ import e from 'constants/MoveHistory/EventTemplates/UpdateMTOShipment/updateMTOShipment';
+-import * as fieldDefault from 'constants/MoveHistory/Database/FieldMappings';
+ import {
+-  formatCents,
+-  formatCustomerDate,
+-  formatWeight,
+-  formatYesNoMoveHistoryValue,
+-  toDollarString,
+-} from 'utils/formatters';
+-import { retrieveTextToDisplay } from 'pages/Office/MoveHistory/LabeledDetails';
+-
+-const FieldMappings = fieldDefault.default;
++  assertAuditHistoryLineItemLabel,
++  getTestEntries,
++  testAuditHistory,
++} from 'constants/MoveHistory/AuditHistoryTestUtility/historyTestHelper';
++import getTemplate from 'constants/MoveHistory/TemplateManager';
+
+ describe('when given an mto shipment update with mto shipment table history record', () => {
+   const changedValues = {
+@@ -27,7 +22,6 @@ describe('when given an mto shipment update with mto shipment table history reco
+     customer_remarks: 'Words',
+     diversion: 'false',
+     first_available_delivery_date: '2020-04-12',
+-    id: 'b1cb1428-6d65-40fc-addd-b57f4ea120f1',
+     prime_actual_weight: '14000',
+     prime_estimated_weight: '12000',
+     sac_type: 'HHG',
+@@ -37,7 +31,6 @@ describe('when given an mto shipment update with mto shipment table history reco
+     status: 'SUBMITTED',
+     tac_type: 'NTS',
+     uses_external_vendor: 'true',
+-
+     advance_amount_requested: 100,
+     destination_postal_code: '29102',
+     estimated_incentive: 2252814,
+@@ -52,11 +45,11 @@ describe('when given an mto shipment update with mto shipment table history reco
+     spouse_pro_gear_weight: 257,
+     distance: 400,
+   };
+-  const historyRecord = {
+-    action: 'UPDATE',
+-    eventName: 'updateMTOShipment',
+-    tableName: 'mto_shipments',
+-    changedValues,
++
++  const theHistoryRecordWithContext = {
++    action: a.UPDATE,
++    eventName: o.updateMTOShipment,
++    tableName: t.mto_shipments,
+     context: [
+       {
+         shipment_type: 'PPM',
+@@ -64,61 +57,31 @@ describe('when given an mto shipment update with mto shipment table history reco
+       },
+     ],
+   };
+-  it('correctly matches the Update mto shipment event', () => {
+-    const result = getTemplate(historyRecord);
+-    expect(result).toMatchObject(e);
+-  });
+-  describe('it correctly renders the details component for Create MTO shipments', () => {
+-    it.each([
+-      [FieldMappings.status, changedValues.status],
+-      [FieldMappings.requested_delivery_date, formatCustomerDate(changedValues.requested_delivery_date)],
+-      [FieldMappings.requested_pickup_date, formatCustomerDate(changedValues.requested_pickup_date)],
+-      Object.values(retrieveTextToDisplay('destination_address_type', changedValues.destination_address_type)),
+-      [FieldMappings.actual_pickup_date, formatCustomerDate(changedValues.actual_pickup_date)],
+-      [FieldMappings.approved_date, formatCustomerDate(changedValues.approved_date)],
+-      [FieldMappings.billable_weight_cap, formatWeight(Number(changedValues.billable_weight_cap))],
+-      [FieldMappings.billable_weight_justification, changedValues.billable_weight_justification],
+-      [FieldMappings.counselor_remarks, changedValues.counselor_remarks],
+-      [FieldMappings.customer_remarks, changedValues.customer_remarks],
+-      [FieldMappings.diversion, changedValues.diversion],
+-      [FieldMappings.first_available_delivery_date, formatCustomerDate(changedValues.first_available_delivery_date)],
+-      [FieldMappings.shipment_weight, formatWeight(changedValues.shipment_weight)],
+-      [FieldMappings.prime_estimated_weight, formatWeight(Number(changedValues.prime_estimated_weight))],
+-      [FieldMappings.sac_type, changedValues.sac_type],
+-      [FieldMappings.tac_type, changedValues.tac_type],
+-      [FieldMappings.scheduled_pickup_date, formatCustomerDate(changedValues.scheduled_pickup_date)],
+-      [FieldMappings.service_order_number, `${changedValues.service_order_number}`],
+-      [FieldMappings.uses_external_vendor, changedValues.uses_external_vendor],
+-      Object.values(retrieveTextToDisplay('distance', changedValues.distance)),
+-      [FieldMappings.advance_amount_requested, toDollarString(changedValues.has_requested_advance)],
+-      [FieldMappings.destination_postal_code, changedValues.destination_postal_code],
+-      [FieldMappings.estimated_incentive, toDollarString(formatCents(changedValues.estimated_incentive))],
+-      [FieldMappings.estimated_weight, formatWeight(Number(changedValues.estimated_weight))],
+-      [FieldMappings.expected_departure_date, formatCustomerDate(changedValues.expected_departure_date)],
+-      [FieldMappings.has_requested_advance, formatYesNoMoveHistoryValue(changedValues.has_requested_advance)],
+-      [FieldMappings.pro_gear_weight, formatWeight(Number(changedValues.pro_gear_weight))],
+-      [FieldMappings.sit_estimated_cost, toDollarString(formatCents(changedValues.sit_estimated_cost))],
+-      [FieldMappings.sit_estimated_departure_date, formatCustomerDate(changedValues.sit_estimated_departure_date)],
+-      [FieldMappings.sit_estimated_entry_date, formatCustomerDate(changedValues.sit_estimated_entry_date)],
+-      [FieldMappings.sit_estimated_weight, formatWeight(Number(changedValues.sit_estimated_weight))],
+-      [FieldMappings.spouse_pro_gear_weight, formatWeight(Number(changedValues.spouse_pro_gear_weight))],
+-    ])('displays the correct details value for %s', async (label, value) => {
+-      const targetItem = Object.fromEntries(
+-        Object.entries(changedValues).filter(([key]) => FieldMappings[key] === label),
+-      );
+-      const history = { ...historyRecord, changedValues: { ...targetItem } };
+-      const result = getTemplate(history);
+-      render(result.getDetails(history));
+-      const displayingElements = screen.getAllByText(label);
+-      const displayingElement = displayingElements.find((element) => element.parentElement.textContent.includes(label));
+-      const parent = displayingElement.parentElement;
+-      expect(parent.textContent).toContain(label);
+-      expect(parent.textContent).toContain(value);
++
++  describe('Decorates the entry to', () => {
++    it('Associate the event mapping correctly', () => {
++      const result = getTemplate(theHistoryRecordWithContext);
++      expect(result).toMatchObject(e);
++    });
++
++    const entryTitles = [
++      [theHistoryRecordWithContext.action, theHistoryRecordWithContext.eventName, theHistoryRecordWithContext.tableName]
++        .join(' | ')
++        .toLowerCase(),
++    ];
++
++    it.each(entryTitles)('Properly display the entry title of [ %s ]', () => {
++      assertAuditHistoryLineItemLabel(theHistoryRecordWithContext);
+     });
+-    it('displays the correct label for shipment', () => {
+-      const result = getTemplate(historyRecord);
+-      render(result.getDetails(historyRecord));
+-      expect(screen.getByText('PPM shipment #B4B4B')).toBeInTheDocument();
++  });
++
++  describe('MTO shipment line items', () => {
++    const theHistoryRecord = {
++      ...theHistoryRecordWithContext,
++      changedValues,
++    };
++    it.each(getTestEntries(theHistoryRecord))('Appropriately display for: %s', (testLabel, { changed, context }) => {
++      testAuditHistory(theHistoryRecord, { changed, context });
+     });
+   });
+ });
+diff --git a/src/constants/MoveHistory/EventTemplates/UpdateReweigh/updateReweighWeight.jsx b/src/constants/MoveHistory/EventTemplates/UpdateReweigh/updateReweighWeight.jsx
+index 9591b54cf0..ce19b5c98b 100644
+--- a/src/constants/MoveHistory/EventTemplates/UpdateReweigh/updateReweighWeight.jsx
++++ b/src/constants/MoveHistory/EventTemplates/UpdateReweigh/updateReweighWeight.jsx
+@@ -7,12 +7,14 @@ import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
+ import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
+
+ const formatChangedValues = (historyRecord) => {
+-  const { changedValues } = historyRecord;
++  const {
++    changedValues: { weight, ...changedValues },
++  } = historyRecord;
+
+   const newChangedValues = {
+     ...changedValues,
+     ...getMtoShipmentLabel(historyRecord),
+-    reweigh_weight: changedValues.weight,
++    reweigh_weight: weight,
+   };
+
+   return { ...historyRecord, changedValues: newChangedValues };
+diff --git a/src/constants/MoveHistory/UIDisplay/Operations.js b/src/constants/MoveHistory/UIDisplay/Operations.js
+index 1ba70f90d7..e3729633d6 100644
+--- a/src/constants/MoveHistory/UIDisplay/Operations.js
++++ b/src/constants/MoveHistory/UIDisplay/Operations.js
+@@ -49,7 +49,7 @@ export default {
+   updateProGearWeightTicket: 'updateProGearWeightTicket', // ghc.yaml, internal.yaml
+   updateMovingExpense: 'updateMovingExpense', // ghc.yaml, internal.yaml
+   deleteMTOShipment: 'deleteMTOShipment', // prime.yaml
+-  updateCloseoutOffice: 'updateCloseoutOffice',
++  updateCloseoutOffice: 'updateCloseoutOffice', // ghc.yaml, internal.yaml
+   createWeightTicket: 'createWeightTicket', // internal.yaml
+   deleteWeightTicket: 'deleteWeightTicket', // internal.yaml
+   createPPMUpload: 'createPPMUpload', // internal.yaml
+diff --git a/src/pages/Office/MoveHistory/LabeledDetails.jsx b/src/pages/Office/MoveHistory/LabeledDetails.jsx
+index bbb7ffdc05..6eed22628f 100644
+--- a/src/pages/Office/MoveHistory/LabeledDetails.jsx
++++ b/src/pages/Office/MoveHistory/LabeledDetails.jsx
+@@ -7,6 +7,8 @@ import dateFields from 'constants/MoveHistory/Database/DateFields';
+ import fieldMappings from 'constants/MoveHistory/Database/FieldMappings';
+ import weightFields from 'constants/MoveHistory/Database/WeightFields';
+ import monetaryFields from 'constants/MoveHistory/Database/MonetaryFields';
++import timeUnitFields from 'constants/MoveHistory/Database/TimeUnitFields';
++import distanceFields from 'constants/MoveHistory/Database/DistanceFields';
+ import { shipmentTypes } from 'constants/shipments';
+ import { HistoryLogRecordShape } from 'constants/MoveHistory/UIDisplay/HistoryLogShape';
+ import optionFields from 'constants/MoveHistory/Database/OptionFields';
+@@ -18,30 +20,54 @@ import {
+   toDollarString,
+ } from 'utils/formatters';
+
++const allKeyFields = {
++  weightFields,
++  dateFields,
++  booleanFields,
++  monetaryFields,
++  distanceFields,
++  timeUnitFields,
++};
++
++const allValueFields = {
++  optionFields,
++};
++
++const formatsForKeyFields = {
++  dateFields: ({ value }) => formatCustomerDate(value),
++  booleanFields: ({ value }) => formatYesNoMoveHistoryValue(value),
++  weightFields: ({ value }) => formatWeight(Number(value)),
++  monetaryFields: ({ value }) => toDollarString(formatCents(value)),
++  distanceFields: ({ value }) => `${value} mi`,
++  timeUnitFields: ({ value }) => `${value} days`,
++};
++
++const formatsForValueFields = {
++  optionFields: ({ value }) => allValueFields.optionFields[value],
++};
++
++const formatFieldOrValue = (theKey, theValue) => {
++  const [fieldKey] = Object.entries(allKeyFields).find(([key, fields]) => theKey in fields) || [];
++  const [valueKey] = Object.entries(allValueFields).find(([key, fields]) => theValue in fields) || [];
++
++  const fieldFormatter = fieldKey && formatsForKeyFields[fieldKey];
++  const valueFormatter = valueKey && formatsForValueFields[valueKey];
++
++  const [theFormatter] = [fieldFormatter || [], valueFormatter || []].flat();
++  if (theFormatter === undefined) return theValue;
++
++  const result = theFormatter({ field: theKey, value: theValue });
++  return result;
++};
++
++// export const getDisplayLabelText = () => {};
++
+ export const retrieveTextToDisplay = (fieldName, value) => {
+   const emptyValue = '—';
+   const displayName = fieldMappings[fieldName];
+   let displayValue = value;
+
+-  const fieldNameMap = {
+-    [fieldMappings.distance]: (name, someValue) => `${someValue} mi`,
+-    [fieldMappings.storage_in_transit]: (name, someValue) => `${someValue} days`,
+-  };
+-
+-  if (fieldNameMap[displayName]) {
+-    displayValue = fieldNameMap[displayName]?.call(null, displayName, value);
+-  } else if (weightFields[fieldName]) {
+-    // turn string value into number so it can be formatted correctly
+-    displayValue = formatWeight(Number(displayValue));
+-  } else if (optionFields[displayValue]) {
+-    displayValue = optionFields[displayValue];
+-  } else if (dateFields[fieldName]) {
+-    displayValue = formatCustomerDate(displayValue);
+-  } else if (booleanFields[fieldName]) {
+-    displayValue = formatYesNoMoveHistoryValue(displayValue);
+-  } else if (monetaryFields[fieldName]) {
+-    displayValue = toDollarString(formatCents(displayValue));
+-  }
++  displayValue = formatFieldOrValue(fieldName, displayValue);
+
+   if (!displayValue) {
+     displayValue = emptyValue;
+@@ -53,48 +79,94 @@ export const retrieveTextToDisplay = (fieldName, value) => {
+   };
+ };
+
++export const getDisplayLabelText = ({
++  changedValues: { shipment_id_display, moving_expense_type },
++  context = [{}],
++}) => {
++  const [{ shipment_type, name: service_item_name }] = context;
++  const result = [
++    shipmentTypes[shipment_type]?.concat(` shipment #${shipment_id_display}`),
++    service_item_name,
++    moving_expense_type,
++  ]
++    .flatMap((item) => item ?? [])
++    .join(', ');
++
++  return result;
++};
++
+ const LabeledDetails = ({ historyRecord }) => {
+-  const changedValuesToUse = historyRecord.changedValues;
+-  let shipmentDisplay = '';
+-
+-  // Check for shipment_type to use it as a header for the row
+-  if ('shipment_type' in changedValuesToUse) {
+-    shipmentDisplay = shipmentTypes[changedValuesToUse.shipment_type];
+-    shipmentDisplay += ` shipment #${changedValuesToUse.shipment_id_display}`;
+-    delete changedValuesToUse.shipment_type;
+-  }
++  const { changedValues = {}, oldValues = {} } = historyRecord;
++  const { shipment_type, service_item_name, moving_expense_type, shipment_id_display, ...theChangedValues } =
++    changedValues;
++
++  const shipmentDisplay = getDisplayLabelText(historyRecord);
++  const lineItems = Object.entries({ ...oldValues, ...theChangedValues })
++    .filter(([theField, theValue]) => {
++      // theField can be present in both oldValues and theChangedValues
++      // theFIeld must be present in either
++      // if theValue is blank, it should be blank for one but not the other
++      // if theValue is blank, it might be blank in one, but the other map may not have an entry to compare
++
++      // if theValue is blank but not present in theChangedValues
++      // this would mean that oldValues has the blank value
++
++      const blankAndNotPresentInChanged = !theValue && !(theField in theChangedValues);
++      const blankAndNotPresentInOld = !theValue && !(theField in oldValues);
++      const blankAndPresentInChanged = !theValue && theField in theChangedValues;
++      const truthyAndPresentInChanged = !!theValue && theField in theChangedValues;
++      const blankAndPresentInOld = !theValue && theField in oldValues;
++
++      if (blankAndNotPresentInChanged)
++        return (
++          // we don't want to keep because it is not in theChangedValues
++          false
++        );
+
+-  if ('service_item_name' in changedValuesToUse) {
+-    shipmentDisplay += `, ${changedValuesToUse.service_item_name}`;
+-    delete changedValuesToUse.service_item_name;
+-  }
++      // if theValue is blank but not present in oldValues
++      // this would mean that theChangedValue has the blank value
++      if (blankAndNotPresentInOld)
++        return (
++          // we don't want to keep. It is present in changed values, but old may not have it.
++          false
++        );
+
+-  if ('moving_expense_type' in changedValuesToUse) {
+-    shipmentDisplay += `, ${changedValuesToUse.moving_expense_type}`;
+-    delete changedValuesToUse.moving_expense_type;
+-  }
++      if (blankAndPresentInChanged)
++        // if the value is blank, and theField is present in theChangedValues
++        return (
++          // we don't want to keep because theChangedValues presented a new property
++          false
++        );
+
+-  /* Filter out empty values unless they used to be non-empty
+-     These values may be non-nullish in oldValues and nullish in changedValues */
+-  const dbFieldsToDisplay = Object.keys(fieldMappings).filter((dbField) => {
+-    return (
+-      changedValuesToUse[dbField] ||
+-      (dbField in changedValuesToUse && historyRecord.oldValues && historyRecord.oldValues[dbField])
+-    );
+-  });
++      // if theValue truthy and not present in old
++      if (truthyAndPresentInChanged)
++        return (
++          // we want to keep because only values appear in changed deliberately to show
++          true
++        );
++
++      // if it's blank and theField is present in oldValues
++      if (blankAndPresentInOld)
++        return (
++          // we want to keep because theChangedValues has a change
++          true
++        );
++
++      return false;
++    })
++    .map((entry, index) => {
++      const { displayName, displayValue } = retrieveTextToDisplay(...entry);
++      return (
++        <div key={index}>
++          <b>{displayName}</b>: {displayValue}
++        </div>
++      );
++    });
+
+   return (
+     <>
+       <span className={styles.shipmentType}>{shipmentDisplay}</span>
+-      {dbFieldsToDisplay.map((modelField) => {
+-        const { displayName, displayValue } = retrieveTextToDisplay(modelField, changedValuesToUse[modelField]);
+-
+-        return (
+-          <div key={modelField}>
+-            <b>{displayName}</b>: {displayValue}
+-          </div>
+-        );
+-      })}
++      {lineItems}
+     </>
+   );
+ };
+diff --git a/src/pages/Office/MoveHistory/LabeledDetails.test.jsx b/src/pages/Office/MoveHistory/LabeledDetails.test.jsx
+index 7e6ee63d27..c3bf5a03e1 100644
+--- a/src/pages/Office/MoveHistory/LabeledDetails.test.jsx
++++ b/src/pages/Office/MoveHistory/LabeledDetails.test.jsx
+@@ -1,19 +1,15 @@
+ import React from 'react';
+ import { render, screen } from '@testing-library/react';
+
+-import LabeledDetails from './LabeledDetails';
++import getTemplate from 'constants/MoveHistory/TemplateManager';
++import a from 'constants/MoveHistory/Database/Actions';
++import t from 'constants/MoveHistory/Database/Tables';
++import o from 'constants/MoveHistory/UIDisplay/Operations';
++import LabeledDetails, { retrieveTextToDisplay } from './LabeledDetails';
+
+ import { SHIPMENT_OPTIONS } from 'shared/constants';
+-import {
+-  formatCustomerDate,
+-  formatEvaluationReportLocation,
+-  formatWeight,
+-  formatYesNoMoveHistoryValue,
+-  toDollarString,
+-} from 'utils/formatters';
+-import * as fieldDefault from 'constants/MoveHistory/Database/FieldMappings';
+-
+-const FieldMappings = fieldDefault.default;
++import { getTestEntries } from 'constants/MoveHistory/AuditHistoryTestUtility/historyTestHelper';
++import { testDataProvider } from 'react-admin';
+
+ describe('LabeledDetails', () => {
+   describe('for each changed value', () => {
+@@ -60,75 +56,57 @@ describe('LabeledDetails', () => {
+       },
+     };
+
+-    const testCases = [
+-      [FieldMappings.counselor_remarks, ': Test counselor remarks'],
+-      [FieldMappings.customer_remarks, ': Test customer remarks'],
+-      [FieldMappings.billable_weight_justification, ': Test TIO remarks'],
+-      [FieldMappings.billable_weight_cap, ': 400 lbs'],
+-      [FieldMappings.tac_type, ': HHG'],
+-      [FieldMappings.sac_type, ': NTS'],
+-      [FieldMappings.service_order_number, ': 1234'],
+-      [FieldMappings.authorized_weight, ': 500 lbs'],
+-      [FieldMappings.storage_in_transit, ': 5 days'],
+-      [FieldMappings.dependents_authorized, ': Yes'],
+-      [FieldMappings.pro_gear_weight, ': 100 lbs'],
+-      [FieldMappings.pro_gear_weight_spouse, ': 50 lbs'],
+-      [FieldMappings.required_medical_equipment_weight, ': 300 lbs'],
+-      [FieldMappings.orders_type, ': Permanent Change Of Station (PCS)'],
+-      [FieldMappings.orders_type_detail, ': Shipment of HHG Permitted'],
+-      [FieldMappings.origin_duty_location_name, ': Origin duty location name'],
+-      [FieldMappings.new_duty_location_name, ': New duty location name'],
+-      [FieldMappings.orders_number, ': 1111'],
+-      [FieldMappings.tac, ': 2222'],
+-      [FieldMappings.nts_tac, ': 3333'],
+-      [FieldMappings.sac, ': 4444'],
+-      [FieldMappings.nts_sac, ': 5555'],
+-      [FieldMappings.grade, ': E-1'],
+-      [FieldMappings.department_indicator, ': Air Force and Space Force'],
+-      [FieldMappings.actual_pickup_date, `: ${formatCustomerDate(historyRecord.changedValues.actual_pickup_date)}`],
+-      [FieldMappings.shipment_weight, ': 100 lbs'],
+-      [FieldMappings.destination_address_type, ': Home of selection (HOS)'],
+-      [
+-        FieldMappings.requested_delivery_date,
+-        `: ${formatCustomerDate(historyRecord.changedValues.requested_delivery_date)}`,
+-      ],
+-      [FieldMappings.sit_entry_date, `: ${formatCustomerDate(historyRecord.changedValues.sit_entry_date)}`],
+-      [FieldMappings.sit_departure_date, `: ${formatCustomerDate(historyRecord.changedValues.sit_departure_date)}`],
+-      [FieldMappings.sit_expected, `: ${formatYesNoMoveHistoryValue(historyRecord.changedValues.sit_expected)}`],
+-      [
+-        FieldMappings.sit_location,
+-        `: ${formatEvaluationReportLocation(historyRecord.changedValues.sit_location.toUpperCase())}`,
+-      ],
+-      [FieldMappings.sit_estimated_weight, `: ${formatWeight(historyRecord.changedValues.sit_estimated_weight)}`],
+-      [FieldMappings.sit_estimated_cost, `: ${toDollarString(historyRecord.changedValues.sit_estimated_cost / 100)}`],
+-      [FieldMappings.estimated_incentive, `: ${toDollarString(historyRecord.changedValues.estimated_incentive / 100)}`],
+-    ];
+-
+-    it.each(testCases)('it renders %s%s', (displayName, value) => {
+-      render(<LabeledDetails historyRecord={historyRecord} />);
+-      const displayingElements = screen.getAllByText(displayName);
+-      const displayingElement = displayingElements.find((element) => element.parentElement.textContent.includes(value));
+-      const parent = displayingElement.parentElement;
+-      expect(parent.textContent).toContain(displayName);
+-      expect(parent.textContent).toContain(value);
++    const testCases = Object.entries(historyRecord.changedValues);
++
++    it.each(testCases)('it renders %s and %s properly formatted', (label, value) => {
++      const history = { changedValues: { [label]: value } };
++      const { displayName, displayValue } = retrieveTextToDisplay(label, value);
++      const { baseElement } = render(<LabeledDetails historyRecord={history} />);
++      expect(baseElement).toHaveTextContent(`${displayName}: ${displayValue}`, { normalizeWhitespace: true });
+     });
+   });
+
+   it('renders shipment_type as a header', async () => {
+     const historyRecord = {
++      action: a.UPDATE,
++      eventName: o.updateMTOShipment,
++      tableName: t.ppm_shipments,
++      context: [
++        {
++          shipment_type: SHIPMENT_OPTIONS.NTSR,
++          shipment_id_abbr: 'X9Y0Z',
++        },
++      ],
+       changedValues: {
+         billable_weight_cap: '200',
+         billable_weight_justification: 'Test TIO Remarks',
+-        shipment_type: SHIPMENT_OPTIONS.NTSR,
+-        shipment_id_display: 'X9Y0Z',
+       },
+     };
+-
+-    render(<LabeledDetails historyRecord={historyRecord} />);
++    const theTemplate = getTemplate(historyRecord);
++    const { baseElement } = render(theTemplate.getDetails(historyRecord));
+
+     expect(screen.getByText('NTS-release shipment #X9Y0Z')).toBeInTheDocument();
+   });
+
++  const incentiveHistoryRecord = {
++    action: a.UPDATE,
++    eventName: o.updateMTOShipment,
++    tableName: t.ppm_shipments,
++    changedValues: {
++      final_incentive: 46855239,
++    },
++    context: [
++      {
++        shipment_type: 'PPM',
++        shipment_id_abbr: '12992',
++      },
++    ],
++  };
++
++  it.each(getTestEntries(incentiveHistoryRecord))('does something awesome %s', (testLabel, { changed, context }) => {
++    testDataProvider(incentiveHistoryRecord, { changed, context });
++  });
++
+   it('does not render any text for changed values that are blank', async () => {
+     const historyRecord = {
+       changedValues: {
+@@ -138,7 +116,7 @@ describe('LabeledDetails', () => {
+       },
+     };
+
+-    render(<LabeledDetails historyRecord={historyRecord} />);
++    const { baseElement } = render(<LabeledDetails historyRecord={historyRecord} />);
+
+     expect(screen.getByText('Billable weight')).toBeInTheDocument();
+
+@@ -148,7 +126,7 @@ describe('LabeledDetails', () => {
+
+     expect(screen.getByText('Test customer remarks', { exact: false })).toBeInTheDocument();
+
+-    expect(await screen.queryByText('Counselor remarks')).not.toBeInTheDocument();
++    expect(screen.queryByText('Counselor remarks')).not.toBeInTheDocument();
+   });
+ });
+
+@@ -163,10 +141,10 @@ it('does render text for changed values that are blank when they exist in the ol
+     },
+   };
+
+-  render(<LabeledDetails historyRecord={historyRecord} />);
++  const { baseElement } = render(<LabeledDetails historyRecord={historyRecord} />);
+
+   expect(screen.getByText('Counselor remarks')).toBeInTheDocument();
+   expect(screen.getByText('—', { exact: false })).toBeInTheDocument();
+
+-  expect(await screen.queryByText('These remarks were deleted')).not.toBeInTheDocument();
++  expect(screen.queryByText('These remarks were deleted')).not.toBeInTheDocument();
+ });
+diff --git a/src/utils/formatMtoShipment.js b/src/utils/formatMtoShipment.js
+index b8d9a6346c..8a9ffd0e6e 100644
+--- a/src/utils/formatMtoShipment.js
++++ b/src/utils/formatMtoShipment.js
+@@ -3,10 +3,11 @@ import moment from 'moment';
+
+ import { MTOAgentType } from 'shared/constants';
+ import { parseDate } from 'shared/dates';
+-import { formatDelimitedNumber, parseSwaggerDate } from 'utils/formatters';
++import { formatDelimitedNumber, formatMoveHistoryFullAddressFromJSON, parseSwaggerDate } from 'utils/formatters';
+ import { roleTypes } from 'constants/userRoles';
+ import { LOCATION_TYPES } from 'types/sitStatusShape';
+ import { expenseTypeLabels } from 'constants/ppmExpenseTypes';
++import { PPM_UPLOAD_TYPES, PPM_UPLOAD_TYPES_LABELS } from 'constants/ppmUploadTypes';
+
+ const formatDateForSwagger = (date) => {
+   const parsedDate = parseDate(date);
+@@ -390,22 +391,61 @@ export function formatMtoShipmentForAPI({
+   return formattedMtoShipment;
+ }
+
++const getUploadType = (uploadType) => {
++  // extend this for all shipment types
++  if (PPM_UPLOAD_TYPES.some((type) => type === uploadType)) {
++    return PPM_UPLOAD_TYPES_LABELS[uploadType];
++  }
++
++  return '';
++};
++
++export function formatForShipmentLabel({ context = [{}], changedValues }) {
++  const { shipment_type, uploadType } = context[0];
++
++  const labelBuilder = {
++    build: {
++      PPM: ({ uploadType, filename, w2_address }, changedValues) => {
++        const format = {
++          uploadType: getUploadType(uploadType),
++          filename,
++          ...(changedValues.w2_address !== undefined && {
++            w2_address: formatMoveHistoryFullAddressFromJSON(w2_address),
++          }),
++        };
++
++        const labels = Object.entries(format).reduce((acc, [key, value]) => {
++          value && key in format && (acc[key] = value);
++          return acc;
++        }, {});
++
++        return labels;
++      },
++    }[shipment_type],
++  };
++
++  const theLabels = labelBuilder?.build(context[0], changedValues);
++  return theLabels;
++}
++
+ export function getMtoShipmentLabel({ context }) {
+   if (!context) return {};
+-  const mtoShipmentLabels = {};
+-  if (context[0].shipment_type) {
+-    mtoShipmentLabels.shipment_type = context[0].shipment_type;
+-  }
+-  if (context[0].shipment_id_abbr) {
+-    mtoShipmentLabels.shipment_id_display = context[0].shipment_id_abbr.toUpperCase();
+-  }
+-  if (context[0].name) {
+-    mtoShipmentLabels.service_item_name = context[0].name;
+-  }
+-  if (context[0].moving_expense_type) {
+-    mtoShipmentLabels.moving_expense_type = expenseTypeLabels[context[0].moving_expense_type];
+-  }
+-  return mtoShipmentLabels;
++  const { shipment_type, shipment_id_abbr, name: service_item_name, moving_expense_type, ...otherKeys } = context[0];
++
++  const format = {
++    shipment_type,
++    shipment_id_display: shipment_id_abbr?.toUpperCase(),
++    service_item_name,
++    moving_expense_type: moving_expense_type && expenseTypeLabels[moving_expense_type],
++  };
++
++  // assign the property of the context to result object if we match on it in the format map
++  const labels = Object.entries(format).reduce((acc, [key, value]) => {
++    value && key in format && (acc[key] = value);
++    return acc;
++  }, {});
++
++  return labels;
+ }
+
+ export default {
+@@ -415,4 +455,5 @@ export default {
+   formatStorageFacilityForAPI,
+   removeEtag,
+   getMtoShipmentLabel,
++  formatForShipmentLabel,
+ };
+diff --git a/src/utils/formatPPMData.js b/src/utils/formatPPMData.js
+deleted file mode 100644
+index a305328062..0000000000
+--- a/src/utils/formatPPMData.js
++++ /dev/null
+@@ -1,31 +0,0 @@
+-import { formatMoveHistoryFullAddressFromJSON } from './formatters';
+-
+-import { PPM_UPLOAD_TYPES, PPM_UPLOAD_TYPES_LABELS } from 'constants/ppmUploadTypes';
+-
+-const formatDisplayName = (uploadType) => {
+-  if (PPM_UPLOAD_TYPES.some((type) => type === uploadType)) {
+-    return PPM_UPLOAD_TYPES_LABELS[uploadType];
+-  }
+-
+-  return '';
+-};
+-
+-export function formatDataForPPM(historyRecord) {
+-  const ppmValues = {};
+-
+-  if (historyRecord.context[0].upload_type) {
+-    ppmValues.upload_type = formatDisplayName(historyRecord.context[0].upload_type);
+-  }
+-
+-  if (historyRecord.context[0]?.filename) {
+-    ppmValues.filename = historyRecord.context[0]?.filename;
+-  }
+-
+-  if (historyRecord.changedValues.w2_address_id) {
+-    ppmValues.w2_address = formatMoveHistoryFullAddressFromJSON(historyRecord.context[0].w2_address);
+-  }
+-
+-  return ppmValues;
+-}
+-
+-export default { formatDataForPPM };

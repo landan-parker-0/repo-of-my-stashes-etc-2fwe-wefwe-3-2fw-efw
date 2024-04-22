@@ -1,0 +1,12 @@
+diff --git a/src/components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm.jsx b/src/components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm.jsx
+index 49f886f804..b88538676f 100644
+--- a/src/components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm.jsx
++++ b/src/components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm.jsx
+@@ -52,6 +52,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
+   const destinationDutyAddress = destinationDutyLocation?.address;
+
+   const showCloseoutOffice =
++    true ||
+     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.ARMY ||
+     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.AIR_FORCE;
+   if (showCloseoutOffice) {

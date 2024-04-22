@@ -1,0 +1,129 @@
+diff --git a/src/pages/Office/MoveHistory/LabeledDetails.jsx b/src/pages/Office/MoveHistory/LabeledDetails.jsx
+index 4566b8c560..6bc69c0ddd 100644
+--- a/src/pages/Office/MoveHistory/LabeledDetails.jsx
++++ b/src/pages/Office/MoveHistory/LabeledDetails.jsx
+@@ -18,33 +18,63 @@ import {
+   toDollarString,
+ } from 'utils/formatters';
+
+-const retrieveTextToDisplay = (fieldName, value) => {
++const retrieveTextToDisplay = ({ fieldName, value }) => {
+   const emptyValue = '—';
+   const displayName = fieldMappings[fieldName];
+   let displayValue = value;
+
+-  if (displayName === fieldMappings.storage_in_transit) {
+-    displayValue = `${displayValue} days`;
+-  } else if (weightFields[fieldName]) {
+-    // turn string value into number so it can be formatted correctly
+-    displayValue = formatWeight(Number(displayValue));
+-  } else if (optionFields[displayValue]) {
+-    displayValue = optionFields[displayValue];
+-  } else if (dateFields[fieldName]) {
+-    displayValue = formatCustomerDate(displayValue);
+-  } else if (booleanFields[fieldName]) {
+-    displayValue = formatYesNoMoveHistoryValue(displayValue);
+-  } else if (monetaryFields[fieldName]) {
+-    displayValue = toDollarString(formatCents(displayValue));
+-  }
++  //lets flatten all of the field objects by their keys and see if there are any duplicates...
++  //we are mapping displayValues to the field formatters
++  const buildKeyFormatter = (fields, formatter) => Object.fromEntries(Object.entries(fields).map(([field]) => [field, formatter]));
+
+-  if (!displayValue) {
+-    displayValue = emptyValue;
+-  }
++  //keys is just an array of strings that represent the keys of an object.
++  //we assign formatter to the object at the key, and return the accumulator {}
++  const reduceKeysToFunctions = (accumulator, keyFormatter) => ({ ...accumulator, ...keyFormatter });
++
++  if (displayName === fieldMappings.storage_in_transit)
++    return {
++      displayName,
++      displayValue: `${displayValue} days`
++    }
++
++  const fieldFormatterSet = [
++    buildKeyFormatter(weightFields, ({ displayValue:input }) => formatWeight(Number(input))),
++    buildKeyFormatter(optionFields, ({ displayValue:input  }) => optionFields[input]),
++    buildKeyFormatter(dateFields, ({ displayValue: input }) => formatCustomerDate(input)),
++    buildKeyFormatter(booleanFields, ({ displayValue: input }) => formatYesNoMoveHistoryValue(input)),
++    buildKeyFormatter(monetaryFields, ({ displayValue: input }) => toDollarString(formatCents(input))),
++  ].reduce(reduceKeysToFunctions, {})
++
++  const fieldNameCheck = fieldFormatterSet[fieldName];
++  const displayValueCheck = fieldFormatterSet[displayValue];
++
++  const getCheckedFunction = (func) => func ?? (() => undefined);
++  const checkedValue = getCheckedFunction(fieldNameCheck || displayValueCheck)({ fieldName, displayValue });
++
++  // else if (weightFields[fieldName]) {
++  //   // turn string value into number so it can be formatted correctly
++  //   displayValue = formatWeight(Number(displayValue));
++  // } else if (optionFields[displayValue]) {
++  //   displayValue = optionFields[displayValue];
++  // } else if (dateFields[fieldName]) {
++  //   displayValue = formatCustomerDate(displayValue);
++  // } else if (booleanFields[fieldName]) {
++  //   displayValue = formatYesNoMoveHistoryValue(displayValue);
++  // } else if (monetaryFields[fieldName]) {
++  //   displayValue = toDollarString(formatCents(displayValue));
++  // }
++
++  const result = checkedValue || displayValue;
++
++  if (!result)
++    return {
++      displayName,
++      displayResult: emptyValue
++    }
+
+   return {
+     displayName,
+-    displayValue,
++    displayValue: result,
+   };
+ };
+
+@@ -66,25 +96,26 @@ const LabeledDetails = ({ historyRecord }) => {
+
+   /* Filter out empty values unless they used to be non-empty
+      These values may be non-nullish in oldValues and nullish in changedValues */
+-  const dbFieldsToDisplay = Object.keys(fieldMappings).filter((dbField) => {
+-    return (
+-      changedValuesToUse[dbField] ||
+-      (dbField in changedValuesToUse && historyRecord.oldValues && historyRecord.oldValues[dbField])
+-    );
+-  });
++  const flatMapFieldValueFilterOp = (dbField) => {
++    const hasValues = changedValuesToUse[dbField] || (dbField in changedValuesToUse && historyRecord.oldValues && historyRecord.oldValues[dbField]);
++    if(!hasValues) return [];
++    return retrieveTextToDisplay({ fieldName: dbField, value: changedValuesToUse[dbField] });
++  }
++
++  // let's filter empty values while transforming the data
++  const dbFilterAndProduceFieldValues = Object.keys(fieldMappings).flatMap(flatMapFieldValueFilterOp);
++
++  const buildElementsFromFieldValues = ({ displayName, displayValue }, index) =>
++  (<div key={index}>
++    <b>{displayName}</b>: {displayValue}
++  </div>);
++
++  const labelDetailItems = dbFilterAndProduceFieldValues.map(buildElementsFromFieldValues);
+
+   return (
+     <>
+       <span className={styles.shipmentType}>{shipmentDisplay}</span>
+-      {dbFieldsToDisplay.map((modelField) => {
+-        const { displayName, displayValue } = retrieveTextToDisplay(modelField, changedValuesToUse[modelField]);
+-
+-        return (
+-          <div key={modelField}>
+-            <b>{displayName}</b>: {displayValue}
+-          </div>
+-        );
+-      })}
++      {labelDetailItems}
+     </>
+   );
+ };

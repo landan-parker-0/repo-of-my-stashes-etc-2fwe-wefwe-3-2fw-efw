@@ -1,0 +1,24 @@
+diff --git a/src/constants/MoveHistory/Database/DateFields.js b/src/constants/MoveHistory/Database/DateFields.js
+index 440eac30d4..08776ccc81 100644
+--- a/src/constants/MoveHistory/Database/DateFields.js
++++ b/src/constants/MoveHistory/Database/DateFields.js
+@@ -14,6 +14,7 @@ export default {
+   separation_date: 'separation_date',
+   expected_departure_date: 'expected_departure_date',
+   sit_estimated_departure_date: 'sit_estimated_departure_date',
++  sit_requested_delivery: 'sit_requested_delivery',
+   sit_estimated_entry_date: 'sit_estimated_entry_date',
+   sit_start_date: 'sit_start_date',
+   sit_end_date: 'sit_end_date',
+diff --git a/src/constants/MoveHistory/Database/FieldMappings.js b/src/constants/MoveHistory/Database/FieldMappings.js
+index db38a77f39..cd13af0a01 100644
+--- a/src/constants/MoveHistory/Database/FieldMappings.js
++++ b/src/constants/MoveHistory/Database/FieldMappings.js
+@@ -59,6 +59,7 @@ export default {
+   sit_postal_code: 'SIT postal code',
+   sit_destination_address_final: 'Final SIT delivery address',
+   sit_destination_address_initial: 'Initial SIT delivery address',
++  sit_requested_delivery: 'Requested SIT delivery date ',
+   contractor_remarks: 'Contractor remarks',
+   office_remarks: 'Office remarks',
+   item_size: 'Item size',

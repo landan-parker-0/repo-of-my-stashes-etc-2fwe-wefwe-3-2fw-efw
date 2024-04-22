@@ -1,0 +1,19 @@
+diff --git a/playwright/tests/my/milmove/ppms/customerPpmTestFixture.js b/playwright/tests/my/milmove/ppms/customerPpmTestFixture.js
+index 901d573e41..24ed17b4f0 100644
+--- a/playwright/tests/my/milmove/ppms/customerPpmTestFixture.js
++++ b/playwright/tests/my/milmove/ppms/customerPpmTestFixture.js
+@@ -489,11 +489,11 @@ export class CustomerPpmPage extends CustomerPage {
+         await this.page.locator('label[for="agreeToTerms"]').click();
+       }
+     }
+-    await saveButton.click();
++
++    //click and wait for page path to change
++    await Promise.all([this.page.waitForURL(/.*\/moves\/[^\/]+\/review$/),saveButton.click()]);
+
+     await expect(this.page.getByRole('heading', { name: 'Review your details', exact: true })).toBeVisible();
+-    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/review/);
+-
+     await expect(this.page.locator('.usa-alert__heading')).toContainText('Details saved');
+     await expect(this.page.locator('.usa-alert__heading + p')).toContainText(
+       'Review your info and submit your move request now, or come back and finish later.',

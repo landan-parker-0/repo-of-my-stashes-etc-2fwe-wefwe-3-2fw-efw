@@ -1,0 +1,233 @@
+diff --git a/src/constants/MoveHistory/EventTemplates/CreateMTOServiceItem/createMTOServiceItem.test.jsx b/src/constants/MoveHistory/EventTemplates/CreateMTOServiceItem/createMTOServiceItem.test.jsx
+index 6082570b6b..97c7591056 100644
+--- a/src/constants/MoveHistory/EventTemplates/CreateMTOServiceItem/createMTOServiceItem.test.jsx
++++ b/src/constants/MoveHistory/EventTemplates/CreateMTOServiceItem/createMTOServiceItem.test.jsx
+@@ -34,7 +34,8 @@ describe('when given a Create basic service item history record', () => {
+       ['reason', 'Test'],
+       ['status', 'SUBMITTED'],
+     ])('for label %s it displays the proper details value %s', async (label, value) => {
+-      render(template.getDetails(historyRecord));
++      const { baseElement } = render(template.getDetails(historyRecord));
++
+       expect(screen.getByText(value, { exact: false })).toBeInTheDocument();
+     });
+   });
+diff --git a/src/constants/MoveHistory/EventTemplates/UpdateAddress/createAddress.test.jsx b/src/constants/MoveHistory/EventTemplates/UpdateAddress/createAddress.test.jsx
+index be640c3d4a..200fd99cad 100644
+--- a/src/constants/MoveHistory/EventTemplates/UpdateAddress/createAddress.test.jsx
++++ b/src/constants/MoveHistory/EventTemplates/UpdateAddress/createAddress.test.jsx
+@@ -40,7 +40,10 @@ describe('when given an insert with address table history record', () => {
+       async (type, value) => {
+         const newChangedValues = { ...changedValues, [type]: address };
+         const context = [{ address_type: type }];
+-        render(result.getDetails({ ...historyRecord, changedValues: newChangedValues, context }));
++        const { baseElement } = render(
++          result.getDetails({ ...historyRecord, changedValues: newChangedValues, context }),
++        );
++        // screen.logTestingPlaygroundURL();
+         expect(screen.getByText(LABEL[type])).toBeInTheDocument();
+         expect(screen.getByText(value, { exact: false })).toBeInTheDocument();
+       },
+diff --git a/src/constants/MoveHistory/EventTemplates/UpdateReweigh/updateReweighWeight.test.jsx b/src/constants/MoveHistory/EventTemplates/UpdateReweigh/updateReweighWeight.test.jsx
+index 0698d7d40a..9ad7693107 100644
+--- a/src/constants/MoveHistory/EventTemplates/UpdateReweigh/updateReweighWeight.test.jsx
++++ b/src/constants/MoveHistory/EventTemplates/UpdateReweigh/updateReweighWeight.test.jsx
+@@ -28,7 +28,7 @@ describe('when given an updated reweigh weight', () => {
+     it.each([['Reweigh weight', ': 9,001 lbs']])('displays the proper details value for %s', async (label, value) => {
+       const template = getTemplate(historyRecord);
+
+-      render(template.getDetails(historyRecord));
++      const { baseElement } = render(template.getDetails(historyRecord));
+       expect(screen.getByText(label)).toBeInTheDocument();
+       expect(screen.getByText(value)).toBeInTheDocument();
+     });
+diff --git a/src/constants/routes.js b/src/constants/routes.js
+index bc172a2faf..1e5a140bee 100644
+--- a/src/constants/routes.js
++++ b/src/constants/routes.js
+@@ -56,6 +56,8 @@ export const servicesCounselingRoutes = {
+   BASE_QUEUE_CLOSEOUT_PATH: '/PPM-closeout',
+   QUEUE_SEARCH_PATH: 'Search',
+   BASE_QUEUE_SEARCH_PATH: '/Search',
++  QUEUE_MANAGE_PATH: 'manage',
++  BASE_QUEUE_MANAGE_PATH: '/manage',
+   BASE_COUNSELING_MOVE_PATH,
+   BASE_ALLOWANCES_EDIT_PATH: `${BASE_COUNSELING_MOVE_PATH}/allowances`,
+   ALLOWANCES_EDIT_PATH: 'allowances',
+diff --git a/src/pages/Office/ServicesCounselingQueue/ServicesCounselingQueue.jsx b/src/pages/Office/ServicesCounselingQueue/ServicesCounselingQueue.jsx
+index 0a4de238c6..15cfcf0694 100644
+--- a/src/pages/Office/ServicesCounselingQueue/ServicesCounselingQueue.jsx
++++ b/src/pages/Office/ServicesCounselingQueue/ServicesCounselingQueue.jsx
+@@ -1,5 +1,7 @@
+ import React, { useCallback, useState } from 'react';
+ import { generatePath, useNavigate, Navigate, useParams, NavLink } from 'react-router-dom';
++import { Checkbox } from '@trussworks/react-uswds';
++import { faker } from '@faker-js/faker';
+
+ import styles from './ServicesCounselingQueue.module.scss';
+
+@@ -186,6 +188,96 @@ const closeoutColumns = (ppmCloseoutGBLOC) => [
+   }),
+ ];
+
++const handleManagementClick = (data) => {};
++const managementColumns = () => [
++  createHeader('select', () => {
++    return (
++      <div>
++        <Checkbox />
++      </div>
++    );
++  }),
++  createHeader('days', () => {
++    return <div>{faker.helpers.rangeToNumber(20)}</div>;
++  }),
++  createHeader('ID', 'id'),
++  createHeader(
++    'Customer name',
++    (row) => {
++      return `${row.customer.last_name}, ${row.customer.first_name}`;
++    },
++    {
++      id: 'lastName',
++      isFilterable: true,
++    },
++  ),
++  createHeader('DoD ID', 'customer.dodID', {
++    id: 'dodID',
++    isFilterable: true,
++  }),
++  createHeader('Move code', 'locator', {
++    id: 'locator',
++    isFilterable: true,
++  }),
++  createHeader(
++    'Status',
++    (row) => {
++      return SERVICE_COUNSELING_MOVE_STATUS_LABELS[`${row.status}`];
++    },
++    {
++      id: 'status',
++      isFilterable: true,
++      // eslint-disable-next-line react/jsx-props-no-spreading
++      Filter: (props) => <MultiSelectCheckBoxFilter options={SERVICE_COUNSELING_MOVE_STATUS_OPTIONS} {...props} />,
++    },
++  ),
++  createHeader(
++    'Requested move date',
++    (row) => {
++      return formatDateFromIso(row.requestedMoveDate, DATE_FORMAT_STRING);
++    },
++    {
++      id: 'requestedMoveDate',
++      isFilterable: true,
++      // eslint-disable-next-line react/jsx-props-no-spreading
++      Filter: (props) => <DateSelectFilter {...props} />,
++    },
++  ),
++  createHeader(
++    'Date submitted',
++    (row) => {
++      return formatDateFromIso(row.submittedAt, DATE_FORMAT_STRING);
++    },
++    {
++      id: 'submittedAt',
++      isFilterable: true,
++      // eslint-disable-next-line react/jsx-props-no-spreading
++      Filter: (props) => <DateSelectFilter dateTime {...props} />,
++    },
++  ),
++  createHeader(
++    'Branch',
++    (row) => {
++      return serviceMemberAgencyLabel(row.customer.agency);
++    },
++    {
++      id: 'branch',
++      isFilterable: true,
++      Filter: (props) => (
++        // eslint-disable-next-line react/jsx-props-no-spreading
++        <SelectFilter options={SERVICE_COUNSELING_BRANCH_OPTIONS} {...props} />
++      ),
++    },
++  ),
++  createHeader('Origin GBLOC', 'originGBLOC', {
++    disableSortBy: true,
++  }), // If the user is in the USMC GBLOC they will have many different GBLOCs and will want to sort and filter
++  createHeader('Origin duty location', 'originDutyLocation.name', {
++    id: 'originDutyLocation',
++    isFilterable: true,
++  }),
++];
++
+ const ServicesCounselingQueue = () => {
+   const { queueType } = useParams();
+   const { data, isLoading, isError } = useUserQueries();
+@@ -264,6 +356,15 @@ const ServicesCounselingQueue = () => {
+               Search
+             </span>
+           </NavLink>,
++          <NavLink
++            end
++            className={({ isActive }) => (isActive ? 'usa-current' : '')}
++            to={servicesCounselingRoutes.BASE_QUEUE_SEARCH_PATH}
++          >
++            <span data-testid="manage-tab-link" className="tab-title">
++              Manage Queue *
++            </span>
++          </NavLink>,
+         ]}
+       />
+     );
+@@ -328,7 +429,7 @@ const ServicesCounselingQueue = () => {
+           defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
+           disableMultiSort
+           disableSortBy={false}
+-          columns={counselingColumns()}
++          columns={managementColumns()}
+           title="Moves"
+           handleClick={handleClick}
+           useQueries={useServicesCounselingQueueQueries}
+@@ -336,6 +437,27 @@ const ServicesCounselingQueue = () => {
+       </div>
+     );
+   }
++  if (queueType === 'manage') {
++    return (
++      <div className={styles.ServicesCounselingQueue}>
++        {renderNavBar()}
++        <TableQueue
++          className={styles.ServicesCounseling}
++          showFilters
++          showPagination
++          manualSortBy
++          defaultCanSort
++          defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
++          disableMultiSort
++          disableSortBy={false}
++          columns={managementColumns()}
++          title="Moves"
++          handleClick={handleManagementClick}
++          useQueries={useServicesCounselingQueueQueries}
++        />
++      </div>
++    );
++  }
+
+   return <NotFound />;
+ };
+diff --git a/src/pages/Office/ServicesCounselingQueue/ServicesCounselingQueue.module.scss b/src/pages/Office/ServicesCounselingQueue/ServicesCounselingQueue.module.scss
+index 518ba8a99f..f70e266bd5 100644
+--- a/src/pages/Office/ServicesCounselingQueue/ServicesCounselingQueue.module.scss
++++ b/src/pages/Office/ServicesCounselingQueue/ServicesCounselingQueue.module.scss
+@@ -8,7 +8,9 @@
+   flex: auto;
+   border: (1px, solid, green);
+   background-color: $bg-gray;
+-  width: 100%;
++  width: 50%;
++  pointer-events: none;
++
+ }
+
+ .tableTabs {

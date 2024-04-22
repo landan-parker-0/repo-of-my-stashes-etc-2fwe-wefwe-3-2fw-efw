@@ -1,0 +1,1051 @@
+diff --git a/playwright.config.js b/playwright.config.js
+index 2719df63f7..91dbb2faa4 100644
+--- a/playwright.config.js
++++ b/playwright.config.js
+@@ -68,6 +68,14 @@ const config = {
+         ...devices['Desktop Chrome'],
+       },
+     },
++    // ahobson 2022-12-08: for now, only test desktop chrome for my
++  { name: 'mixed',
++    testMatch: 'mixed/**/*.spec.js',
++    use: {
++      baseURL: process.env.PLAYWRIGHT_MY_URL || 'http://officelocal:3000',
++      ...devices['Desktop Chrome'],
++    },
++  },
+     {
+       // ahobson 2022-12-14: for now, only test desktop chrome for office
+       name: 'office',
+diff --git a/playwright/tests/mixed/UserActivities/BuildShipments.spec.js b/playwright/tests/mixed/UserActivities/BuildShipments.spec.js
+new file mode 100644
+index 0000000000..f3a615a77c
+--- /dev/null
++++ b/playwright/tests/mixed/UserActivities/BuildShipments.spec.js
+@@ -0,0 +1,18 @@
++import { test, expect, AuditTestPage } from '../mixedTestSetup';
++import * as run from '../browserTestActions';
++import { buildTestScenarios, MultiRoleOfficeUserType, MilmoveUserType } from '../browserTestActions';
++
++test.describe('Audit History Shipment Actions', () => {
++  const testExecution = async ({ role, value, pageInstance }) =>
++    await run.setupTestChain(pageInstance)
++    .next(run.goToProperBasePage[role])
++    .next(run.userLoginActions[role])
++    .task;
++
++  const scenarios = run.GetScenarioChainsForUser({ MilmoveUserType }, testExecution);
++
++
++  buildTestScenarios(test, {
++    ...scenarios,
++  }).map(([key, value]) => test(key, value));
++});
+diff --git a/playwright/tests/mixed/auditing/auditHistoryFlow.spec.js b/playwright/tests/mixed/auditing/auditHistoryFlow.spec.js
+new file mode 100644
+index 0000000000..4d1fc1b08a
+--- /dev/null
++++ b/playwright/tests/mixed/auditing/auditHistoryFlow.spec.js
+@@ -0,0 +1,74 @@
++// @ts-nocheck
++import { PrimeSimulatorUserType } from '../../utils/office/officeTest';
++import { test, expect, AuditTestPage } from '../mixedTestSetup';
++import { stringHelpers as str } from '../testActionUtils';
++import { RUN_PRIME_SETS_UP_SHIPMENT } from './primeEntersShipmentDetailsSteps';
++import { RUN_MOVER_OWNER_SETS_UP_HHG } from './customerHhgSetupSteps';
++import '../testActionUtils';
++
++const GetPrimeStepHelpers = ({ page, helpers, baseURLS: { office } }) => ({
++  ...helpers,
++  signInAsNewPrimeSimulatorUser: async () => {
++    await waitForLoginPage({ page, navToUrl: office, PATH_CHECK: RegularPathChecks.SIGN_IN_PATH_CHECK });
++    await waitForPrimeNewLogin({ page });
++  },
++});
++
++const GetOfficeStepHelpers = ({ page, helpers, baseURLS: { office } }) => ({
++  ...helpers,
++  signinAsExistingTOO: async () => {
++    await waitForLoginPage({ page, navToUrl: office, PATH_CHECK: RegularPathChecks.SIGN_IN_PATH_CHECK });
++    await waitForTOOWithUserId({ page });
++  },
++  signinAsNewTOO: async (email) => {
++    await waitForLoginPage({ page, navToUrl: office, PATH_CHECK: RegularPathChecks.SIGN_IN_PATH_CHECK });
++    await waitForTOONew({ page });
++  },
++});
++
++export const getCustomerStepHelpers = ({ page, helpers: { stringHelpers, ...helpers }, baseUrl }) => ({
++  ...helpers,
++  stringHelpers,
++  signInAsExisting: async (userId) => {
++    const currentUrl = page.url();
++    const baseUrl = new URL(currentUrl).origin;
++    const loginPath = '/devlocal-auth/login';
++    const loginUrl = str.concatUrlSegments([baseUrl, loginPath]);
++    await page.goto(loginUrl);
++
++    const navigationWaiter = page.waitForURL(({ pathname, ...url }) => pathname === '/');
++
++    await page.locator(`button[value="${userId}"]`).click();
++
++    const test = await navigationWaiter;
++    await page.locator('#title-announcer', { hasText: 'my.move.mil' }).waitFor();
++  },
++  signInAsNew: async () => {
++    const currentUrl = page.url();
++    const baseUrl = new URL(currentUrl).origin;
++    const loginPath = '/devlocal-auth/login';
++    const loginUrl = stinerHelpers.trimUrlOperation([baseUrl, loginPath]);
++    await page.goto('http://milmovelocal:3000/devlocal-auth/login');
++    await page.locator(`button[data-hook="new-user-login-${milmoveUserType}"]`).click();
++  },
++});
++
++/** Array of test scenarios which also receive the test fixtures via pageInstance */
++const SCENARIOS = {
++  CREATING_SHIPMENT_CAUSES_SIT_CALCULATION: async ({ pageInstance }) => {
++    await RUN_PRIME_SETS_UP_SHIPMENT.run(pageInstance, GetPrimeStepHelpers);
++    await RUN_MOVER_OWNER_SETS_UP_HHG.run(pageInstance, getCustomerStepHelpers);
++  },
++};
++
++const TESTS = Object.entries(SCENARIOS).map(([key, testFunction]) => ({
++  testLabel: key.split('_').join(' '),
++  testFunction,
++}));
++
++/** Helper function to allow referencing the test info which is passed to the test framework function*/
++const GetTest = (testInfo) => test(testInfo.testLabel, testInfo.testFunction);
++
++test.describe('Prime Updates SIT', () => {
++ //GetTest(TESTS[0]);
++});
+\ No newline at end of file
+diff --git a/playwright/tests/mixed/auditing/customerHhgSetupSteps.js b/playwright/tests/mixed/auditing/customerHhgSetupSteps.js
+new file mode 100644
+index 0000000000..579714ba8f
+--- /dev/null
++++ b/playwright/tests/mixed/auditing/customerHhgSetupSteps.js
+@@ -0,0 +1,275 @@
++// @ts-nocheck
++import '../testActionUtils';
++import { formatRelativeDate, dateInputOperator, stringHelpers as str } from '../testActionUtils';
++import { expect } from '../mixedTestSetup';
++import _ from 'lodash';
++
++const URL_PATHS = {
++  ROOT_PATH: '/',
++  SIGN_IN_PATH: 'sign-in',
++  MOVING_INFO_PATH: 'moves/{0}/moving-info',
++  SHIPMENT_TYPE_PATH: 'moves/{0}/shipment-type',
++  NEW_HHG_SHIPMENT_PATH: 'moves/{0}/new-shipment',
++  REVIEW_PATH: 'moves/{0}/review',
++  AGREEMENT_PATH: 'moves/{0}/agreement',
++};
++
++const compareUrlPath =
++  (check) =>
++  ({ pathname }) =>
++    str.trimOuterSymbols(pathname, '/') === check;
++
++const RegularPathChecks = {
++  ROOT_PATH_CHECK: ({ pathname }) => pathname === URL_PATHS.ROOT_PATH,
++  SIGN_IN_PATH_CHECK: compareUrlPath(URL_PATHS.SIGN_IN_PATH),
++};
++
++const GetCustomerMoveUrlPaths = (moveId) => ({
++  MOVING_INFO_PATH_CHECK: compareUrlPath(str.format(URL_PATHS.MOVING_INFO_PATH, moveId)),
++  SHIPMENT_TYPE_PATH_CHECK: compareUrlPath(str.format(URL_PATHS.SHIPMENT_TYPE_PATH, moveId)),
++  HHG_NEW_SHIPMENT_PATH_PARAMS_CHECK: ({ pathname, searchParams }) => {
++    const checkUrl = str.format(URL_PATHS.NEW_HHG_SHIPMENT_PATH, moveId);
++    const queryObject = Object.fromEntries(searchParams.entries());
++    const correctUrl = str.trimOuterSymbols(pathname, '/') === checkUrl;
++    const correctQueryValue = _.isEqual(queryObject, { type: 'HHG' });
++    return correctUrl && correctQueryValue;
++  },
++  REVIEW_PATH_CHECK: compareUrlPath(str.format(URL_PATHS.REVIEW_PATH, moveId)),
++  AGREEMENT_PATH_CHECK: compareUrlPath(str.format(URL_PATHS.AGREEMENT_PATH, moveId)),
++});
++
++const GetUserMoveData = async (testHarness) => {
++  const move = await testHarness.buildMoveWithOrders();
++  const userId = move.Orders.ServiceMember.user_id;
++  return { move, userId };
++};
++
++const waitForSigninScreen = async ({ page, navToUrl, SIGN_IN_PATH_CHECK }) => {
++  const urlWaiter = page.waitForURL(SIGN_IN_PATH_CHECK);
++  await page.goto(navToUrl);
++  await urlWaiter;
++};
++
++const signinAndWaitForCustomerHomeScreen = async ({ page, signInAsExisting, userId, ROOT_PATH_CHECK }) => {
++  const urlWaiter = page.waitForURL(ROOT_PATH_CHECK);
++  await signInAsExisting(userId);
++  await urlWaiter;
++};
++
++/** Beginning Shipment Flow Wizard */
++const selectShipment = async ({ page, MOVING_URL_CHECK }) => {
++  const urlWaiter = page.waitForURL(MOVING_URL_CHECK);
++  const SETUP_SHIPMENT_BUTTON = 'shipment-selection-btn';
++  await page.getByTestId(SETUP_SHIPMENT_BUTTON).click();
++  await urlWaiter;
++};
++
++/** Click Next */
++const wizardNextToShipmentType = async ({ page, SHIPMENT_TYPE_PATH_CHECK }) => {
++  const urlWaiter = page.waitForURL(SHIPMENT_TYPE_PATH_CHECK);
++  const NEXT_WIZARD_BUTTON = 'wizardNextButton';
++  await page.getByTestId(NEXT_WIZARD_BUTTON).click();
++  await urlWaiter;
++};
++
++/** select HHG radio button */
++const chooseHHG = async ({ page }) => await page.locator('label[for="HHG"]').click();
++
++/** Click Next */
++const wizardNextToNewHHGShipment = async ({ page, HHG_NEW_SHIPMENT_PATH_PARAMS_CHECK }) => {
++  const urlWaiter = page.waitForURL(HHG_NEW_SHIPMENT_PATH_PARAMS_CHECK);
++  const NEXT_WIZARD_BUTTON = 'wizardNextButton';
++  await page.getByTestId(NEXT_WIZARD_BUTTON).click();
++  await urlWaiter;
++};
++
++/** Click Next */
++const wizardNextToAgreement = async ({ page, AGREEMENT_PATH_CHECK }) => {
++  const urlWaiter = page.waitForURL(AGREEMENT_PATH_CHECK);
++  const NEXT_WIZARD_BUTTON = 'wizardNextButton';
++  await page.getByTestId(NEXT_WIZARD_BUTTON).click();
++  await urlWaiter;
++};
++
++const choosePickupDate = async ({ page, dateToSelect, datePickerOperator }) => {
++  const SELECTOR = '#requestedPickupDate';
++  const dateElement = page.locator(SELECTOR);
++  const selectedDate = new Date(dateToSelect);
++  await datePickerOperator(page, dateElement, selectedDate);
++};
++
++const selectUseMyCurrentAddress = async ({ page }) => await page.getByTestId('checkbox').click();
++
++const submitMainPickupAddress = async (
++  { typeInto, selectValue },
++  { streetAddress1, streetAddress2, streetAddress3, city, state, postalCode },
++) => {
++  await typeInto('input[name="pickup.address.streetAddress1"]', streetAddress1);
++
++  if(streetAddress2)
++    await typeInto('input[name="pickup.address.streetAddress2"]', streetAddress2);
++
++  if(streetAddress3)
++    await typeInto('input[name="pickup.address.streetAddress3"]', streetAddress3);
++
++  await typeInto('input[name="pickup.address.city"]', city);
++  await selectValue('select[name="pickup.address.state"]', { label: state });
++  await typeInto('input[name="pickup.address.postalCode"]', postalCode);
++};
++
++const selectDontUseMyCurrentAddress = async ({ page }) => await page.getByTestId('checkbox').click();
++
++const chooseHasSecondaryPickup = async ({ page }) => await page.locator('label[for="has-secondary-pickup"]').click();
++const chooseNoSecondaryPickup = async ({ page }) => await page.locator('label[for="no-secondary-pickup"]').click();
++
++const submitSecondaryPickupAddress = async (
++  { typeInto, selectValue },
++  { streetAddress1, streetAddress2, streetAddress3, city, state, postalCode },
++) => {
++  await typeInto('input[name="secondaryPickup.address.streetAddress1"]', streetAddress1);
++
++  if(streetAddress2)
++    await typeInto('input[name="secondaryPickup.address.streetAddress2"]', streetAddress2);
++
++  if(streetAddress3)
++    await typeInto('input[name="secondaryPickup.address.streetAddress3"]', streetAddress3);
++
++  await typeInto('input[name="secondaryPickup.address.city"]', city);
++  await selectValue('select[name="secondaryPickup.address.state"]', { label: state });
++  await typeInto('input[name="secondaryPickup.address.postalCode"]', postalCode);
++};
++
++const submitReleaseAgentFields = async ({
++  typeInto,
++  releasingAgentDetails: { firstName, lastName, phoneNumber, email },
++}) => {
++  await typeInto('input[name="pickup.agent.firstName"]', firstName);
++  await typeInto('input[name="pickup.agent.lastName"]', lastName);
++  await typeInto('input[name="pickup.agent.phone"]', phoneNumber);
++  await typeInto('input[name="pickup.agent.email"]', email);
++};
++
++const chooseDeliveryDate = async ({ page, dateToSelect, datePickerOperator }) => {
++  const SELECTOR = '#requestedDeliveryDate';
++  const dateElement = page.locator(SELECTOR);
++  const selectedDate = new Date(dateToSelect);
++  await datePickerOperator(page, dateElement, selectedDate);
++};
++
++const submitReceivingAgentFields = async ({
++  typeInto,
++  receivingAgentDetails: { firstName, lastName, phoneNumber, email },
++}) => {
++  await typeInto('input[name="delivery.agent.firstName"]', firstName);
++  await typeInto('input[name="delivery.agent.lastName"]', lastName);
++  await typeInto('input[name="delivery.agent.phone"]', phoneNumber);
++  await typeInto('input[name="delivery.agent.email"]', email);
++};
++
++/** Click Next */
++const wizardNextToReview = async ({ page, REVIEW_PATH_CHECK }) => {
++  const urlWaiter = page.waitForURL(REVIEW_PATH_CHECK);
++  const NEXT_WIZARD_BUTTON = 'wizardNextButton';
++  await page.getByTestId(NEXT_WIZARD_BUTTON).click();
++  await urlWaiter;
++};
++
++/** Fill in signature */
++const submitSignature = async ({ signature, typeInto }) => await typeInto('input[name="signature"]', signature);
++
++const wizardCompleteToCustomerHome = async ({ page, ROOT_PATH_CHECK }) => {
++  const urlWaiter = page.waitForURL(ROOT_PATH_CHECK);
++  const COMPLETE_WIZARD_BUTTON = 'wizardCompleteButton';
++  await page.getByTestId(COMPLETE_WIZARD_BUTTON).click();
++  await urlWaiter;
++};
++
++/** Customer HHG Setup Flow
++ * Create a Household Good Shipment as a move owner (service member/customer)
++ */
++const PerformHHGSetup = async (
++  { page, baseURLS, testHarness, signInAsExisting, fast: { typeInto, selectValue } },
++  { preferredPickupDate, preferredDeliveryDate, releasingAgentDetails, receivingAgentDetails, signature },
++) => {
++  const { move, userId } = await GetUserMoveData(testHarness);
++
++  const {
++    ROOT_PATH_CHECK,
++    MOVING_INFO_PATH_CHECK,
++    SHIPMENT_TYPE_PATH_CHECK,
++    HHG_NEW_SHIPMENT_PATH_PARAMS_CHECK,
++    REVIEW_PATH_CHECK,
++    AGREEMENT_PATH_CHECK,
++    SIGN_IN_PATH_CHECK,
++  } = { ...GetCustomerMoveUrlPaths(move.id), ...RegularPathChecks };
++
++  await waitForSigninScreen({ page, navToUrl: baseURLS.my, SIGN_IN_PATH_CHECK });
++
++  await signinAndWaitForCustomerHomeScreen({ page, signInAsExisting, userId, ROOT_PATH_CHECK });
++  await selectShipment({ page, MOVING_INFO_PATH_CHECK });
++  await wizardNextToShipmentType({ page, SHIPMENT_TYPE_PATH_CHECK });
++  await chooseHHG({ page });
++  await wizardNextToNewHHGShipment({ page, HHG_NEW_SHIPMENT_PATH_PARAMS_CHECK });
++  //fill form start
++  await choosePickupDate({
++    page,
++    dateToSelect: preferredPickupDate.relativeDate,
++    datePickerOperator: dateInputOperator,
++  });
++  await selectUseMyCurrentAddress({ page });
++  await chooseHasSecondaryPickup({page });
++
++  await submitSecondaryPickupAddress({ typeInto, selectValue }, {
++    streetAddress1: 'test',
++    city: 'test',
++    state: 'CA',
++    postalCode: '90210',
++  })
++
++  await submitReleaseAgentFields({ typeInto, releasingAgentDetails });
++  await chooseDeliveryDate({
++    page,
++    dateToSelect: preferredDeliveryDate.relativeDate,
++    datePickerOperator: dateInputOperator,
++  });
++  await submitReceivingAgentFields({ typeInto, receivingAgentDetails });
++  await wizardNextToReview({ page, REVIEW_PATH_CHECK });
++  //fil form end
++  //agreement
++  await wizardNextToAgreement({ page, AGREEMENT_PATH_CHECK });
++  await submitSignature({ signature, typeInto });
++  await wizardCompleteToCustomerHome({ page, ROOT_PATH_CHECK });
++};
++
++export const RUN_MOVER_OWNER_SETS_UP_HHG = {
++  run: async (input, getHelpers) => {
++    const todaysDate = new Date();
++    todaysDate.setMonth(10);
++    const hhgFormData = {
++      preferredPickupDate: formatRelativeDate(5),
++      preferredDeliveryDate: {relativeDate: todaysDate},
++      useExistingAddress: true,
++      releasingAgentDetails: {
++        firstName: 'larry',
++        lastName: 'thombson',
++        phoneNumber: '555-555-5555',
++        email: 'lthompson@test.test',
++      },
++      receivingAgentDetails: {
++        firstName: 'larrisson',
++        lastName: 'thornbsonson',
++        phoneNumber: '555-555-5555',
++        email: 'lthornbsonson@test.test',
++      },
++      destination: {
++        street: '142 E Barrel Hoop Circle',
++        city: 'Joshua Tree',
++        state: 'CA',
++        postalCode: '92252',
++      },
++      signature: 'mr service member',
++    };
++
++    await PerformHHGSetup({ ...input, ...getHelpers(input) }, hhgFormData);
++  },
++};
+diff --git a/playwright/tests/mixed/auditing/primeEntersShipmentDetailsSteps.js b/playwright/tests/mixed/auditing/primeEntersShipmentDetailsSteps.js
+new file mode 100644
+index 0000000000..0b36e68536
+--- /dev/null
++++ b/playwright/tests/mixed/auditing/primeEntersShipmentDetailsSteps.js
+@@ -0,0 +1,200 @@
++import { expect } from '../mixedTestSetup';
++import {  formatRelativeDate, formatNumericDate,  } from '../testActionUtils';
++
++export const testExecution = async ({
++  page,
++  helpers,
++  baseURLS,
++  testHarness,
++  waitForLoading,
++  signInAsNewPrimeSimulatorUser,
++  signOut,
++  stringHelpers,
++  utils,
++  fast: { clickTextAsync, typeInto, typeAndBlur, selectValue },
++}) => {
++  const FillDestinationDetailFields = async ({
++    estimatedWeight,
++    actualWeight,
++    address: { street, city, state, postalCode },
++  }) => {
++    const selectors = {
++      estimatedWeight: 'input[name="estimatedWeight"]',
++      actualWeight: 'input[name="actualWeight"]',
++      address: {
++        street: 'input[name="destinationAddress.streetAddress1"]',
++        city: 'input[name="destinationAddress.city"]',
++        state: 'select[name="destinationAddress.state"]',
++        postalCode: 'input[name="destinationAddress.postalCode"]',
++      },
++    };
++
++    await typeInto(selectors.estimatedWeight, `{backspace}${estimatedWeight}`);
++    await typeInto(selectors.actualWeight, `{backspace}${actualWeight}`);
++    await typeInto(selectors.address.street, `${street}`);
++    await typeInto(selectors.address.city, `${city}`);
++    await selectValue(selectors.address.state, { label: state });
++    await typeInto(selectors.address.postalCode, `${postalCode}`);
++  };
++
++  const checkShipmentWeights = async ({
++    scheduledPickupDate: sPickupDate,
++    actualPickupDate: aPickupDate,
++    scheduledDeliveryDate: sDeliveryDate,
++    actualDeliveryDate: aDeliveryDate,
++    estimatedWeight,
++    actualWeight,
++    address: { street, city, state, postalCode },
++  }) => {
++    const SCHEDULED_PICKUP_DATE_LABEL = 'Scheduled Pickup Date:';
++    const SCHEDULED_PICKUP_DATE_VALUE = formatNumericDate(sPickupDate);
++    const SCHEDULED_PICKUP_DATE_CONTENT = `${SCHEDULED_PICKUP_DATE_LABEL}${SCHEDULED_PICKUP_DATE_VALUE}`;
++
++    const ACTUAL_PICKUP_DATE_LABEL = 'Actual Pickup Date:';
++    const ACTUAL_PICKUP_DATE_VALUE = formatNumericDate(aPickupDate);
++    const ACTUAL_PICKUP_DATE_CONTENT = `${ACTUAL_PICKUP_DATE_LABEL}${ACTUAL_PICKUP_DATE_VALUE}`;
++
++    const SCHEDULED_DELIVERY_DATE_LABEL = 'Scheduled Delivery Date:';
++    const SCHEDULED_DELIVERY_DATE_VALUE = formatNumericDate(sDeliveryDate);
++    const SCHEDULED_DELIVERY_DATE_CONTENT = `${SCHEDULED_DELIVERY_DATE_LABEL}${SCHEDULED_DELIVERY_DATE_VALUE}`;
++
++    const ACTUAL_DELIVERY_DATE_LABEL = 'Actual Delivery Date:';
++    const ACTUAL_DELIVERY_DATE_VALUE = formatNumericDate(aDeliveryDate);
++    const ACTUAL_DELIVERY_DATE_CONTENT = `${ACTUAL_DELIVERY_DATE_LABEL}${ACTUAL_DELIVERY_DATE_VALUE}`;
++
++    const ESTIMATED_WEIGHT_LABEL = 'Estimated Weight:';
++    const ESTIMATED_WEIGHT_VALUE = estimatedWeight;
++    const ESTIMATED_WEIGHT_CONTENT = utils.textWithNoTrailingNumbers(
++      `${ESTIMATED_WEIGHT_LABEL}${ESTIMATED_WEIGHT_VALUE}`,
++    );
++
++    const ACTUAL_WEIGHT_LABEL = 'Actual Weight:';
++    const ACTUAL_WEIGHT_VALUE = actualWeight;
++    const ACTUAL_WEIGHT_CONTENT = utils.textWithNoTrailingNumbers(`${ACTUAL_WEIGHT_LABEL}${ACTUAL_WEIGHT_VALUE}`);
++
++    const DESTINATION_ADDRESS_LABEL = 'Destination Address:';
++    const DESTINATION_ADDRESS_VALUE = `${street}, ${city}, ${state} ${postalCode}`;
++    const DESTINATION_ADDRESS_CONTENT = `${DESTINATION_ADDRESS_LABEL}${DESTINATION_ADDRESS_VALUE}`;
++
++    const textToCheck = [
++      SCHEDULED_PICKUP_DATE_CONTENT,
++      ACTUAL_PICKUP_DATE_CONTENT,
++      SCHEDULED_DELIVERY_DATE_CONTENT,
++      ACTUAL_DELIVERY_DATE_CONTENT,
++      ESTIMATED_WEIGHT_CONTENT,
++      ACTUAL_WEIGHT_CONTENT,
++      DESTINATION_ADDRESS_CONTENT,
++    ].map(async (content) => expect(page.getByText(content)).toBeVisible());
++
++    await textToCheck.reduce((chain, waiter) => chain.then(() => waiter), Promise.resolve());
++  };
++
++  const MOVE_CODE_COLUMN_SELECTOR = 'moveCode-0';
++
++  /**
++   * select the move from the list
++   * wait for the the available moves page to load
++   * waits for the move details page to load
++   * */
++  const NavigateToMoveDetailsScreen = async (move_selector) => {
++    await page.locator(move_selector).fill(moveLocator);
++    await page.locator(move_selector).press('Enter');
++
++    // TODO TestIds indicate a dimension of significance.
++    // naming the attribute to something with respect to the data might be of use.
++    // having a centralized approach to deriving attributes across the presentation layer
++    // would help when it comes to element associations
++    await page.getByTestId(MOVE_CODE_COLUMN_SELECTOR).click();
++    await waitForLoading();
++    await expect(page.getByText(moveLocator)).toBeVisible();
++  };
++
++  const DAY_11TH = formatRelativeDate(11);
++  const DAY_12TH = formatRelativeDate(12);
++
++  const [
++    { relativeDate: scheduledDeliveryDate, formattedDate: formattedScheduledDeliveryDate },
++    { relativeDate: actualDeliveryDate, formattedDate: formattedActualDeliveryDate },
++    { relativeDate: scheduledPickupDate, formattedDate: formattedScheduledPickupDate },
++    { relativeDate: actualPickupDate, formattedDate: formattedActualPickupDate },
++  ] = [DAY_11TH, DAY_12TH, DAY_11TH, DAY_12TH];
++
++  const SCHEDULED_DELIVERY_DATE_INPUT_SELECTOR = 'input[name="scheduledDeliveryDate"]';
++  const ACTUAL_DELIVERY_DATE_INPUT_SELECTOR = 'input[name="actualDeliveryDate"]';
++  const SCHEDULED_PICKUP_DATE_INPUT_SELECTOR = 'input[name="scheduledPickupDate"]';
++  const ACTUAL_PICKUP_DATE_INPUT_SELECTOR = 'input[name="actualPickupDate"]';
++
++  const EXPECT_URL_MOVE_DETAILS_FORMAT = '/simulator/moves/{0}/details';
++  const EXPECT_URL_SHIPMENTS_VALUE_FORMAT = '/simulator/moves/{0}/shipments';
++
++  const INPUT_ACTION_ENTRIES = [
++    { selector: SCHEDULED_DELIVERY_DATE_INPUT_SELECTOR, value: formattedScheduledDeliveryDate },
++    { selector: ACTUAL_DELIVERY_DATE_INPUT_SELECTOR, value: formattedActualDeliveryDate },
++    { selector: SCHEDULED_PICKUP_DATE_INPUT_SELECTOR, value: formattedScheduledPickupDate },
++    { selector: ACTUAL_PICKUP_DATE_INPUT_SELECTOR, value: formattedActualPickupDate },
++  ];
++
++  const MOVE_CODE_SELECTOR = '#moveCode';
++
++  const destinationFieldValues = {
++    estimatedWeight: 7500,
++    actualWeight: 8000,
++    address: {
++      street: '142 E Barrel Hoop Circle',
++      city: 'Joshua Tree',
++      state: 'CA',
++      postalCode: '92252',
++    },
++  };
++
++  //validate sit values against the UI
++  const sitValues = {
++    ...destinationFieldValues,
++    scheduledDeliveryDate,
++    actualDeliveryDate,
++    scheduledPickupDate,
++    actualPickupDate,
++  };
++
++  // --------------[BEGIN TEST]---------------- //
++
++  const move = await testHarness.buildPrimeSimulatorMoveNeedsShipmentUpdate();
++  const moveLocator = move.locator;
++  const moveID = move.id;
++  const EXPECT_MOVE_DETAILS_URL_VALUE = stringHelpers.format(EXPECT_URL_MOVE_DETAILS_FORMAT, moveID);
++  const EXPECT_SHIPMENT_URL_VALUE = stringHelpers.format(EXPECT_URL_SHIPMENTS_VALUE_FORMAT, moveID);
++
++  await page.goto(baseURLS.office);
++
++  await signInAsNewPrimeSimulatorUser();
++  await NavigateToMoveDetailsScreen(MOVE_CODE_SELECTOR);
++
++  expect(page.url()).toContain(EXPECT_MOVE_DETAILS_URL_VALUE);
++
++  await page.getByText('Update Shipment').click();
++
++  expect(page.url()).toContain(EXPECT_SHIPMENT_URL_VALUE);
++
++  await INPUT_ACTION_ENTRIES.reduce(
++    async (chain, { selector, value }) => chain.then(() => typeAndBlur(selector, value)),
++    Promise.resolve(),
++  );
++
++  await FillDestinationDetailFields(destinationFieldValues);
++
++  const SAVE_BUTTON_TEXT = 'Save';
++  await clickTextAsync(SAVE_BUTTON_TEXT);
++
++  const EXPECT_SUCCESSFUL_SHIPMENT_UPDATE = 'Successfully updated shipment';
++  await expect(page.getByText(EXPECT_SUCCESSFUL_SHIPMENT_UPDATE)).toHaveCount(1);
++
++  expect(page.url()).toContain(EXPECT_MOVE_DETAILS_URL_VALUE);
++
++  await checkShipmentWeights(sitValues);
++
++  await signOut();
++  // --------------[END TEST]---------------- //
++};
++
++export const RUN_PRIME_SETS_UP_SHIPMENT = ({ run: (input, getHelpers) => testExecution({ ...input, ...getHelpers(input) }) });
++
+diff --git a/playwright/tests/mixed/browserTestActions.js b/playwright/tests/mixed/browserTestActions.js
+new file mode 100644
+index 0000000000..a4d8b1ce8d
+--- /dev/null
++++ b/playwright/tests/mixed/browserTestActions.js
+@@ -0,0 +1,181 @@
++import { stringHelpers as str } from './testActionUtils';
++
++export const TOOOfficeUserType = 'TOO office';
++export const TIOOfficeUserType = 'TIO office';
++export const QAECSROfficeUserType = 'QAE/CSR office';
++export const ServicesCounselorOfficeUserType = 'Services Counselor office';
++export const PrimeSimulatorUserType = 'Prime Simulator office';
++export const MultiRoleOfficeUserType = 'Multi role office';
++export const MilmoveUserType = 'milmove';
++
++export const allUserTypes = {
++  TOOOfficeUserType,
++  TIOOfficeUserType,
++  QAECSROfficeUserType,
++  ServicesCounselorOfficeUserType,
++  PrimeSimulatorUserType,
++  MultiRoleOfficeUserType,
++  MilmoveUserType,
++};
++
++export const URL_PATHS = {
++  ROOT_PATH: '/',
++  DEV_LOGIN_PATH: 'devlocal-auth/login',
++  SIGN_IN_PATH: 'sign-in',
++};
++
++export const compareUrlPath =
++  (check) =>
++  ({ pathname }) =>
++    str.trimOuterSymbols(pathname, '/') === check;
++
++export const RegularPathChecks = {
++  DEV_LOGIN_PATH: ({ pathname }) => pathname === URL_PATHS.DEV_LOGIN_PATH,
++  ROOT_PATH_CHECK: ({ pathname }) => pathname === URL_PATHS.ROOT_PATH,
++  SIGN_IN_PATH_CHECK: compareUrlPath(URL_PATHS.SIGN_IN_PATH),
++};
++
++export const waitForSignout = async ({ page }) => {
++  await page.getByText('Sign out').click();
++};
++
++//officelocalt:3000/devlocal-auth/login
++/** Navigates to a path on the current domain */
++export const waitForPageNavigation = async ({ page, path }) => {
++  const urlWaiter = page.waitForURL(compareUrlPath(path));
++  const currentUrl = page.url();
++  const baseUrl = new URL(currentUrl).origin;
++  const loginUrl = str.concatUrlSegments([baseUrl, path]);
++  await page.goto(loginUrl);
++  await urlWaiter;
++};
++
++// officelocal:3000 for the PATH_CHECK, for example
++export const waitForLoginPage = async ({ page, navToUrl, PATH_CHECK = RegularPathChecks.SIGN_IN_PATH_CHECK }) => {
++  const urlWaiter = page.waitForURL(PATH_CHECK);
++  await page.goto(navToUrl);
++  await urlWaiter;
++};
++
++const clickNewLoginForUser =
++  (userType) =>
++  async ({ page }) =>
++    await page.locator(`button[data-hook="new-user-login-${userType}"]`).click();
++
++const loginAs = Object.entries({
++  ...allUserTypes,
++}).reduce((logins, [key, value]) => {
++  logins[key] = clickNewLoginForUser(value);
++  return logins;
++}, {});
++
++// TODO map this
++/*
++async signInAsExistingOfficeUser(email) {
++  await this.page.goto('/devlocal-auth/login');
++  await this.page.locator('input[name=email]').fill(email);
++  await this.page.locator('p', { hasText: 'User Email' }).locator('button').click();
++}
++*/
++
++export const waitForTOOWithUserId = async ({ page, email, loginPath = URL_PATHS.DEV_LOGIN_PATH }) => {
++  await waitForPageNavigation({ page, path: loginPath });
++  await page.locator('input[name=email]').fill(email);
++  await page.locator('p', { hasText: 'User Email' }).locator('button').click();
++};
++//await page.locator('input[name=email]').fill(email);
++//await page.locator('p', { hasText: 'User Email' }).locator('button').click();
++export const waitForTOONewLogin = async ({ page, loginPath = URL_PATHS.DEV_LOGIN_PATH }) => {
++  await waitForPageNavigation({ page, path: loginPath });
++  await loginAs.TOOOfficeUserType({ page });
++  await page.getByRole('heading', { name: 'All moves' }).waitFor();
++};
++export const waitForTIONewLogin = async ({ page, loginPath = URL_PATHS.DEV_LOGIN_PATH }) => {
++  await waitForPageNavigation({ page, path: loginPath });
++  await loginAs.TIOOfficeUserType({ page });
++  await page.getByRole('heading', { name: 'Payment requests' }).waitFor();
++};
++export const waitForPrimeNewLogin = async ({ page, loginPath = URL_PATHS.DEV_LOGIN_PATH }) => {
++  await waitForPageNavigation({ page, path: loginPath });
++  await loginAs.PrimeSimulatorUserType({ page });
++  await page.getByRole('heading', { name: 'Moves available to Prime' }).waitFor();
++};
++export const waitForServiceCounselorNewLogin = async ({ page, loginPath = URL_PATHS.DEV_LOGIN_PATH }) => {
++  await waitForPageNavigation({ page, path: loginPath });
++  await loginAs.ServicesCounselorOfficeUserType({ page });
++  await page.getByRole('heading', { name: 'Moves' }).waitFor();
++};
++export const waitForQAECSRNewLogin = async ({ page, loginPath = URL_PATHS.DEV_LOGIN_PATH }) => {
++  await waitForPageNavigation({ page, path: loginPath });
++  await loginAs.QAECSROfficeUserType({ page });
++  await page.getByRole('heading', { name: 'Search for a move' }).waitFor();
++};
++export const waitForMultiRoleUserLogin = async ({ page, loginPath = URL_PATHS.DEV_LOGIN_PATH }) => {
++  await waitForPageNavigation({ page, path: loginPath });
++  await loginAs.MultiRoleOfficeUserType({ page });
++  await page.getByText('Change user role').waitFor();
++};
++export const waitForCustomerUserLogin = async ({ page, loginPath = URL_PATHS.DEV_LOGIN_PATH }) => {
++  await waitForPageNavigation({ page, path: loginPath });
++  await loginAs.MilmoveUserType({ page });
++  await page.getByLabel('Home').waitFor();
++};
++
++export const userLoginActions = {
++  TOOOfficeUserType: waitForTOONewLogin,
++  TIOOfficeUserType: waitForTIONewLogin,
++  QAECSROfficeUserType: waitForQAECSRNewLogin,
++  ServicesCounselorOfficeUserType: waitForServiceCounselorNewLogin,
++  PrimeSimulatorUserType: waitForPrimeNewLogin,
++  MultiRoleOfficeUserType: waitForMultiRoleUserLogin,
++  MilmoveUserType: waitForCustomerUserLogin,
++};
++
++const goToOfficeUserLoginPage = async ({ page, baseURLS: { office: navToUrl } }) =>
++  await waitForLoginPage({ page, navToUrl });
++
++const goToMyMoveUserLoginPage = async ({ page, baseURLS: { my: navToUrl } }) =>
++  await waitForLoginPage({ page, navToUrl });
++
++const applyOfficeLoginPage = (key) => [key, goToOfficeUserLoginPage];
++const applyMyLoginPage = (key) => [key, goToMyMoveUserLoginPage];
++const getOfficeUserTypes = (({ MilmoveUserType, ...otherUserTypes }) => otherUserTypes)(allUserTypes);
++export const goToProperBasePage = Object.fromEntries([
++  ...Object.keys({ MilmoveUserType }).map(applyMyLoginPage),
++  ...Object.keys(getOfficeUserTypes).map(applyOfficeLoginPage)
++]);
++
++export const setupTestChain = (testPage) => {
++  const testInstance = {
++    testInput: { pageInstance: testPage },
++    task: Promise.resolve(testPage),
++  };
++
++  const setNextTask = (testAction) =>
++  async (pageInstance) => {
++    await testAction(pageInstance);
++    return pageInstance;
++  };
++
++  testInstance.next =  (testAction) => {
++    (testInstance.task = testInstance.task.then(setNextTask(testAction)));
++    return testInstance;
++  };
++
++  testInstance.next(() => testInstance.testInput.pageInstance);
++
++  return testInstance;
++};
++
++const setupTestScanarioMapping =
++  ({role, value, execute }) => async ({ pageInstance }) => await execute({role, value, pageInstance});
++
++export const GetScenarioChainsForUser = (users, execute) =>
++  Object.fromEntries(Object.entries(users).map(([key, value]) => [key, setupTestScanarioMapping({ role: key, value, execute })]));
++
++export const setupTestScenarioChains = (execute) =>
++  Object.fromEntries(Object.entries(allUserTypes).map(([key, value]) => [key, setupTestScanarioMapping({ role: key, value, execute })]));
++
++export const buildTestScenarios = (test, items) =>
++  Object.entries(items).map(([key, testFunction]) => [key.split('_').join(' '), testFunction]);
++
+\ No newline at end of file
+diff --git a/playwright/tests/mixed/login/userLogins.spec.js b/playwright/tests/mixed/login/userLogins.spec.js
+new file mode 100644
+index 0000000000..b379078be5
+--- /dev/null
++++ b/playwright/tests/mixed/login/userLogins.spec.js
+@@ -0,0 +1,20 @@
++import { test, expect, AuditTestPage } from '../mixedTestSetup';
++import * as run from '../browserTestActions';
++import { buildTestScenarios } from '../browserTestActions';
++
++const testExecution = async ({role, value, pageInstance }) =>
++        await run.setupTestChain(pageInstance)
++        .next(run.goToProperBasePage[role])
++        .next(run.userLoginActions[role])
++        .task;
++
++const scenarios = run.setupTestScenarioChains(testExecution);
++
++test.describe('Login Actions', () => {
++
++  buildTestScenarios(test, {
++    ...scenarios,
++  }).map((([key, value]) =>
++   test(key, value)));
++});
++
+\ No newline at end of file
+diff --git a/playwright/tests/mixed/mixedTestSetup.js b/playwright/tests/mixed/mixedTestSetup.js
+new file mode 100644
+index 0000000000..aecacca516
+--- /dev/null
++++ b/playwright/tests/mixed/mixedTestSetup.js
+@@ -0,0 +1,73 @@
++import TestHarness from '../utils/testharness';
++import * as base from '@playwright/test';
++import { stringHelpers, textWithNoTrailingNumbers } from './testActionUtils';
++export const { expect } = base;
++/**
++ * audit test fixture for playwright
++ * See https://playwright.dev/docs/test-fixtures
++ */
++export class AuditTestPage {
++  /**
++   * Create an BaseTestPage.
++   * @param {import('@playwright/test').Page} page
++   * @param {import('@playwright/test').APIRequestContext} request
++   */
++  constructor(page, request) {
++    this.page = page;
++    this.request = request;
++
++    const baseMilmoveLocal = 'http://milmovelocal:3000';
++    const baseOfficeLocal = 'http://officelocal:3000';
++    const baseAdminLocal = 'http://adminlocal:3000';
++
++    this.baseURLS = {
++      my: process.env.PLAYWRIGHT_MY_URL || baseMilmoveLocal,
++      office: process.env.PLAYWRIGHT_OFFICE_URL || baseOfficeLocal,
++      admin: process.env.PLAYWRIGHT_ADMIN_URL || baseAdminLocal,
++    };
++
++    this.testHarness = new TestHarness(request);
++
++    this.helpers = {
++      waitForLoading: async () => {
++        await expect(page.locator('button:has-text("Sign out")')).toHaveCount(1, { timeout: 10000 });
++        await expect(page.locator('h2[data-name="loading-placeholder"]')).toHaveCount(0);
++      },
++      signOut: async () => {
++        await this.page.getByText('Sign out').click();
++      },
++      stringHelpers,
++      utils: {
++        textWithNoTrailingNumbers,
++      },
++      fast: {
++        focusSelector: async (selector) => await page.locator(selector).focus(),
++        clickTextAsync: async (selector) => await page.getByText(selector).click(),
++        typeInto: async (selector, value) =>
++          (async (locator, value) => locator.focus().then(() => locator.type(value)))(page.locator(selector), value),
++        typeAndBlur: async (selector, value) => {
++          const locator = page.locator(selector);
++          await locator.type(value);
++          await locator.blur();
++        },
++        selectValue: async (selector, selectPayload) => await page.locator(selector).selectOption(selectPayload),
++      },
++    };
++  }
++}
++
++/**
++ * @typedef {object} AuditTestArgs
++ * @property {AuditTestPage} pageInstance
++ */
++
++/** @type {base.Fixtures<AuditTestArgs, {}, base.PlaywrightTestArgs & base.PlaywrightTestOptions, base.PlaywrightWorkerArgs & base.PlaywrightWorkerOptions>} */
++const auditFixtures = {
++  pageInstance: async ({ page, request }, use) => {
++    const thePage = new AuditTestPage(page, request);
++    //await page.goto('about_blank');
++    await use(thePage);
++  },
++};
++
++export const test = base.test.extend(auditFixtures);
+diff --git a/playwright/tests/mixed/testActionUtils.js b/playwright/tests/mixed/testActionUtils.js
+new file mode 100644
+index 0000000000..18227e2d6c
+--- /dev/null
++++ b/playwright/tests/mixed/testActionUtils.js
+@@ -0,0 +1,128 @@
++// @ts-ignore
++
++const format = function (formattingString, ...args) {
++  return formattingString.replace(/{(\d+)}/g, (match, index) => (args[index] !== undefined ? args[index] : match));
++};
++
++const trimOuterSymbols = function (stringValue, symbol) {
++  return stringValue.replace(new RegExp(`^\\${symbol}+|\\${symbol}+$`, 'g'), '');
++};
++
++const filterYear = function (yearString) {
++  return yearString.replace(/.*?(\b\d{4}\b).*?/g, '$1');
++};
++
++const trimUrlOperation = function (stringSegment) {
++  return new Set(stringSegment).size === stringSegment.length;
++};
++
++const GetURLOrigin = function (stringUrl) {
++  return new URL(stringUrl).origin;
++};
++
++const concatUrlSegments = (stringPathSegments) => {
++  const trimSegments = (path) => (typeof path === 'string' ? trimOuterSymbols(path, trimOuterSymbols('/')) : []);
++  const result = stringPathSegments.flatMap(trimSegments).join('/');
++  return result;
++};
++
++export const stringHelpers = {
++  format,
++  trimOuterSymbols,
++  filterYear,
++  trimUrlOperation,
++  GetURLOrigin,
++  concatUrlSegments,
++};
++
++export const formatRelativeDate = (daysInterval) => {
++  const relativeDate = new Date();
++  relativeDate.setDate(relativeDate.getDate() + daysInterval);
++  const formattedDay = relativeDate.toLocaleDateString(undefined, { day: '2-digit' });
++  const formattedMonth = relativeDate.toLocaleDateString(undefined, {
++    month: 'short',
++  });
++  const formattedYear = relativeDate.toLocaleDateString(undefined, {
++    year: 'numeric',
++  });
++  const formattedDate = `${formattedDay} ${formattedMonth} ${formattedYear}`;
++
++  return {
++    relativeDate,
++    formattedDate,
++  };
++};
++
++export const formatNumericDate = (date) => {
++  const formattedDay = date.toLocaleDateString(undefined, { day: '2-digit' });
++  const formattedMonth = date.toLocaleDateString(undefined, {
++    month: '2-digit',
++  });
++  const formattedYear = date.toLocaleDateString(undefined, {
++    year: 'numeric',
++  });
++
++  return [formattedYear, formattedMonth, formattedDay].join('-');
++};
++
++export const textWithNoTrailingNumbers = (value) => RegExp(`${value}$`);
++
++const DAY_PICKER_YEAR_CLASS = 'div.DayPicker-Caption';
++const DAY_PICKER_PREVIOUS = '.DayPicker-NavButton--prev';
++const DAY_PICKER_NEXT = '.DayPicker-NavButton--next';
++const DAY_PICKER_DAYS = 'div.DayPicker-Week';
++
++export const dateInputOperator = async (page, locator, dateValue) => {
++  const clickDate = async (page, dayOfMonthNumber) => {
++    const dayElementLocator = page.locator(DAY_PICKER_DAYS, { state: 'attached' });
++    const filterOnlyCompleteMatch = new RegExp(`^${dayOfMonthNumber}$`);
++    const targetDate = await dayElementLocator.getByText(filterOnlyCompleteMatch, { state: 'attached' });
++    await targetDate.click();
++  };
++
++  /** calculate how many clicks to the correct month */
++  const getMonthsDifference = (originDate, targetDate) =>
++    targetDate.getMonth() - originDate.getMonth() + 12 * (targetDate.getFullYear() - originDate.getFullYear());
++
++  const datesMatch = (dateA, dateB) =>
++    dateA.getMonth() === dateB.getMonth() && dateA.getFullYear() === dateB.getFullYear();
++
++  await locator.focus();
++  const yearElement = await page.locator(DAY_PICKER_YEAR_CLASS, { state: 'attached' });
++  const monthYearText = await yearElement.textContent();
++  const firstDate = new Date(['1', monthYearText].join(' '));
++
++  const startingPageIsTargetPage = datesMatch(dateValue, firstDate);
++
++  if (startingPageIsTargetPage) {
++    await clickDate(page, dateValue.getDate());
++    return;
++  }
++
++  const lastDate = new Date(firstDate);
++  lastDate.setMonth(1);
++  lastDate.setHours(-24);
++
++  /** The amount of months is how many times we click to to get to the target month */
++  const months = getMonthsDifference(dateValue, firstDate);
++
++  /** Set the direction going backwards or forwards based on month's sign. */
++  const directionAction = months > 0 ? DAY_PICKER_PREVIOUS : DAY_PICKER_NEXT;
++
++  let currentMonth = monthYearText;
++  for (let i = 0; i < Math.abs(months); i++) {
++    await page.locator(directionAction).click();
++    let changedMonth = await page.locator(DAY_PICKER_YEAR_CLASS, { hasNotText: currentMonth, state: 'attached' });
++    currentMonth = await changedMonth.textContent();
++  }
++
++  const firstDateOfCurrentMonth = new Date(['1', currentMonth].join(' '));
++  const traversedPageIsTargetPage = datesMatch(dateValue, firstDateOfCurrentMonth);
++
++  if (traversedPageIsTargetPage) {
++    await clickDate(page, dateValue.getDate());
++    return;
++  }
++};
++
++export {};
+diff --git a/playwright/tests/tsconfig.json b/playwright/tests/tsconfig.json
+index 3d51122292..27568f9e29 100644
+--- a/playwright/tests/tsconfig.json
++++ b/playwright/tests/tsconfig.json
+@@ -5,5 +5,6 @@
+     "skipLibCheck": true,
+     "noEmit": true
+   },
+-  "include": ["**/*.js"]
++  "include": ["**/*.js"],
++  "exclude": ["**/mixed/*.js","**/mixed/**/*.js", "**/mixed/login/*.js"],
+ }

@@ -1,0 +1,138 @@
+diff --git a/src/pages/Office/MoveHistory/LabeledDetails.jsx b/src/pages/Office/MoveHistory/LabeledDetails.jsx
+index 4566b8c560..78ed2469b0 100644
+--- a/src/pages/Office/MoveHistory/LabeledDetails.jsx
++++ b/src/pages/Office/MoveHistory/LabeledDetails.jsx
+@@ -18,73 +18,87 @@ import {
+   toDollarString,
+ } from 'utils/formatters';
+
+-const retrieveTextToDisplay = (fieldName, value) => {
++const retrieveTextToDisplay = ({ fieldName, value }) => {
+   const emptyValue = '—';
+   const displayName = fieldMappings[fieldName];
+   let displayValue = value;
+
+-  if (displayName === fieldMappings.storage_in_transit) {
+-    displayValue = `${displayValue} days`;
+-  } else if (weightFields[fieldName]) {
+-    // turn string value into number so it can be formatted correctly
+-    displayValue = formatWeight(Number(displayValue));
+-  } else if (optionFields[displayValue]) {
+-    displayValue = optionFields[displayValue];
+-  } else if (dateFields[fieldName]) {
+-    displayValue = formatCustomerDate(displayValue);
+-  } else if (booleanFields[fieldName]) {
+-    displayValue = formatYesNoMoveHistoryValue(displayValue);
+-  } else if (monetaryFields[fieldName]) {
+-    displayValue = toDollarString(formatCents(displayValue));
+-  }
+-
+-  if (!displayValue) {
+-    displayValue = emptyValue;
+-  }
++  //lets flatten all of the field objects by their keys and see if there are any duplicates...
++  //we are mapping displayValues to the field formatters
++  const buildKeyFormatter = (fields, formatter) =>
++    Object.fromEntries(Object.entries(fields).map(([field]) => [field, formatter]));
++
++  //keys is just an array of strings that represent the keys of an object.
++  //we assign formatter to the object at the key, and return the accumulator {}
++  const reduceKeysToFunctions = (accumulator, formatters) => ({ ...accumulator, ...formatters });
++
++  const fieldFormatterSet = ((b) => {
++    const sitField = { [fieldMappings.storage_in_transit]: true };
++    return [
++      b(sitField, ({ input }) => `${input} days`),
++      b(weightFields, ({ input }) => formatWeight(Number(input))),
++      b(optionFields, ({ input }) => optionFields[input]),
++      b(dateFields, ({ input }) => formatCustomerDate(input)),
++      b(booleanFields, ({ input }) => formatYesNoMoveHistoryValue(input)),
++      b(monetaryFields, ({ input }) => toDollarString(formatCents(input))),
++    ];
++  })(buildKeyFormatter).reduce(reduceKeysToFunctions, {});
++
++  const itemsToCheck = [displayName, fieldName, displayValue];
++  const check = (values) =>
++    values.filter((v) => fieldFormatterSet[v]).map((v) => ({ format: fieldFormatterSet[v] }))[0];
++  const checkedValue = check(itemsToCheck)?.format({ input: displayValue });
++
++  const result = checkedValue ?? displayValue;
+
+   return {
+     displayName,
+-    displayValue,
++    displayValue: result || emptyValue,
+   };
+ };
+
+ const LabeledDetails = ({ historyRecord }) => {
+-  const changedValuesToUse = historyRecord.changedValues;
+-  let shipmentDisplay = '';
++  const {
++    shipment_type = undefined,
++    service_item_name = undefined,
++    ...changedValuesToUse
++  } = historyRecord.changedValues;
++
++  let shipmentDisplay = [];
+
+   // Check for shipment_type to use it as a header for the row
+-  if ('shipment_type' in changedValuesToUse) {
+-    shipmentDisplay = shipmentTypes[changedValuesToUse.shipment_type];
+-    shipmentDisplay += ` shipment #${changedValuesToUse.shipment_id_display}`;
+-    delete changedValuesToUse.shipment_type;
+-  }
++  if (shipment_type)
++    shipmentDisplay.push(shipmentTypes[shipment_type], ` shipment #${changedValuesToUse.shipment_id_display}`);
+
+-  if ('service_item_name' in changedValuesToUse) {
+-    shipmentDisplay += `, ${changedValuesToUse.service_item_name}`;
+-    delete changedValuesToUse.service_item_name;
+-  }
++  if (service_item_name) shipmentDisplay.push(`, ${service_item_name}`);
+
+   /* Filter out empty values unless they used to be non-empty
+      These values may be non-nullish in oldValues and nullish in changedValues */
+-  const dbFieldsToDisplay = Object.keys(fieldMappings).filter((dbField) => {
+-    return (
++  const flatMapFieldValueFilterOp = (dbField) => {
++    const hasValues =
+       changedValuesToUse[dbField] ||
+-      (dbField in changedValuesToUse && historyRecord.oldValues && historyRecord.oldValues[dbField])
+-    );
+-  });
++      (dbField in changedValuesToUse && historyRecord.oldValues && historyRecord.oldValues[dbField]);
++    if (!hasValues) return [];
++    return retrieveTextToDisplay({ fieldName: dbField, value: changedValuesToUse[dbField] });
++  };
++
++  // let's filter empty values while transforming the data
++  const dbFilterAndProduceFieldValues = Object.keys(fieldMappings).flatMap(flatMapFieldValueFilterOp);
++
++  const buildElementsFromFieldValues = ({ displayName, displayValue }, index) => (
++    <div key={index}>
++      <b>{displayName}</b>: {displayValue}
++    </div>
++  );
++
++  const labelDetailItems = dbFilterAndProduceFieldValues.map(buildElementsFromFieldValues);
++
++  const shipmentDisplayContent = shipmentDisplay.join('');
+
+   return (
+     <>
+-      <span className={styles.shipmentType}>{shipmentDisplay}</span>
+-      {dbFieldsToDisplay.map((modelField) => {
+-        const { displayName, displayValue } = retrieveTextToDisplay(modelField, changedValuesToUse[modelField]);
+-
+-        return (
+-          <div key={modelField}>
+-            <b>{displayName}</b>: {displayValue}
+-          </div>
+-        );
+-      })}
++      <span className={styles.shipmentType}>{shipmentDisplayContent}</span>
++      {labelDetailItems}
+     </>
+   );
+ };

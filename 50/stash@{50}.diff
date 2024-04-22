@@ -1,0 +1,103 @@
+diff --git a/src/pages/Office/PPM/ReviewDocuments/ReviewDocuments.jsx b/src/pages/Office/PPM/ReviewDocuments/ReviewDocuments.jsx
+index 9f54833756..80b67baead 100644
+--- a/src/pages/Office/PPM/ReviewDocuments/ReviewDocuments.jsx
++++ b/src/pages/Office/PPM/ReviewDocuments/ReviewDocuments.jsx
+@@ -29,6 +29,41 @@ const DOCUMENT_TYPES = {
+   MOVING_EXPENSE: 'MOVING_EXPENSE',
+ };
+
++const CreateExpenseComponentFromModel = ({ setType, documentSet, ...props }) => {
++  const componentMap = [
++    {
++      name: DOCUMENT_TYPES.MOVING_EXPENSE,
++      component: ReviewExpense,
++      specialProps: ({ documentSet: expense, ...values }) => ({ ...values, expense }),
++    },
++    {
++      name: DOCUMENT_TYPES.WEIGHT_TICKET,
++      component: ReviewWeightTicket,
++      specialProps: ({ documentSet: weightTicket, order, ...values }) => ({ ...values, order, weightTicket }),
++    },
++    {
++      name: DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET,
++      component: ReviewProGear,
++      specialProps: ({ documentSet: proGear, ...values }) => ({ ...values, proGear }),
++    },
++  ].reduce((acc, item) => {
++    acc[item.name] = item;
++    return acc;
++  }, {});
++
++  const ComponentResult = componentMap[setType];
++
++  // explicitly listing documentSet here is significant because it is a required parameter for specialProps,
++  // whereas, ...props are any props that may be specific to the component it is applied to.
++  return React.createElement(
++    ComponentResult.component,
++    ComponentResult.specialProps({
++      documentSet,
++      ...props,
++    }),
++  );
++};
++
+ export const ReviewDocuments = () => {
+   const { shipmentId, moveCode } = useParams();
+   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
+@@ -193,6 +228,25 @@ export const ReviewDocuments = () => {
+   const currentTripNumber = currentDocumentSet.tripNumber + 1;
+   const currentDocumentCategoryIndex = currentDocumentSet.categoryIndex + 1;
+
++  const expenseModel = {
++    mtoShipment,
++    mtoShipments,
++    categoryIndex: currentDocumentCategoryIndex,
++  };
++
++  const presentExpenseComponent = CreateExpenseComponentFromModel({
++    ...expenseModel,
++    ppmNumber: 1,
++    tripNumber: currentTripNumber,
++    setType: currentDocumentSet.documentSetType,
++    documentSet: currentDocumentSet.documentSet,
++    onError,
++    onSuccess,
++    formRef,
++  });
++
++  const formatDocumentSetDisplay = documentSetIndex + 1;
++
+   return (
+     <div data-testid="ReviewDocuments test" className={styles.ReviewDocuments}>
+       <div className={styles.embed}>
+@@ -202,7 +256,9 @@ export const ReviewDocuments = () => {
+         title="Review documents"
+         onClose={onClose}
+         className={styles.sidebar}
+-        supertitle={showOverview ? 'All Document Sets' : `${documentSetIndex} of ${documentSets.length} Document Sets`}
++        supertitle={
++          showOverview ? 'All Document Sets' : `${formatDocumentSetDisplay} of ${documentSets.length} Document Sets`
++        }
+         defaultH3
+         hyperlink={reviewShipmentWeightsLink}
+       >
+@@ -253,18 +309,7 @@ export const ReviewDocuments = () => {
+                     formRef={formRef}
+                   />
+                 )}
+-                {currentDocumentSet.documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE && (
+-                  <ReviewExpense
+-                    expense={currentDocumentSet.documentSet}
+-                    categoryIndex={currentDocumentCategoryIndex}
+-                    ppmNumber={1}
+-                    tripNumber={currentTripNumber}
+-                    mtoShipment={mtoShipment}
+-                    onError={onError}
+-                    onSuccess={onSuccess}
+-                    formRef={formRef}
+-                  />
+-                )}
++                {currentDocumentSet.documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE && presentExpenseComponent}
+               </>
+             ))}
+         </DocumentViewerSidebar.Content>

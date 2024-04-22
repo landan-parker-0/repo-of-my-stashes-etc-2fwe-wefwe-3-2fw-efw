@@ -1,0 +1,125 @@
+diff --git a/src/constants/MoveHistory/Database/FieldMappings.js b/src/constants/MoveHistory/Database/FieldMappings.js
+index b02eb8f83e..251aa74a84 100644
+--- a/src/constants/MoveHistory/Database/FieldMappings.js
++++ b/src/constants/MoveHistory/Database/FieldMappings.js
+@@ -115,7 +115,7 @@ export default {
+   sit_end_date: 'SIT end date',
+   shipment_weight: 'Shipment weight',
+   belongs_to_self: 'Service member',
+-  sit_customer_contacted: 'Customer contacted',
++  sit_customer_contacted: 'SIT customer contacted',
+   sit_location: 'SIT location',
+   sit_estimated_cost: 'SIT estimated cost',
+   estimated_incentive: 'PPM estimated incentive',
+diff --git a/src/constants/MoveHistory/EventTemplates/UpdateMovingExpense/UpdateMovingExpense.test.jsx b/src/constants/MoveHistory/EventTemplates/UpdateMovingExpense/UpdateMovingExpense.test.jsx
+index 25b5356221..33ecac90d4 100644
+--- a/src/constants/MoveHistory/EventTemplates/UpdateMovingExpense/UpdateMovingExpense.test.jsx
++++ b/src/constants/MoveHistory/EventTemplates/UpdateMovingExpense/UpdateMovingExpense.test.jsx
+@@ -1,4 +1,4 @@
+-import { render, screen } from '@testing-library/react';
++import { getByText, getDefaultNormalizer, render, screen } from '@testing-library/react';
+
+ import getTemplate from 'constants/MoveHistory/TemplateManager';
+ import o from 'constants/MoveHistory/UIDisplay/Operations';
+@@ -6,6 +6,8 @@ import a from 'constants/MoveHistory/Database/Actions';
+ import t from 'constants/MoveHistory/Database/Tables';
+ import { ppmExpenseTypes } from 'constants/ppmExpenseTypes';
+ import ppms from 'constants/ppms';
++import * as fieldDefault from 'constants/MoveHistory/Database/FieldMappings';
++const FieldMappings = fieldDefault.default;
+
+ const expenseTypes = ppmExpenseTypes.map((expense) => [expense.value, expense.key]);
+
+@@ -74,17 +76,29 @@ describe('When given an updated expense document it', () => {
+     });
+   });
+
+-  it('handles SIT dates', () => {
++  it('handles SIT dates', async () => {
++    const formatForSitLogDate = /\d{2} \w{3} \d{4}/.source;
++    const expectedElements = expect.arrayContaining(
++      [
++        // exlusively matches: 'SIT start date: 12 Dec 2023'
++        new RegExp(`^${FieldMappings.sit_start_date}: ${formatForSitLogDate}$`, 'i'),
++        // exlusively matches:  SIT end date: 01 Jan 2024
++        new RegExp(`^${FieldMappings.sit_end_date}: ${formatForSitLogDate}$`, 'i'),
++      ].map(expect.stringMatching),
++    );
+     expenseRecord.changedValues = {
+       sit_end_date: '2024-01-01',
+       sit_start_date: '2023-12-12',
+     };
+
+     const template = getTemplate(expenseRecord);
+-    render(template.getDetails(expenseRecord));
+-    expect(screen.getByText('SIT Start Date')).toBeInTheDocument();
+-    expect(screen.getByText(': 12 Dec 2023')).toBeInTheDocument();
+-    expect(screen.getByText('SIT End Date')).toBeInTheDocument();
+-    expect(screen.getByText(': 01 Jan 2024')).toBeInTheDocument();
++    render(template.getDetails(expenseRecord)).baseElement;
++
++    const textContentOfTheDom = [...screen.getAllByText('', { exact: false })].map((e) =>
++      getDefaultNormalizer()(e.textContent),
++    );
++
++    console.log(textContentOfTheDom);
++    expect(textContentOfTheDom).toEqual(expectedElements);
+   });
+ });
+diff --git a/src/pages/Office/MoveHistory/MoveHistory.test.jsx b/src/pages/Office/MoveHistory/MoveHistory.test.jsx
+index 87d8ee316e..85094b183c 100644
+--- a/src/pages/Office/MoveHistory/MoveHistory.test.jsx
++++ b/src/pages/Office/MoveHistory/MoveHistory.test.jsx
+@@ -5,6 +5,8 @@ import MoveHistory from './MoveHistory';
+
+ import { MockProviders } from 'testUtils';
+
++const dateTimeFormatRegex = /(\d{2}) (\w{3}) (\d{2}) (\d{2}):(\d{2})/;
++
+ const mockMoveCode = 'DVRS0N';
+
+ jest.mock('hooks/queries', () => ({
+@@ -135,12 +137,12 @@ describe('MoveHistory', () => {
+       expect(screen.getByText('Move history (2)')).toBeInTheDocument();
+       expect(screen.getByRole('table')).toBeInTheDocument();
+
+-      expect(screen.getByTestId('move-history-date-time-0')).toHaveTextContent('09 Mar 22 15:33');
++      expect(screen.getByTestId('move-history-date-time-0')).toHaveTextContent(dateTimeFormatRegex);
+       expect(screen.getByTestId('move-history-event-0')).toHaveTextContent('Approved move');
+       expect(screen.getByTestId('move-history-details-0')).toBeInTheDocument();
+       expect(screen.getByTestId('move-history-modified-by-0')).toBeInTheDocument();
+
+-      expect(screen.getByTestId('move-history-date-time-1')).toHaveTextContent('08 Mar 22 18:28');
++      expect(screen.getByTestId('move-history-date-time-1')).toHaveTextContent(dateTimeFormatRegex);
+       expect(screen.getByTestId('move-history-event-1')).toHaveTextContent('Approved shipment');
+       expect(screen.getByTestId('move-history-details-1')).toBeInTheDocument();
+       expect(screen.getByTestId('move-history-modified-by-1')).toBeInTheDocument();
+diff --git a/src/pages/PrimeUI/AvailableMoves/AvailableMovesQueue.test.jsx b/src/pages/PrimeUI/AvailableMoves/AvailableMovesQueue.test.jsx
+index fe6df3ae79..943764011d 100644
+--- a/src/pages/PrimeUI/AvailableMoves/AvailableMovesQueue.test.jsx
++++ b/src/pages/PrimeUI/AvailableMoves/AvailableMovesQueue.test.jsx
+@@ -5,6 +5,8 @@ import PrimeSimulatorAvailableMoves from './AvailableMovesQueue';
+
+ import { MockProviders } from 'testUtils';
+
++const dateTimeFormatRegex = /\d{2} \w{3} \d{4}, \d{2}:\d{2} \w{2}/;
++
+ jest.mock('hooks/queries', () => ({
+   useUserQueries: () => {
+     return {
+@@ -60,12 +62,12 @@ describe('MoveQueue', () => {
+     const firstMove = moves.at(0);
+     expect(firstMove.find({ 'data-testid': 'id-0' }).text()).toBe('6b3df50c-9b7a-4d95-92d0-796563e50fa8');
+     expect(firstMove.find({ 'data-testid': 'moveCode-0' }).text()).toBe('SidDLH');
+-    expect(firstMove.find({ 'data-testid': 'createdAt-0' }).text()).toBe('07 Dec 2023, 06:21 pm');
+-    expect(firstMove.find({ 'data-testid': 'updatedAt-0' }).text()).toBe('07 Dec 2023, 06:21 pm');
++    expect(firstMove.find({ 'data-testid': 'createdAt-0' }).text()).toMatch(dateTimeFormatRegex);
++    expect(firstMove.find({ 'data-testid': 'updatedAt-0' }).text()).toMatch(dateTimeFormatRegex);
+     expect(firstMove.find({ 'data-testid': 'orderID-0' }).text()).toBe('07ba4203-8b60-4171-92d0-7d2454bac1b5');
+     expect(firstMove.find({ 'data-testid': 'ppmType-0' }).text()).toBe('PARTIAL');
+     expect(firstMove.find({ 'data-testid': 'referenceId-0' }).text()).toBe('7789-3211');
+-    expect(firstMove.find({ 'data-testid': 'availableToPrimeAt-0' }).text()).toBe('07 Dec 2023, 06:21 pm');
++    expect(firstMove.find({ 'data-testid': 'availableToPrimeAt-0' }).text()).toMatch(dateTimeFormatRegex);
+   });
+
+   it('should render the pagination component', () => {

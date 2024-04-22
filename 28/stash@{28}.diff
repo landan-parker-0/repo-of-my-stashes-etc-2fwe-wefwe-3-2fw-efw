@@ -1,0 +1,3178 @@
+diff --git a/artifacts/accessibilityReport.html b/artifacts/accessibilityReport.html
+new file mode 100644
+index 0000000000..a56a1123b2
+--- /dev/null
++++ b/artifacts/accessibilityReport.html
+@@ -0,0 +1,420 @@
++<!DOCTYPE html>
++<html lang="en">
++    <head>
++        <!-- Required meta tags -->
++        <meta charset="utf-8" />
++        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
++        <style>
++            .violationCard {
++                width: 100%;
++                margin-bottom: 1rem;
++            }
++            .violationCardLine {
++                display: flex;
++                justify-content: space-between;
++                align-items: start;
++            }
++            .learnMore {
++                margin-bottom: 0.75rem;
++                white-space: nowrap;
++                color: #2557a7;
++            }
++            .card-link {
++                color: #2557a7;
++            }
++            .violationNode {
++                font-size: 0.75rem;
++            }
++            .wrapBreakWord {
++                word-break: break-word;
++            }
++            .summary {
++                font-size: 1rem;
++            }
++            .summarySection {
++                margin: 0.5rem 0;
++            }
++            .hljs {
++                white-space: pre-wrap;
++                width: 100%;
++                background: #f0f0f0;
++            }
++            p {
++                margin-top: 0.3rem;
++            }
++            li {
++                line-height: 1.618;
++            }
++        </style>
++        <!-- Bootstrap CSS -->
++        <link
++            rel="stylesheet"
++            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
++            integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
++            crossorigin="anonymous"
++        />
++        <script
++            src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
++            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
++            crossorigin="anonymous"
++        ></script>
++        <script
++            src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
++            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
++            crossorigin="anonymous"
++        ></script>
++        <script
++            src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
++            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
++            crossorigin="anonymous"
++        ></script>
++        <link
++            rel="stylesheet"
++            href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/stackoverflow-light.min.css"
++        />
++        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
++        <link
++            rel="icon"
++            href="https://www.deque.com/wp-content/uploads/2018/03/cropped-DQ_SecondaryLogo_HeroBlue_RGB-1-32x32.png"
++            sizes="32x32"
++        />
++        <title>AXE Accessibility Results</title>
++    </head>
++    <body>
++        <div style="padding: 2rem">
++            <h3>
++                AXE Accessibility Results
++            </h3>
++            <div class="summarySection">
++            </div>
++            <h5>axe-core found <span class="badge badge-warning">4</span> violations</h5>
++            <table class="table table-striped table-bordered">
++                <thead>
++                    <tr>
++                        <th style="width: 5%">#</th>
++                        <th style="width: 45%">Description</th>
++                        <th style="width: 15%">Axe rule ID</th>
++                        <th style="width: 23%">WCAG</th>
++                        <th style="width: 7%">Impact</th>
++                        <th style="width: 5%">Count</th>
++                    </tr>
++                </thead>
++                <tbody>
++                    <tr>
++                        <th scope="row"><a href="#1" class="card-link">1</a></th>
++                        <td>Documents must have &lt;title&gt; element to aid in navigation</td>
++                        <td>document-title</td>
++                        <td>WCAG 2 Level A, WCAG 2.4.2</td>
++                        <td>serious</td>
++                        <td>1</td>
++                    </tr>
++                    <tr>
++                        <th scope="row"><a href="#2" class="card-link">2</a></th>
++                        <td>&lt;html&gt; element must have a lang attribute</td>
++                        <td>html-has-lang</td>
++                        <td>WCAG 2 Level A, WCAG 3.1.1</td>
++                        <td>serious</td>
++                        <td>1</td>
++                    </tr>
++                    <tr>
++                        <th scope="row"><a href="#3" class="card-link">3</a></th>
++                        <td>Document should have one main landmark</td>
++                        <td>landmark-one-main</td>
++                        <td>Best practice</td>
++                        <td>moderate</td>
++                        <td>1</td>
++                    </tr>
++                    <tr>
++                        <th scope="row"><a href="#4" class="card-link">4</a></th>
++                        <td>Page should contain a level-one heading</td>
++                        <td>page-has-heading-one</td>
++                        <td>Best practice</td>
++                        <td>moderate</td>
++                        <td>1</td>
++                    </tr>
++                </tbody>
++            </table>
++            <h3>Failed</h3>
++            <div class="card violationCard">
++                <div class="card-body">
++                    <div class="violationCardLine">
++                        <h5 class="card-title violationCardTitleItem">
++                            <a id="1">1.</a> Documents must have &lt;title&gt; element to aid in navigation
++                        </h5>
++                        <a
++                            href="https:&#x2F;&#x2F;dequeuniversity.com&#x2F;rules&#x2F;axe&#x2F;4.6&#x2F;document-title?application&#x3D;axeAPI"
++                            target="_blank"
++                            class="card-link violationCardTitleItem learnMore"
++                            >Learn more</a
++                        >
++                    </div>
++                    <div class="violationCardLine">
++                        <h6 class="card-subtitle mb-2 text-muted">document-title</h6>
++                        <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
++                            WCAG 2 Level A, WCAG 2.4.2
++                        </h6>
++                    </div>
++                    <div class="violationCardLine">
++                        <p class="card-text">Ensures each HTML document contains a non-empty &lt;title&gt; element</p>
++                        <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
++                            serious
++                        </h6>
++                    </div>
++                    <div class="violationCardLine">
++                        <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
++                            Issue Tags:
++                            <span class="badge bg-light text-dark"> cat.text-alternatives </span>
++
++                            <span class="badge bg-light text-dark"> wcag2a </span>
++
++                            <span class="badge bg-light text-dark"> wcag242 </span>
++
++                            <span class="badge bg-light text-dark"> ACT </span>
++                        </h6>
++                    </div>
++                    <div class="violationNode">
++                        <table class="table table-sm table-bordered">
++                            <thead>
++                                <tr>
++                                    <th style="width: 2%">#</th>
++                                    <th style="width: 49%">Issue Description</th>
++                                    <th style="width: 49%">
++                                        To solve this violation, you need to...
++                                    </th>
++                                </tr>
++                            </thead>
++                            <tbody>
++                                <tr>
++                                    <td>1</td>
++                                    <td>
++                                        <p><strong>Element location</strong></p>
++                                        <pre><code class="css text-wrap">html</code></pre>
++                                        <p><strong>Element source</strong></p>
++                                        <pre><code class="html text-wrap">&lt;html&gt;&lt;head&gt;&lt;&#x2F;head&gt;&lt;body&gt;&lt;&#x2F;body&gt;&lt;&#x2F;html&gt;</code></pre>
++                                    </td>
++                                    <td>
++                                        <div class="wrapBreakWord">
++                                            <p>Fix any of the following:</p>
++                                            <ul class="text-muted">
++                                                <li>  Document does not have a non-empty &lt;title&gt; element</li>
++                                            </ul>
++                                        </div>
++                                    </td>
++                                </tr>
++                            </tbody>
++                        </table>
++                    </div>
++                </div>
++            </div>
++            <div class="card violationCard">
++                <div class="card-body">
++                    <div class="violationCardLine">
++                        <h5 class="card-title violationCardTitleItem">
++                            <a id="2">2.</a> &lt;html&gt; element must have a lang attribute
++                        </h5>
++                        <a
++                            href="https:&#x2F;&#x2F;dequeuniversity.com&#x2F;rules&#x2F;axe&#x2F;4.6&#x2F;html-has-lang?application&#x3D;axeAPI"
++                            target="_blank"
++                            class="card-link violationCardTitleItem learnMore"
++                            >Learn more</a
++                        >
++                    </div>
++                    <div class="violationCardLine">
++                        <h6 class="card-subtitle mb-2 text-muted">html-has-lang</h6>
++                        <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
++                            WCAG 2 Level A, WCAG 3.1.1
++                        </h6>
++                    </div>
++                    <div class="violationCardLine">
++                        <p class="card-text">Ensures every HTML document has a lang attribute</p>
++                        <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
++                            serious
++                        </h6>
++                    </div>
++                    <div class="violationCardLine">
++                        <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
++                            Issue Tags:
++                            <span class="badge bg-light text-dark"> cat.language </span>
++
++                            <span class="badge bg-light text-dark"> wcag2a </span>
++
++                            <span class="badge bg-light text-dark"> wcag311 </span>
++
++                            <span class="badge bg-light text-dark"> ACT </span>
++                        </h6>
++                    </div>
++                    <div class="violationNode">
++                        <table class="table table-sm table-bordered">
++                            <thead>
++                                <tr>
++                                    <th style="width: 2%">#</th>
++                                    <th style="width: 49%">Issue Description</th>
++                                    <th style="width: 49%">
++                                        To solve this violation, you need to...
++                                    </th>
++                                </tr>
++                            </thead>
++                            <tbody>
++                                <tr>
++                                    <td>1</td>
++                                    <td>
++                                        <p><strong>Element location</strong></p>
++                                        <pre><code class="css text-wrap">html</code></pre>
++                                        <p><strong>Element source</strong></p>
++                                        <pre><code class="html text-wrap">&lt;html&gt;&lt;head&gt;&lt;&#x2F;head&gt;&lt;body&gt;&lt;&#x2F;body&gt;&lt;&#x2F;html&gt;</code></pre>
++                                    </td>
++                                    <td>
++                                        <div class="wrapBreakWord">
++                                            <p>Fix any of the following:</p>
++                                            <ul class="text-muted">
++                                                <li>  The &lt;html&gt; element does not have a lang attribute</li>
++                                            </ul>
++                                        </div>
++                                    </td>
++                                </tr>
++                            </tbody>
++                        </table>
++                    </div>
++                </div>
++            </div>
++            <div class="card violationCard">
++                <div class="card-body">
++                    <div class="violationCardLine">
++                        <h5 class="card-title violationCardTitleItem">
++                            <a id="3">3.</a> Document should have one main landmark
++                        </h5>
++                        <a
++                            href="https:&#x2F;&#x2F;dequeuniversity.com&#x2F;rules&#x2F;axe&#x2F;4.6&#x2F;landmark-one-main?application&#x3D;axeAPI"
++                            target="_blank"
++                            class="card-link violationCardTitleItem learnMore"
++                            >Learn more</a
++                        >
++                    </div>
++                    <div class="violationCardLine">
++                        <h6 class="card-subtitle mb-2 text-muted">landmark-one-main</h6>
++                        <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
++                            Best practice
++                        </h6>
++                    </div>
++                    <div class="violationCardLine">
++                        <p class="card-text">Ensures the document has a main landmark</p>
++                        <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
++                            moderate
++                        </h6>
++                    </div>
++                    <div class="violationCardLine">
++                        <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
++                            Issue Tags:
++                            <span class="badge bg-light text-dark"> cat.semantics </span>
++
++                            <span class="badge bg-light text-dark"> best-practice </span>
++                        </h6>
++                    </div>
++                    <div class="violationNode">
++                        <table class="table table-sm table-bordered">
++                            <thead>
++                                <tr>
++                                    <th style="width: 2%">#</th>
++                                    <th style="width: 49%">Issue Description</th>
++                                    <th style="width: 49%">
++                                        To solve this violation, you need to...
++                                    </th>
++                                </tr>
++                            </thead>
++                            <tbody>
++                                <tr>
++                                    <td>1</td>
++                                    <td>
++                                        <p><strong>Element location</strong></p>
++                                        <pre><code class="css text-wrap">html</code></pre>
++                                        <p><strong>Element source</strong></p>
++                                        <pre><code class="html text-wrap">&lt;html&gt;&lt;head&gt;&lt;&#x2F;head&gt;&lt;body&gt;&lt;&#x2F;body&gt;&lt;&#x2F;html&gt;</code></pre>
++                                    </td>
++                                    <td>
++                                        <div class="wrapBreakWord">
++                                            <p>Fix all of the following:</p>
++                                            <ul class="text-muted">
++                                                <li>  Document does not have a main landmark</li>
++                                            </ul>
++                                        </div>
++                                    </td>
++                                </tr>
++                            </tbody>
++                        </table>
++                    </div>
++                </div>
++            </div>
++            <div class="card violationCard">
++                <div class="card-body">
++                    <div class="violationCardLine">
++                        <h5 class="card-title violationCardTitleItem">
++                            <a id="4">4.</a> Page should contain a level-one heading
++                        </h5>
++                        <a
++                            href="https:&#x2F;&#x2F;dequeuniversity.com&#x2F;rules&#x2F;axe&#x2F;4.6&#x2F;page-has-heading-one?application&#x3D;axeAPI"
++                            target="_blank"
++                            class="card-link violationCardTitleItem learnMore"
++                            >Learn more</a
++                        >
++                    </div>
++                    <div class="violationCardLine">
++                        <h6 class="card-subtitle mb-2 text-muted">page-has-heading-one</h6>
++                        <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
++                            Best practice
++                        </h6>
++                    </div>
++                    <div class="violationCardLine">
++                        <p class="card-text">Ensure that the page, or at least one of its frames contains a level-one heading</p>
++                        <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
++                            moderate
++                        </h6>
++                    </div>
++                    <div class="violationCardLine">
++                        <h6 class="card-subtitle mb-2 text-muted violationCardTitleItem">
++                            Issue Tags:
++                            <span class="badge bg-light text-dark"> cat.semantics </span>
++
++                            <span class="badge bg-light text-dark"> best-practice </span>
++                        </h6>
++                    </div>
++                    <div class="violationNode">
++                        <table class="table table-sm table-bordered">
++                            <thead>
++                                <tr>
++                                    <th style="width: 2%">#</th>
++                                    <th style="width: 49%">Issue Description</th>
++                                    <th style="width: 49%">
++                                        To solve this violation, you need to...
++                                    </th>
++                                </tr>
++                            </thead>
++                            <tbody>
++                                <tr>
++                                    <td>1</td>
++                                    <td>
++                                        <p><strong>Element location</strong></p>
++                                        <pre><code class="css text-wrap">html</code></pre>
++                                        <p><strong>Element source</strong></p>
++                                        <pre><code class="html text-wrap">&lt;html&gt;&lt;head&gt;&lt;&#x2F;head&gt;&lt;body&gt;&lt;&#x2F;body&gt;&lt;&#x2F;html&gt;</code></pre>
++                                    </td>
++                                    <td>
++                                        <div class="wrapBreakWord">
++                                            <p>Fix all of the following:</p>
++                                            <ul class="text-muted">
++                                                <li>  Page must have a level-one heading</li>
++                                            </ul>
++                                        </div>
++                                    </td>
++                                </tr>
++                            </tbody>
++                        </table>
++                    </div>
++                </div>
++            </div>
++        </div>
++
++        <script>
++            hljs.initHighlightingOnLoad();
++        </script>
++    </body>
++</html>
+diff --git a/jsconfig.json b/jsconfig.json
+index ce0ff3de39..0847d3a663 100644
+--- a/jsconfig.json
++++ b/jsconfig.json
+@@ -1,7 +1,10 @@
+ {
+   "compilerOptions": {
+     "baseUrl": "./src/",
+-    "jsx": "react"
++
++    "types": ["node"],
++    "jsx": "react",
++    "module": "NodeNext",
+   },
+   "exclude": ["node_modules", "build", "storybook-static"]
+ }
+diff --git a/playwright/tests/customerSetup.js b/playwright/tests/customerSetup.js
+new file mode 100644
+index 0000000000..3faf30072a
+--- /dev/null
++++ b/playwright/tests/customerSetup.js
+@@ -0,0 +1,17 @@
++import { test } from '@playwright/test';
++// const test = customerTest.extend({
++//   CustomerPpmPage: async ({ customerPpmPage }, use) => {
++//     const args = arguments;
++//     const proxyPageInstance = setupPageFor(page);
++//     await use({ page });
++//   },
++// });
++
++test.describe('setting up test', async () => {
++  //const overridePage = (te) =>
++  test.use({ something: { hi: 'else' } });
++  //);
++  test('setup customer tests', async ({}) => {
++    const values = arguments;
++  });
++});
+diff --git a/playwright/tests/customerSetupTest.js b/playwright/tests/customerSetupTest.js
+new file mode 100644
+index 0000000000..84cfc65f3b
+--- /dev/null
++++ b/playwright/tests/customerSetupTest.js
+@@ -0,0 +1,68 @@
++import { checkA11y, getAxeResults, injectAxe } from 'axe-playwright';
++import { CustomerPpmPage } from './my/milmove/ppms/customerPpmTestFixture';
++import { CustomerPpmOnboardingPage } from './my/milmove/ppms/entireShipmentOnboarding.spec';
++import { test as customerTest } from './utils/my/customerTest';
++
++const proxyPage = (self, { before, after } = { before: () => {}, after: () => {} }) =>
++  new Proxy(self, {
++    get: (source, prop) => {
++      const foundItem = typeof self[prop] === 'function' && self[prop];
++      if (!foundItem) return self[prop];
++
++      const defer = (...options) =>
++        Promise.resolve()
++          .then(async () => await before())
++          .then(async () => await foundItem.bind(self)(...options))
++          .then(async (a) => await Promise.resolve(await after()).then(a));
++      return defer;
++    },
++  });
++
++const setupAudit = async (pom) => {
++  const thePage = pom.page || pom;
++  const page = { ...thePage };
++
++  const hasAxe = page.states.hasAxe;
++  if (!hasAxe)
++    await Promise.resolve((page.states.hasAxe = true))
++      .then(async () => await injectAxe(thePage))
++      .then(
++        async () =>
++          await checkA11y(
++            thePage,
++            undefined,
++            {
++              detailedReport: true,
++            },
++            // skip failures
++            true,
++            'html',
++          ),
++      )
++      .then(async () => await getAxeResults(thePage));
++  //const violations = (await getAxeResults(page)).violations;
++  //if (violations.length > 0) '';
++};
++
++const setupPageFor = (pom) => {
++  (pom.page || pom).states = {};
++  return proxyPage(pom, {
++    before: () => setupAudit(pom),
++    after: () => setupAudit(pom),
++  });
++};
++
++const customerPpmFixtures = {
++  customerPpmPage: async ({ customerPage }, use) => {
++    let customerPpmPage = new CustomerPpmPage(customerPage);
++    const customerProxyPage = setupPageFor(customerPpmPage);
++    await use(customerProxyPage);
++  },
++  customerPpmOnboardingPage: async ({ customerPpmPage }, use) => {
++    let customerPpmOnboardingPage = new CustomerPpmOnboardingPage(customerPpmPage);
++    const customerProxyPage = setupPageFor(customerPpmOnboardingPage);
++    await use(customerProxyPage);
++  },
++};
++
++export const test = customerTest.extend(customerPpmFixtures);
+diff --git a/playwright/tests/customerTeardown.js b/playwright/tests/customerTeardown.js
+new file mode 100644
+index 0000000000..21081713bf
+--- /dev/null
++++ b/playwright/tests/customerTeardown.js
+@@ -0,0 +1,11 @@
++// @ts-nocheck
++import test from '@playwright/test';
++import { getAxeResults, injectAxe } from 'axe-playwright';
++
++test('setup customer tests', async ({ page }) => {
++  const sample = page.item;
++  await injectAxe(page);
++  const results = (await getAxeResults(page)).violations;
++
++  ('');
++});
+diff --git a/playwright/tests/mixed/MixedUtilities/ApiMatches.js b/playwright/tests/mixed/MixedUtilities/ApiMatches.js
+new file mode 100644
+index 0000000000..fddc427cf3
+--- /dev/null
++++ b/playwright/tests/mixed/MixedUtilities/ApiMatches.js
+@@ -0,0 +1,19 @@
++export const serviceMemberMatch = '**/internal/users/logged_in';
++
++export const getNetworkDataByMatch = async (theStackName, responses) => {
++  console.log(responses[theStackName]);
++  const result = await responses[theStackName][0].then((json, { status, result } = {}) => {
++    if (status >= 300) {
++      console.log(result) || console.log(status);
++      throw new Error('api unbox failed');
++    }
++    return json;
++  });
++  responses[theStackName].shift();
++  if (!result) {
++    console.log(result);
++    throw new Error('really bruh');
++  }
++  console.log(result);
++  return result;
++};
+diff --git a/playwright/tests/mixed/MixedUtilities/Helpers.js b/playwright/tests/mixed/MixedUtilities/Helpers.js
+new file mode 100644
+index 0000000000..d01a4b6e27
+--- /dev/null
++++ b/playwright/tests/mixed/MixedUtilities/Helpers.js
+@@ -0,0 +1,70 @@
++const tagLocators = {
++  label: 'label',
++  div: 'div',
++  span: 'span',
++  button: 'button',
++  select: 'select',
++  input: 'input',
++};
++
++const locatorModifiers = {
++  for: 'for',
++  ['data-testid']: 'data-testid',
++  id: 'id',
++  name: 'name',
++};
++
++export const generateShortGuid = () => {
++  return 'xxxxxxxxxxxx4xxxyxxxxx'.replace(/[xy]/g, function (c) {
++    const r = (Math.random() * 16) | 0;
++    const v = c === 'x' ? r : (r & 0x3) | 0x8;
++    return v.toString(16);
++  });
++};
++
++const swapHyphensForUnderscores = (str) => str.split('-').join('_');
++
++const KeysToValueFunction = (obj, val) => Object.fromEntries(Object.entries(obj).map(([key]) => [key, val(key)]));
++
++const locatorText = (page, locator) => (modifier) => (text) => page.locator(`${locator}[${modifier}='${text}']`);
++
++const applyPageToLocatorText = (page) => (locator) => KeysToValueFunction(locatorModifiers, locatorText(page, locator));
++
++export const locatorHelpers = (page) => ({
++  ...KeysToValueFunction(tagLocators, applyPageToLocatorText(page)),
++});
++
++export const waitAfterAction = (waiting, action) => {
++  let waiter = null;
++  return [
++    async (page) => {
++      waiter = waiting(page);
++    },
++    action,
++    async (page) => waiter,
++  ];
++};
++
++export const waitForFileUpload = (locatorAction, filePath) => {
++  const actions = waitAfterAction(({ page }) => {
++    return page.waitForEvent('filechooser');
++  }, locatorAction);
++
++  const lastActionProvidesFileInput = actions[actions.length - 1];
++
++  const setFiles = async ({ page }) => {
++    const fileInput = await lastActionProvidesFileInput({ page });
++    // .then(async (e,r) =>{
++    //   const ee = await e;
++    // });
++    await fileInput.setFiles(filePath);
++  };
++
++  const result = [...actions, setFiles];
++  return result;
++};
++
++export const nextPageAfterControl = (path, control) =>
++  waitAfterAction(({ page }) => {
++    return page.waitForURL(path);
++  }, control);
+diff --git a/playwright/tests/mixed/MixedUtilities/constantsAndMisc.js b/playwright/tests/mixed/MixedUtilities/constantsAndMisc.js
+new file mode 100644
+index 0000000000..6e66b761fd
+--- /dev/null
++++ b/playwright/tests/mixed/MixedUtilities/constantsAndMisc.js
+@@ -0,0 +1,84 @@
++export const roles = [
++    'alert',
++    'alertdialog',
++    'application',
++    'article',
++    'banner',
++    'blockquote',
++    'button',
++    'caption',
++    'cell',
++    'checkbox',
++    'code',
++    'columnheader',
++    'combobox',
++    'complementary',
++    'contentinfo',
++    'definition',
++    'deletion',
++    'dialog',
++    'directory',
++    'document',
++    'emphasis',
++    'feed',
++    'figure',
++    'form',
++    'generic',
++    'grid',
++    'gridcell',
++    'group',
++    'heading',
++    'img',
++    'insertion',
++    'link',
++    'list',
++    'listbox',
++    'listitem',
++    'log',
++    'main',
++    'marquee',
++    'math',
++    'meter',
++    'menu',
++    'menubar',
++    'menuitem',
++    'menuitemcheckbox',
++    'menuitemradio',
++    'navigation',
++    'none',
++    'note',
++    'option',
++    'paragraph',
++    'presentation',
++    'progressbar',
++    'radio',
++    'radiogroup',
++    'region',
++    'row',
++    'rowgroup',
++    'rowheader',
++    'scrollbar',
++    'search',
++    'searchbox',
++    'separator',
++    'slider',
++    'spinbutton',
++    'status',
++    'strong',
++    'subscript',
++    'superscript',
++    'switch',
++    'tab',
++    'table',
++    'tablist',
++    'tabpanel',
++    'term',
++    'textbox',
++    'time',
++    'timer',
++    'toolbar',
++    'tooltip',
++    'tree',
++    'treegrid',
++    'treeitem',
++  ];
+\ No newline at end of file
+diff --git a/playwright/tests/mixed/MixedUtilities/cursoryAction.ts b/playwright/tests/mixed/MixedUtilities/cursoryAction.ts
+new file mode 100644
+index 0000000000..5c81caa384
+--- /dev/null
++++ b/playwright/tests/mixed/MixedUtilities/cursoryAction.ts
+@@ -0,0 +1,7 @@
++import { Locator, Page } from "@playwright/test";
++
++type ActionFunction<T> = (...args: any[]) => T;
++
++export const dynamicFunc = <T extends Record<string, ActionFunction<any>>>(
++  funcName: keyof Locator | keyof Page
++) => (...params: Parameters<T[keyof T]>) => (target: T) => target[funcName](...params);
+\ No newline at end of file
+diff --git a/playwright/tests/mixed/MixedUtilities/http/responseService.js b/playwright/tests/mixed/MixedUtilities/http/responseService.js
+new file mode 100644
+index 0000000000..dfcdf4bc0d
+--- /dev/null
++++ b/playwright/tests/mixed/MixedUtilities/http/responseService.js
+@@ -0,0 +1,153 @@
++import { expect } from "../../mixedTestSetup";
++import { ordersContextObjectWithMoves, serviceMemberLoginObject } from '../shapesAndModels/expectShapes';
++export const handleErrors = (error) => new Promise((res, err) => err(error));
++
++export const onResponse = (validate, interpret) => (response) =>
++  new Promise(async (res, err) => {
++    const validationResult = await validate(response);
++    try {
++      if (!validationResult) return err(`invalid response: ${JSON.stringify(response)}`);
++      const result = response
++        .finished()
++        .then(async (success) => await interpret(response))
++        .catch(handleErrors)
++        .then((interpretedData) => res({ status: response.status, eventData: interpretedData }));
++    } catch (error) {
++      err(error);
++    }
++  });
++
++/**
++ * {}.handleResponse(url, handle, callback)
++ * @argument url, the complete url for the response
++ * @argument handle: takes response object, must be async, and throw or reject when unable to parse the response.
++ * @argument callback: the callback that is called if handle succeeds.
++ * @returns the response service.
++ */
++export const responseService = () => {
++  const self = { urlChecks: [], handlers: {} };
++  const handleResponse = ({ checkUrl, key }, handle, callback) => {
++    if (key in self.handlers) throw new Error(`handler for ${key} is already set`);
++    self.urlChecks.push({ key, checkUrl });
++    self.handlers[key] = { handle, callback };
++  };
++  self.handleResponse = handleResponse;
++
++  self.start = async ({ page }, handlers = self.handlers, urlChecks = self.urlChecks) =>
++    page.on('response', async (response) => {
++      const url = response.url();
++      const [{ key, checkUrl } = {}, ...rest] = urlChecks.filter(({ key, checkUrl }) => checkUrl(url));
++      //handle this case with another function that explicitly deals with this case later on...
++      if (rest.length > 0)
++        throw new Error(
++          `multiple handlers for the same endpoint ${url} have been set for: ${[key, ...rest.map((e) => e.key)].join(
++            ',',
++          )}`,
++        );
++      const handlerValue = handlers[key];
++      if (!handlerValue) return;
++
++      const { handle, callback } = handlerValue;
++      try {
++        const result = handle(response).catch(handleErrors);
++        await result.then(callback);
++      } catch (error) {}
++    });
++
++  return self;
++};
++
++/** returns the async ({ page }) action. this allows us to use the other helper functions to listen for the handler receiver */
++export const runResponseHandler = (
++  { checkUrl, key },
++  handleResponse,
++  responseHandler,
++  { validate, onValidResponse },
++) => {
++  let id = 0;
++  const smData = {};
++  const stack = [];
++  const waitForObject = {};
++  const setWaiter = () => {
++    const waiter = new Promise((proceed) => (waitForObject.proceed = proceed));
++    const idValue = id++;
++    waitForObject.waiter = { promise: waiter, id: idValue };
++    stack.unshift(id);
++  };
++  setWaiter();
++
++  const responseCallback = ({ status, eventData }) => {
++    const waiter = waitForObject.waiter;
++    waiter.eventData = eventData;
++    smData[waitForObject.id] = waiter;
++    const { proceed } = waitForObject;
++    setWaiter();
++    proceed(eventData);
++  };
++
++  handleResponse({ checkUrl, key }, responseHandler, responseCallback);
++
++  return (expecting) => async () => {
++    const activeWaiter = waitForObject.waiter;
++    const recentWaiter = stack[0];
++    const currentWaiter = smData[recentWaiter];
++    if (activeWaiter.id === recentWaiter) activeWaiter = currentWaiter;
++
++    await activeWaiter.promise;
++    expecting && expect(activeWaiter.eventData).toEqual(expecting);
++    const isValid = validate && (await validate(activeWaiter.eventData, expecting));
++    if (!isValid) return;
++
++    onValidResponse && (await onValidResponse(activeWaiter.eventData));
++  };
++};
++
++export const jsonResponse = onResponse(
++  async (response) => await response.ok(),
++  async (response) => {
++    console.log(response);
++    try {
++      const jsonResult = response
++        ?.text()
++        .catch(handleErrors)
++        .then((success) => JSON.parse(success));
++
++      const result = await jsonResult;
++      if (!result) return '{}';
++      return await result;
++    } catch (error) {
++      console.log(response);
++      console.log(error);
++    }
++  },
++);
++
++const INTERNAL_USERS_LOGIN_PATH = 'http://milmovelocal:3000/internal/users/logged_in';
++export const expectServiceMemberLoginResponse = (handleResponse, { onValidResponse } = {}) => {
++  const check = { checkUrl: (url) => url === INTERNAL_USERS_LOGIN_PATH, key: 'serviceMemberLoggedIn' };
++  const validate = (value) => {
++    expect(value).toEqual(serviceMemberLoginObject);
++    return true;
++  };
++  const theResponse = runResponseHandler(check, handleResponse, jsonResponse, {
++    validate,
++    onValidResponse,
++  });
++  return theResponse;
++};
++
++const INTERNAL_ORDERS_PATH =
++  'http://milmovelocal:3000/internal/service_members/c36473a1-52af-4cb2-8201-d8c06bcc7ce8/current_orders';
++export const expectOrdersContextResponse = (handleResponse, { onValidResponse }) => {
++  const regex = /^.*\/internal\/service_members\/.*\/current_orders$/;
++  const check = { checkUrl: (url) => regex.test(url), key: 'currentOrders' };
++  const validate = (value) => {
++    expect(value).toEqual(ordersContextObjectWithMoves);
++    return true;
++  };
++  const theResponse = runResponseHandler(check, handleResponse, jsonResponse, {
++    validate,
++    onValidResponse,
++  });
++  return theResponse;
++};
+diff --git a/playwright/tests/mixed/MixedUtilities/shapesAndModels/expectShapes.js b/playwright/tests/mixed/MixedUtilities/shapesAndModels/expectShapes.js
+new file mode 100644
+index 0000000000..f28031c66e
+--- /dev/null
++++ b/playwright/tests/mixed/MixedUtilities/shapesAndModels/expectShapes.js
+@@ -0,0 +1,18 @@
++import { handleErrors, onResponse } from '../http/responseService';
++import { expect } from '../../mixedTestSetup';
++
++/**
++    Related to
++    const INTERNAL_USERS_LOGIN_PATH = 'http://milmovelocal:3000/internal/users/logged_in';
++*/
++export const serviceMemberLoginObject = expect.objectContaining({
++  email: expect.any(String),
++  id: expect.any(String),
++  service_member: expect.objectContaining({
++    id: expect.any(String),
++    user_id: expect.any(String),
++  }),
++});
++
++export const ordersContextObjectWithMoves = expect.objectContaining({moves: expect.any(Array) });
++export const serviceMemberContextObjectWithOrders = expect.objectContaining({orders: ordersContextObjectWithMoves});
+\ No newline at end of file
+diff --git a/playwright/tests/mixed/MixedUtilities/staticElementConstants.js b/playwright/tests/mixed/MixedUtilities/staticElementConstants.js
+new file mode 100644
+index 0000000000..dbb309cf05
+--- /dev/null
++++ b/playwright/tests/mixed/MixedUtilities/staticElementConstants.js
+@@ -0,0 +1,61 @@
++import { reMap, controlsPicking as c } from './staticElements';
++
++const INPUT_ITEM = { input: '' };
++const LABEL_ITEM = { label: '' };
++const BUTTON_ITEM = { button: '' };
++const SELECT_ITEM = { select: '' };
++const TYPING_ACTION = { type: '' };
++const CLICK_ACTION = { click: '' };
++const SELECT_ACTION = { selectOption: '' };
++
++const NAME_ITEM = {name:''};
++const FOR_ITEM = {for:''};
++const TESTID = {['data-testid']:''};
++
++const setupItems =
++  (theType, key, theAction) =>
++  ([k, v]) => [k, c([theType, { [Object.keys(key)[0]]: v }, theAction]).setup(v)];
++
++const toNamedTypeAction = setupItems(INPUT_ITEM, NAME_ITEM, TYPING_ACTION);//([k, v]) => [k, c([INPUT_ITEM, setupItems{ name: v }, TYPING_ACTION]).setup(v)];
++const toDropdownSelectAction = setupItems(SELECT_ITEM, NAME_ITEM, SELECT_ACTION);
++const toRadioSelectionAction = setupItems(LABEL_ITEM, FOR_ITEM, CLICK_ACTION);
++const toTestInputClickAction = setupItems(BUTTON_ITEM, TESTID, CLICK_ACTION);
++const toButtonDataHook = setupItems(BUTTON_ITEM, TESTID, CLICK_ACTION);
++
++export const WIZARD_ITEMS = {
++  buttons: reMap(
++    {
++      NEXT_WIZARD_BUTTON: 'wizardNextButton',
++    },
++    toTestInputClickAction,
++  ),
++};
++
++export const PROFILE_CREATION = {
++  serviceMember: {
++    ...reMap(
++      {
++        firstName: 'first_name',
++        lastName: 'last_name',
++        middleName: 'middle_name',
++        suffix: 'suffix',
++        dodInput: 'edipi',
++      },
++      toNamedTypeAction,
++    ),
++    ...reMap(
++      {
++        rankCombo: 'rank',
++        branchCombo: 'affiliation',
++      },
++      toDropdownSelectAction,
++    ),
++    ...reMap(
++      {
++        conusRadio: 'input_CONUS',
++        oconusRadio: 'input_OCONUS',
++      },
++      toRadioSelectionAction,
++    ),
++  },
++};
+diff --git a/playwright/tests/mixed/MixedUtilities/staticElements.js b/playwright/tests/mixed/MixedUtilities/staticElements.js
+new file mode 100644
+index 0000000000..9d70152fe8
+--- /dev/null
++++ b/playwright/tests/mixed/MixedUtilities/staticElements.js
+@@ -0,0 +1,110 @@
++import { PROFILE_CREATION } from './staticElementConstants';
++
++const reconstructObjectWithFunc = (obj, func) => Object.fromEntries(Object.entries(obj).map(func));
++
++export const reMap = reconstructObjectWithFunc;
++
++const selectorTypeMap = { input: '', label: '', select: '', div: '', span: '', p: '', button: '' };
++const selectorTargetMap = { name: '', for: '', ['data-testid']: '', ['data-hook']: '', id: '' };
++const selectorActionMap = { click: '', selectOption: '', type: '' };
++
++const createControlsMap = function(self){
++  self.registerControl = ((control) => {
++    control.id = this.getNextId();
++    this.controls[control.id] = control;
++    return control.id;
++  }).bind(self);
++  self.getNextId = (() => this.id++);
++  return self;
++};
++
++const controlsMap = { id: 0, controls: [] };
++createControlsMap.bind(controlsMap)(controlsMap);
++
++let protoTypes = {};
++
++//get the prototype functions of Locator.
++//build an array of functions that reference the locator func and take a selector, then bind to that selector instance for that event, and return the map of functions.
++
++export const controlsPicking = (quickItems = ([iType, iTarget, iAction] = [])) => {
++  let self = {
++    selectorType: undefined,
++    selectorTarget: undefined,
++    selectorAction: undefined,
++    setSelectorType: undefined,
++    setSelectorTarget: undefined,
++    setSelectorAction: undefined,
++  };
++
++  let opType = (actionLabel, e, v, item) => {
++    self[actionLabel] = (a) => a[e];
++    return self;
++  };
++
++  let opTarget = (actionLabel, e, v, item) => {
++    self.selectorProperty = e;
++    self.selectorTargetValue = item;
++    self[actionLabel] = (a) => {
++      let locatorValue = a[e](self.selectorTargetValue[self.selectorProperty]);
++      let locator = {[e]: locatorValue, };
++      return locator;
++    };
++
++    return self;
++  };
++
++  let opAction = (actionlabel, e, v, item) => {
++    self.eventName = e;
++    self[actionlabel] = (a) => ({ exe: a[self.eventName].bind(a) });
++    return self;
++  };
++
++  let onSelector = (operation, set, key) =>
++    reconstructObjectWithFunc(set, ([e, v]) => [e, (item) => operation(key, e, v, item)]);
++
++  let onDefault = (obj, found) => {
++    if (!found) return console.log('nope') || self;
++    found[1](obj);
++    return self;
++  };
++
++  const getEntry = (set, obj) => {
++    const found = Object.entries(set).find(([e]) => e in obj);
++    if (!found) return;
++    return found;
++  };
++  const getDefault = (set) => (obj) => onDefault(obj, obj && getEntry(set, obj));
++
++  const allTagTypes = onSelector(opType, selectorTypeMap, 'selectorType');
++  self.setSelectorType = getDefault(allTagTypes);
++
++  const allTargets = onSelector(opTarget, selectorTargetMap, 'selectorTarget');
++  self.setSelectorTarget = getDefault(allTargets);
++
++  const allActions = onSelector(opAction, selectorActionMap, 'selectorAction');
++  self.setSelectorAction = getDefault(allActions);
++
++  self.setSelectorItems = ([sType, sTarget, sAction]) =>
++    self.setSelectorType(sType).setSelectorTarget(sTarget).setSelectorAction(sAction);
++
++  if (quickItems.length == 3) self.setSelectorItems(quickItems);
++
++  self.getSelectorItems = () => [self.selectorType, self.selectorTarget, self.selectorAction];
++
++  self.setup = () => {
++    controlsMap.registerControl(self);
++    self.getSelectors = (selectors) => {
++      const selectorType = self.selectorType(selectors);
++      const selectorTarget = self.selectorTarget(selectorType)[self.selectorProperty];
++      self.selector = selectorTarget;
++    };
++
++    return (value) =>
++      async ({ helpers: { locatorHelpers: selectors } }) => {
++        self.getSelectors(selectors);
++        await (value ? self.selectorAction(self.selector).exe(value) : self.selectorAction(self.selector).exe());
++      };
++  };
++
++  return self;
++};
+\ No newline at end of file
+diff --git a/playwright/tests/mixed/MixedUtilities/testElements.spec.js b/playwright/tests/mixed/MixedUtilities/testElements.spec.js
+new file mode 100644
+index 0000000000..f31d508ee6
+--- /dev/null
++++ b/playwright/tests/mixed/MixedUtilities/testElements.spec.js
+@@ -0,0 +1,52 @@
++import { test, expect } from '../mixedTestSetup';
++import { Locator } from '@playwright/test';
++import { dynamicFunc } from './cursoryAction';
++
++const locatorProxy = () => {
++  let source = { execution: [] };
++
++  const getAction = (name) => {
++    const result = {};
++
++    result.action = () => {};
++
++    result.paramsAction = () => {};
++
++    return result;
++  };
++
++  const proxValues = {
++    get: function ({ execution, ...remaining }, property, receiver) {
++      const nextProxy = { execution: [...execution], ...remaining };
++
++      const appendAction = (name) => {
++        const { action, paramsAction } = getAction(name);
++        execution.push(action);
++        return paramsAction;
++      };
++
++      //create instance functions that get called on the locator when instantiated.
++      return new Proxy(nextProxy, proxValues);
++    },
++  };
++
++  const baseProxy = new Proxy(source, proxValues);
++
++  const locatorBase = {};
++
++  const locatorInstance = async (page) => {
++    locatorBase.locator = page.locator;
++  };
++
++  return locatorBase;
++};
++
++const SetupLocator = () => {};
++
++test.describe('sample', () => {
++
++  test('sampleTest', ({ pageInstance }) => {
++    const hold = pageInstance.page.locator('body');
++    const a = '';
++  });
++});
+diff --git a/playwright/tests/mixed/UserActivities/BuildShipments.spec.js b/playwright/tests/mixed/UserActivities/BuildShipments.spec.js
+new file mode 100644
+index 0000000000..659b980b65
+--- /dev/null
++++ b/playwright/tests/mixed/UserActivities/BuildShipments.spec.js
+@@ -0,0 +1,163 @@
++import { test, expect, buildTestScenarios } from '../mixedTestSetup';
++import { generateShortGuid } from '../MixedUtilities/Helpers';
++import { formatRelativeDate } from '../testActionUtils';
++import {
++  expectOrdersContextResponse,
++  expectServiceMemberLoginResponse,
++  responseService,
++} from '../MixedUtilities/http/responseService';
++
++import {
++  profileSetupSteps,
++  ordersSetupSteps,
++  loginAsNewServiceMember,
++  logoutAsServiceMember,
++  testInputDefaults,
++  loginAsExistingMember,
++} from '../steps/serviceMember';
++import { setupShipment, shipmentTestDefaults } from '../steps/serviceMemberActions/shipment';
++import { MilmoveUserType, getUserType } from '../browserTestActions';
++
++const serviceMemberRole = getUserType(MilmoveUserType);
++
++const getRandomEmail = () => [generateShortGuid(), '_whoami@testacc.com'].join('');
++
++const upload = async () => {
++  const filePath = path.join('playwright/fixtures', relativeFilePath);
++
++  const actionLink = locator.locator('.filepond--label-action');
++  await expect(actionLink).toBeVisible();
++  ({ page });
++  const fileChooserPromise = this.page.waitForEvent('filechooser');
++  await actionLink.click();
++  const fileChooser = await fileChooserPromise;
++  await fileChooser.setFiles(filePath);
++};
++
++const ordersTypes = {
++  PERMANENT_CHANGE_OF_STATION: 'PERMANENT_CHANGE_OF_STATION',
++  LOCAL_MOVE: 'LOCAL_MOVE',
++  RETIREMENT: 'RETIREMENT',
++  SEPARATION: 'SEPARATION',
++};
++
++const emailValue = getRandomEmail();
++const currentDutyStation = 'Fort Drum, NY 13602';
++const newDutyStation = 'Fort Irwin, CA 92310';
++const payGrade = 'E-4';
++const DAY_11TH = formatRelativeDate(11);
++const DAY_12TH = formatRelativeDate(12);
++
++const [
++  { relativeDate: ordersDate, formattedDate: formattedOrdersDate },
++  { relativeDate: reportByDate, formattedDate: formattedeportByDate },
++] = [DAY_11TH, DAY_12TH];
++
++const ordersInfo = {
++  ordersType: ordersTypes.PERMANENT_CHANGE_OF_STATION,
++  ordersDate,
++  reportByDate,
++  currentDutyStation,
++  newDutyStation,
++  payGrade,
++};
++
++const getShipmentTestData = () => {
++  const shipment = shipmentTestDefaults.PPM;
++  return shipment;
++};
++
++const getTestBucket = () => {
++  const data = {
++    moves: [],
++    serviceMember: [],
++  };
++
++  const { start: listenForResponses, handleResponse } = responseService();
++  const receivingServiceMemberResponse = expectServiceMemberLoginResponse(handleResponse, {
++    onValidResponse: async (value) => {
++      data.serviceMember.unshift(value);
++    },
++  });
++  const receivingOrdersResponse = expectOrdersContextResponse(handleResponse, {
++    onValidResponse: async (value) => {
++      data.moves.unshift(value);
++    },
++  });
++
++  const result = {
++    data,
++    response: {
++      listenForResponses,
++      serviceMember: receivingServiceMemberResponse,
++      orders: receivingOrdersResponse,
++    },
++  };
++
++  return result;
++};
++
++const shipmentData = getShipmentTestData();
++
++const customerLogsInAndSetsUpOrders = ({}) => {
++  const bucket = getTestBucket();
++  const {
++    data: { moves },
++    response: { listenForResponses, serviceMember },
++  } = bucket;
++
++  const loginNewUser = loginAsNewServiceMember(serviceMemberRole, emailValue);
++  const profileSetup = profileSetupSteps(serviceMemberRole, {
++    ...{ ...testInputDefaults.serviceMemberDetails, email: emailValue },
++    ...testInputDefaults,
++  });
++  const logout = logoutAsServiceMember();
++  const loginExisting = loginAsExistingMember(serviceMemberRole, emailValue);
++  const theOrdersSteps = ordersSetupSteps(serviceMemberRole, ordersInfo);
++  const theShipmentSteps = setupShipment(shipmentData, bucket);
++
++  const steps = [
++    listenForResponses,
++    ...loginNewUser,
++    serviceMember(),
++    ...profileSetup,
++    ...logout,
++    ...loginExisting,
++    ...theOrdersSteps,
++    ...theShipmentSteps,
++    () => '',
++    //...waitAfterAction(WIZARD_ITEMS.SETUP_SHIPMENTS_BUTTON.click()),
++
++    ({ page }) => '',
++  ];
++
++  return steps;
++};
++
++const createShipmentForExistingMemberAsPPM = async ({ pageInstance }) => {
++  const emailValue = 'df0ccc9c86974707b960cf_whoami@testacc.com';
++  const loginExisting = loginAsExistingMember(serviceMemberRole, emailValue);
++
++  const bucket = getTestBucket();
++  const {
++    data: { moves },
++    response: { listenForResponses, serviceMember },
++  } = bucket;
++  const logout = logoutAsServiceMember();
++  const theShipmentSteps = setupShipment(shipmentData, bucket);
++
++  const steps = [listenForResponses, ...loginExisting, ...theShipmentSteps, ({ page }) => ''];
++
++  return steps;
++};
++
++// const existingUserBuildsPPM = scenario({name: 'existing user builds ppm',
++// testCases: [0],
++// run
++// })
++
++test.describe('Login As New Customer And Set up Profile and Orders', async () => {
++  buildTestScenarios({ customerLogsInAndSetsUpOrders, createShipmentForExistingMemberAsPPM }).map(({ key, steps }) =>
++    test(key, steps),
++  );
++});
+diff --git a/playwright/tests/mixed/auditing/auditHistoryFlow.spec.js b/playwright/tests/mixed/auditing/auditHistoryFlow.spec.js
+new file mode 100644
+index 0000000000..9d462a20d8
+--- /dev/null
++++ b/playwright/tests/mixed/auditing/auditHistoryFlow.spec.js
+@@ -0,0 +1,74 @@
++// @ts-nocheck
++import { PrimeSimulatorUserType } from '../../utils/office/officeTest';
++import { test, expect, MixedTestPage } from '../mixedTestSetup';
++import { stringHelpers as str } from '../testActionUtils';
++import { RUN_PRIME_SETS_UP_SHIPMENT } from './primeEntersShipmentDetailsSteps';
++import { RUN_MOVER_OWNER_SETS_UP_HHG } from './customerHhgSetupSteps';
++import '../testActionUtils';
++
++const GetPrimeStepHelpers = ({ page, helpers, baseURLS: { office } }) => ({
++  ...helpers,
++  signInAsNewPrimeSimulatorUser: async () => {
++    await waitForLoginPage({ page, navToUrl: office, PATH_CHECK: RegularPathChecks.SIGN_IN_PATH_CHECK });
++    await waitForPrimeNewLogin({ page });
++  },
++});
++
++const GetOfficeStepHelpers = ({ page, helpers, baseURLS: { office } }) => ({
++  ...helpers,
++  signinAsExistingTOO: async () => {
++    await waitForLoginPage({ page, navToUrl: office, PATH_CHECK: RegularPathChecks.SIGN_IN_PATH_CHECK });
++    await waitForTOOWithUserId({ page });
++  },
++  signinAsNewTOO: async (email) => {
++    await waitForLoginPage({ page, navToUrl: office, PATH_CHECK: RegularPathChecks.SIGN_IN_PATH_CHECK });
++    await waitForTOONew({ page });
++  },
++});
++
++export const getCustomerStepHelpers = ({ page, helpers: { stringHelpers, ...helpers }, baseUrl }) => ({
++  ...helpers,
++  stringHelpers,
++  signInAsExisting: async (userId) => {
++    const currentUrl = page.url();
++    const baseUrl = new URL(currentUrl).origin;
++    const loginPath = '/devlocal-auth/login';
++    const loginUrl = str.concatUrlSegments([baseUrl, loginPath]);
++    await page.goto(loginUrl);
++
++    const navigationWaiter = page.waitForURL(({ pathname, ...url }) => pathname === '/');
++
++    await page.locator(`button[value="${userId}"]`).click();
++
++    const test = await navigationWaiter;
++    await page.locator('#title-announcer', { hasText: 'my.move.mil' }).waitFor();
++  },
++  signInAsNew: async () => {
++    const currentUrl = page.url();
++    const baseUrl = new URL(currentUrl).origin;
++    const loginPath = '/devlocal-auth/login';
++    const loginUrl = stinerHelpers.trimUrlOperation([baseUrl, loginPath]);
++    await page.goto('http://milmovelocal:3000/devlocal-auth/login');
++    await page.locator(`button[data-hook="new-user-login-${milmoveUserType}"]`).click();
++  },
++});
++
++/** Array of test scenarios which also receive the test fixtures via pageInstance */
++const SCENARIOS = {
++  CREATING_SHIPMENT_CAUSES_SIT_CALCULATION: async ({ pageInstance }) => {
++    await RUN_PRIME_SETS_UP_SHIPMENT.run(pageInstance, GetPrimeStepHelpers);
++    await RUN_MOVER_OWNER_SETS_UP_HHG.run(pageInstance, getCustomerStepHelpers);
++  },
++};
++
++const TESTS = Object.entries(SCENARIOS).map(([key, testFunction]) => ({
++  testLabel: key.split('_').join(' '),
++  testFunction,
++}));
++
++/** Helper function to allow referencing the test info which is passed to the test framework function*/
++const GetTest = (testInfo) => test(testInfo.testLabel, testInfo.testFunction);
++
++test.describe('Prime Updates SIT', () => {
++ //GetTest(TESTS[0]);
++});
+diff --git a/playwright/tests/mixed/auditing/customerHhgSetupSteps.js b/playwright/tests/mixed/auditing/customerHhgSetupSteps.js
+new file mode 100644
+index 0000000000..cfe412ef60
+--- /dev/null
++++ b/playwright/tests/mixed/auditing/customerHhgSetupSteps.js
+@@ -0,0 +1,275 @@
++// @ts-nocheck
++import '../testActionUtils';
++import { formatRelativeDate, dateInputOperator, stringHelpers as str } from '../testActionUtils';
++import _ from 'lodash';
++
++const URL_PATHS = {
++  ROOT_PATH: '/',
++  SIGN_IN_PATH: 'sign-in',
++  MOVING_INFO_PATH: 'moves/{0}/moving-info',
++  SHIPMENT_TYPE_PATH: 'moves/{0}/shipment-type',
++  NEW_HHG_SHIPMENT_PATH: 'moves/{0}/new-shipment',
++  REVIEW_PATH: 'moves/{0}/review',
++  AGREEMENT_PATH: 'moves/{0}/agreement',
++};
++
++const compareUrlPath =
++  (check) =>
++  ({ pathname }) =>
++    str.trimOuterSymbols(pathname, '/') === check;
++
++const RegularPathChecks = {
++  ROOT_PATH_CHECK: ({ pathname }) => pathname === URL_PATHS.ROOT_PATH,
++  SIGN_IN_PATH_CHECK: compareUrlPath(URL_PATHS.SIGN_IN_PATH),
++};
++
++const GetCustomerMoveUrlPaths = (moveId) => ({
++  MOVING_INFO_PATH_CHECK: compareUrlPath(str.format(URL_PATHS.MOVING_INFO_PATH, moveId)),
++  SHIPMENT_TYPE_PATH_CHECK: compareUrlPath(str.format(URL_PATHS.SHIPMENT_TYPE_PATH, moveId)),
++  HHG_NEW_SHIPMENT_PATH_PARAMS_CHECK: ({ pathname, searchParams }) => {
++    const checkUrl = str.format(URL_PATHS.NEW_HHG_SHIPMENT_PATH, moveId);
++    const queryObject = Object.fromEntries(searchParams.entries());
++    const correctUrl = str.trimOuterSymbols(pathname, '/') === checkUrl;
++    const correctQueryValue = _.isEqual(queryObject, { type: 'HHG' });
++    return correctUrl && correctQueryValue;
++  },
++  REVIEW_PATH_CHECK: compareUrlPath(str.format(URL_PATHS.REVIEW_PATH, moveId)),
++  AGREEMENT_PATH_CHECK: compareUrlPath(str.format(URL_PATHS.AGREEMENT_PATH, moveId)),
++});
++
++const GetUserMoveData = async (testHarness) => {
++  const move = await testHarness.buildMoveWithOrders();
++  const userId = move.Orders.ServiceMember.user_id;
++  return { move, userId };
++};
++
++const waitForSigninScreen = async ({ page, navToUrl, SIGN_IN_PATH_CHECK }) => {
++  const urlWaiter = page.waitForURL(SIGN_IN_PATH_CHECK);
++  await page.goto(navToUrl);
++  await urlWaiter;
++};
++
++const signinAndWaitForCustomerHomeScreen = async ({ page, signInAsExisting, userId, ROOT_PATH_CHECK }) => {
++  const urlWaiter = page.waitForURL(ROOT_PATH_CHECK);
++  await signInAsExisting(userId);
++  await urlWaiter;
++};
++
++/** Beginning Shipment Flow Wizard */
++const selectShipment = async ({ page, MOVING_URL_CHECK }) => {
++  const urlWaiter = page.waitForURL(MOVING_URL_CHECK);
++  const SETUP_SHIPMENT_BUTTON = 'shipment-selection-btn';
++  await page.getByTestId(SETUP_SHIPMENT_BUTTON).click();
++  await urlWaiter;
++};
++
++/** Click Next */
++const wizardNextToShipmentType = async ({ page, SHIPMENT_TYPE_PATH_CHECK }) => {
++  const urlWaiter = page.waitForURL(SHIPMENT_TYPE_PATH_CHECK);
++  const NEXT_WIZARD_BUTTON = 'wizardNextButton';
++  await page.getByTestId(NEXT_WIZARD_BUTTON).click();
++  await urlWaiter;
++};
++
++/** select HHG radio button */
++const chooseHHG = async ({ page }) => await page.locator('label[for="HHG"]').click();
++
++/** Click Next */
++const wizardNextToNewHHGShipment = async ({ page, HHG_NEW_SHIPMENT_PATH_PARAMS_CHECK }) => {
++  const urlWaiter = page.waitForURL(HHG_NEW_SHIPMENT_PATH_PARAMS_CHECK);
++  const NEXT_WIZARD_BUTTON = 'wizardNextButton';
++  await page.getByTestId(NEXT_WIZARD_BUTTON).click();
++  await urlWaiter;
++};
++
++/** Click Next */
++const wizardNextToAgreement = async ({ page, AGREEMENT_PATH_CHECK }) => {
++  const urlWaiter = page.waitForURL(AGREEMENT_PATH_CHECK);
++  const NEXT_WIZARD_BUTTON = 'wizardNextButton';
++  await page.getByTestId(NEXT_WIZARD_BUTTON).click();
++  await urlWaiter;
++};
++
++const choosePickupDate = async ({ page, dateToSelect, datePickerOperator }) => {
++  const SELECTOR = '#requestedPickupDate';
++  const dateElement = page.locator(SELECTOR);
++  const selectedDate = new Date(dateToSelect);
++  await datePickerOperator(page, dateElement, selectedDate);
++};
++
++const selectUseMyCurrentAddress = async ({ page }) => await page.getByTestId('checkbox').click();
++
++const submitMainPickupAddress = async (
++  { typeInto, selectValue },
++  { streetAddress1, streetAddress2, streetAddress3, city, state, postalCode },
++) => {
++  await typeInto('input[name="pickup.address.streetAddress1"]', streetAddress1);
++
++  if(streetAddress2)
++    await typeInto('input[name="pickup.address.streetAddress2"]', streetAddress2);
++
++  if(streetAddress3)
++    await typeInto('input[name="pickup.address.streetAddress3"]', streetAddress3);
++
++  await typeInto('input[name="pickup.address.city"]', city);
++  await selectValue('select[name="pickup.address.state"]', { label: state });
++  await typeInto('input[name="pickup.address.postalCode"]', postalCode);
++};
++
++const selectDontUseMyCurrentAddress = async ({ page }) => await page.getByTestId('checkbox').click();
++
++const chooseHasSecondaryPickup = async ({ page }) => await page.locator('label[for="has-secondary-pickup"]').click();
++const chooseNoSecondaryPickup = async ({ page }) => await page.locator('label[for="no-secondary-pickup"]').click();
++
++const submitSecondaryPickupAddress = async (
++  { typeInto, selectValue },
++  { streetAddress1, streetAddress2, streetAddress3, city, state, postalCode },
++) => {
++  await typeInto('input[name="secondaryPickup.address.streetAddress1"]', streetAddress1);
++
++  if(streetAddress2)
++    await typeInto('input[name="secondaryPickup.address.streetAddress2"]', streetAddress2);
++
++  if(streetAddress3)
++    await typeInto('input[name="secondaryPickup.address.streetAddress3"]', streetAddress3);
++
++  await typeInto('input[name="secondaryPickup.address.city"]', city);
++  await selectValue('select[name="secondaryPickup.address.state"]', { label: state });
++  await typeInto('input[name="secondaryPickup.address.postalCode"]', postalCode);
++};
++
++const submitReleaseAgentFields = async ({
++  typeInto,
++  releasingAgentDetails: { firstName, lastName, phoneNumber, email },
++}) => {
++  await typeInto('input[name="pickup.agent.firstName"]', firstName);
++  await typeInto('input[name="pickup.agent.lastName"]', lastName);
++  await typeInto('input[name="pickup.agent.phone"]', phoneNumber);
++  await typeInto('input[name="pickup.agent.email"]', email);
++};
++
++const chooseDeliveryDate = async ({ page, dateToSelect, datePickerOperator }) => {
++  const SELECTOR = '#requestedDeliveryDate';
++  const dateElement = page.locator(SELECTOR);
++  const selectedDate = new Date(dateToSelect);
++  await datePickerOperator(page, dateElement, selectedDate);
++};
++
++const submitReceivingAgentFields = async ({
++  typeInto,
++  receivingAgentDetails: { firstName, lastName, phoneNumber, email },
++}) => {
++  await typeInto('input[name="delivery.agent.firstName"]', firstName);
++  await typeInto('input[name="delivery.agent.lastName"]', lastName);
++  await typeInto('input[name="delivery.agent.phone"]', phoneNumber);
++  await typeInto('input[name="delivery.agent.email"]', email);
++};
++
++/** Click Next */
++const wizardNextToReview = async ({ page, REVIEW_PATH_CHECK }) => {
++  const urlWaiter = page.waitForURL(REVIEW_PATH_CHECK);
++  const NEXT_WIZARD_BUTTON = 'wizardNextButton';
++  await page.getByTestId(NEXT_WIZARD_BUTTON).click();
++  await urlWaiter;
++};
++
++/** Fill in signature */
++const submitSignature = async ({ signature, typeInto }) => await typeInto('input[name="signature"]', signature);
++
++const wizardCompleteToCustomerHome = async ({ page, ROOT_PATH_CHECK }) => {
++  const urlWaiter = page.waitForURL(ROOT_PATH_CHECK);
++  const COMPLETE_WIZARD_BUTTON = 'wizardCompleteButton';
++  await page.getByTestId(COMPLETE_WIZARD_BUTTON).click();
++  await urlWaiter;
++};
++
++/** Customer HHG Setup Flow
++ * Create a Household Good Shipment as a move owner (service member/customer)
++ */
++const PerformHHGSetup = async (
++  { page, baseURLS, testHarness, signInAsExisting, fast: { typeInto, selectValue } },
++  { preferredPickupDate, preferredDeliveryDate, releasingAgentDetails, receivingAgentDetails, signature },
++) => {
++  const { move, userId } = await GetUserMoveData(testHarness);
++
++  const {
++    ROOT_PATH_CHECK,
++    MOVING_INFO_PATH_CHECK,
++    SHIPMENT_TYPE_PATH_CHECK,
++    HHG_NEW_SHIPMENT_PATH_PARAMS_CHECK,
++    REVIEW_PATH_CHECK,
++    AGREEMENT_PATH_CHECK,
++    SIGN_IN_PATH_CHECK,
++  } = { ...GetCustomerMoveUrlPaths(move.id), ...RegularPathChecks };
++
++  await waitForSigninScreen({ page, navToUrl: baseURLS.my, SIGN_IN_PATH_CHECK });
++
++  await signinAndWaitForCustomerHomeScreen({ page, signInAsExisting, userId, ROOT_PATH_CHECK });
++  await selectShipment({ page, MOVING_INFO_PATH_CHECK });
++  await wizardNextToShipmentType({ page, SHIPMENT_TYPE_PATH_CHECK });
++  await chooseHHG({ page });
++  await wizardNextToNewHHGShipment({ page, HHG_NEW_SHIPMENT_PATH_PARAMS_CHECK });
++  //fill form start
++  await choosePickupDate({
++    page,
++    dateToSelect: preferredPickupDate.relativeDate,
++    datePickerOperator: dateInputOperator,
++  });
++  await selectUseMyCurrentAddress({ page });
++  await chooseHasSecondaryPickup({page });
++
++  await submitSecondaryPickupAddress({ typeInto, selectValue }, {
++    streetAddress1: 'test',
++    city: 'test',
++    state: 'CA',
++    postalCode: '90210',
++  })
++
++  await submitReleaseAgentFields({ typeInto, releasingAgentDetails });
++  await chooseDeliveryDate({
++    page,
++    dateToSelect: preferredDeliveryDate.relativeDate,
++    datePickerOperator: dateInputOperator,
++  });
++  await submitReceivingAgentFields({ typeInto, receivingAgentDetails });
++  await wizardNextToReview({ page, REVIEW_PATH_CHECK });
++  //fil form end
++  //agreement
++  await wizardNextToAgreement({ page, AGREEMENT_PATH_CHECK });
++  await submitSignature({ signature, typeInto });
++  await wizardCompleteToCustomerHome({ page, ROOT_PATH_CHECK });
++};
++
++export const RUN_MOVER_OWNER_SETS_UP_HHG = {
++  run: async (input, getHelpers) => {
++    const todaysDate = new Date();
++    todaysDate.setMonth(10);
++    const hhgFormData = {
++      preferredPickupDate: formatRelativeDate(5),
++      preferredDeliveryDate: {relativeDate: todaysDate},
++      useExistingAddress: true,
++      releasingAgentDetails: {
++        firstName: 'larry',
++        lastName: 'thombson',
++        phoneNumber: '555-555-5555',
++        email: 'lthompson@test.test',
++      },
++      receivingAgentDetails: {
++        firstName: 'larrisson',
++        lastName: 'thornbsonson',
++        phoneNumber: '555-555-5555',
++        email: 'lthornbsonson@test.test',
++      },
++      destination: {
++        street: '142 E Barrel Hoop Circle',
++        city: 'Joshua Tree',
++        state: 'CA',
++        postalCode: '92252',
++      },
++      signature: 'mr service member',
++    };
++
++    await PerformHHGSetup({ ...input, ...getHelpers(input) }, hhgFormData);
++  },
++};
++
+diff --git a/playwright/tests/mixed/auditing/primeEntersShipmentDetailsSteps.js b/playwright/tests/mixed/auditing/primeEntersShipmentDetailsSteps.js
+new file mode 100644
+index 0000000000..e6b613e41c
+--- /dev/null
++++ b/playwright/tests/mixed/auditing/primeEntersShipmentDetailsSteps.js
+@@ -0,0 +1,201 @@
++import { expect } from '../mixedTestSetup';
++import {  formatRelativeDate, formatNumericDate,  } from '../testActionUtils';
++
++export const testExecution = async ({
++  page,
++  helpers,
++  baseURLS,
++  testHarness,
++  waitForLoading,
++  signInAsNewPrimeSimulatorUser,
++  signOut,
++  stringHelpers,
++  utils,
++  fast: { clickTextAsync, typeInto, typeAndBlur, selectValue },
++}) => {
++  const FillDestinationDetailFields = async ({
++    estimatedWeight,
++    actualWeight,
++    address: { street, city, state, postalCode },
++  }) => {
++    const selectors = {
++      estimatedWeight: 'input[name="estimatedWeight"]',
++      actualWeight: 'input[name="actualWeight"]',
++      address: {
++        street: 'input[name="destinationAddress.streetAddress1"]',
++        city: 'input[name="destinationAddress.city"]',
++        state: 'select[name="destinationAddress.state"]',
++        postalCode: 'input[name="destinationAddress.postalCode"]',
++      },
++    };
++
++    await typeInto(selectors.estimatedWeight, `{backspace}${estimatedWeight}`);
++    await typeInto(selectors.actualWeight, `{backspace}${actualWeight}`);
++    await typeInto(selectors.address.street, `${street}`);
++    await typeInto(selectors.address.city, `${city}`);
++    await selectValue(selectors.address.state, { label: state });
++    await typeInto(selectors.address.postalCode, `${postalCode}`);
++  };
++
++  const checkShipmentWeights = async ({
++    scheduledPickupDate: sPickupDate,
++    actualPickupDate: aPickupDate,
++    scheduledDeliveryDate: sDeliveryDate,
++    actualDeliveryDate: aDeliveryDate,
++    estimatedWeight,
++    actualWeight,
++    address: { street, city, state, postalCode },
++  }) => {
++    const SCHEDULED_PICKUP_DATE_LABEL = 'Scheduled Pickup Date:';
++    const SCHEDULED_PICKUP_DATE_VALUE = formatNumericDate(sPickupDate);
++    const SCHEDULED_PICKUP_DATE_CONTENT = `${SCHEDULED_PICKUP_DATE_LABEL}${SCHEDULED_PICKUP_DATE_VALUE}`;
++
++    const ACTUAL_PICKUP_DATE_LABEL = 'Actual Pickup Date:';
++    const ACTUAL_PICKUP_DATE_VALUE = formatNumericDate(aPickupDate);
++    const ACTUAL_PICKUP_DATE_CONTENT = `${ACTUAL_PICKUP_DATE_LABEL}${ACTUAL_PICKUP_DATE_VALUE}`;
++
++    const SCHEDULED_DELIVERY_DATE_LABEL = 'Scheduled Delivery Date:';
++    const SCHEDULED_DELIVERY_DATE_VALUE = formatNumericDate(sDeliveryDate);
++    const SCHEDULED_DELIVERY_DATE_CONTENT = `${SCHEDULED_DELIVERY_DATE_LABEL}${SCHEDULED_DELIVERY_DATE_VALUE}`;
++
++    const ACTUAL_DELIVERY_DATE_LABEL = 'Actual Delivery Date:';
++    const ACTUAL_DELIVERY_DATE_VALUE = formatNumericDate(aDeliveryDate);
++    const ACTUAL_DELIVERY_DATE_CONTENT = `${ACTUAL_DELIVERY_DATE_LABEL}${ACTUAL_DELIVERY_DATE_VALUE}`;
++
++    const ESTIMATED_WEIGHT_LABEL = 'Estimated Weight:';
++    const ESTIMATED_WEIGHT_VALUE = estimatedWeight;
++    const ESTIMATED_WEIGHT_CONTENT = utils.textWithNoTrailingNumbers(
++      `${ESTIMATED_WEIGHT_LABEL}${ESTIMATED_WEIGHT_VALUE}`,
++    );
++
++    const ACTUAL_WEIGHT_LABEL = 'Actual Weight:';
++    const ACTUAL_WEIGHT_VALUE = actualWeight;
++    const ACTUAL_WEIGHT_CONTENT = utils.textWithNoTrailingNumbers(`${ACTUAL_WEIGHT_LABEL}${ACTUAL_WEIGHT_VALUE}`);
++
++    const DESTINATION_ADDRESS_LABEL = 'Destination Address:';
++    const DESTINATION_ADDRESS_VALUE = `${street}, ${city}, ${state} ${postalCode}`;
++    const DESTINATION_ADDRESS_CONTENT = `${DESTINATION_ADDRESS_LABEL}${DESTINATION_ADDRESS_VALUE}`;
++
++    const textToCheck = [
++      SCHEDULED_PICKUP_DATE_CONTENT,
++      ACTUAL_PICKUP_DATE_CONTENT,
++      SCHEDULED_DELIVERY_DATE_CONTENT,
++      ACTUAL_DELIVERY_DATE_CONTENT,
++      ESTIMATED_WEIGHT_CONTENT,
++      ACTUAL_WEIGHT_CONTENT,
++      DESTINATION_ADDRESS_CONTENT,
++    ].map(async (content) => expect(page.getByText(content)).toBeVisible());
++
++    await textToCheck.reduce((chain, waiter) => chain.then(() => waiter), Promise.resolve());
++  };
++
++  const MOVE_CODE_COLUMN_SELECTOR = 'moveCode-0';
++
++  /**
++   * select the move from the list
++   * wait for the the available moves page to load
++   * waits for the move details page to load
++   * */
++  const NavigateToMoveDetailsScreen = async (move_selector) => {
++    await page.locator(move_selector).fill(moveLocator);
++    await page.locator(move_selector).press('Enter');
++
++    // TODO TestIds indicate a dimension of significance.
++    // naming the attribute to something with respect to the data might be of use.
++    // having a centralized approach to deriving attributes across the presentation layer
++    // would help when it comes to element associations
++    await page.getByTestId(MOVE_CODE_COLUMN_SELECTOR).click();
++    await waitForLoading();
++    await expect(page.getByText(moveLocator)).toBeVisible();
++  };
++
++  const DAY_11TH = formatRelativeDate(11);
++  const DAY_12TH = formatRelativeDate(12);
++
++  const [
++    { relativeDate: scheduledDeliveryDate, formattedDate: formattedScheduledDeliveryDate },
++    { relativeDate: actualDeliveryDate, formattedDate: formattedActualDeliveryDate },
++    { relativeDate: scheduledPickupDate, formattedDate: formattedScheduledPickupDate },
++    { relativeDate: actualPickupDate, formattedDate: formattedActualPickupDate },
++  ] = [DAY_11TH, DAY_12TH, DAY_11TH, DAY_12TH];
++
++  const SCHEDULED_DELIVERY_DATE_INPUT_SELECTOR = 'input[name="scheduledDeliveryDate"]';
++  const ACTUAL_DELIVERY_DATE_INPUT_SELECTOR = 'input[name="actualDeliveryDate"]';
++  const SCHEDULED_PICKUP_DATE_INPUT_SELECTOR = 'input[name="scheduledPickupDate"]';
++  const ACTUAL_PICKUP_DATE_INPUT_SELECTOR = 'input[name="actualPickupDate"]';
++
++  const EXPECT_URL_MOVE_DETAILS_FORMAT = '/simulator/moves/{0}/details';
++  const EXPECT_URL_SHIPMENTS_VALUE_FORMAT = '/simulator/moves/{0}/shipments';
++
++  const INPUT_ACTION_ENTRIES = [
++    { selector: SCHEDULED_DELIVERY_DATE_INPUT_SELECTOR, value: formattedScheduledDeliveryDate },
++    { selector: ACTUAL_DELIVERY_DATE_INPUT_SELECTOR, value: formattedActualDeliveryDate },
++    { selector: SCHEDULED_PICKUP_DATE_INPUT_SELECTOR, value: formattedScheduledPickupDate },
++    { selector: ACTUAL_PICKUP_DATE_INPUT_SELECTOR, value: formattedActualPickupDate },
++  ];
++
++  const MOVE_CODE_SELECTOR = '#moveCode';
++
++  const destinationFieldValues = {
++    estimatedWeight: 7500,
++    actualWeight: 8000,
++    address: {
++      street: '142 E Barrel Hoop Circle',
++      city: 'Joshua Tree',
++      state: 'CA',
++      postalCode: '92252',
++    },
++  };
++
++  //validate sit values against the UI
++  const sitValues = {
++    ...destinationFieldValues,
++    scheduledDeliveryDate,
++    actualDeliveryDate,
++    scheduledPickupDate,
++    actualPickupDate,
++  };
++
++  // --------------[BEGIN TEST]---------------- //
++
++  const move = await testHarness.buildPrimeSimulatorMoveNeedsShipmentUpdate();
++  const moveLocator = move.locator;
++  const moveID = move.id;
++  const EXPECT_MOVE_DETAILS_URL_VALUE = stringHelpers.format(EXPECT_URL_MOVE_DETAILS_FORMAT, moveID);
++  const EXPECT_SHIPMENT_URL_VALUE = stringHelpers.format(EXPECT_URL_SHIPMENTS_VALUE_FORMAT, moveID);
++
++  await page.goto(baseURLS.office);
++
++  await signInAsNewPrimeSimulatorUser();
++  await NavigateToMoveDetailsScreen(MOVE_CODE_SELECTOR);
++
++  expect(page.url()).toContain(EXPECT_MOVE_DETAILS_URL_VALUE);
++
++  await page.getByText('Update Shipment').click();
++
++  expect(page.url()).toContain(EXPECT_SHIPMENT_URL_VALUE);
++
++  await INPUT_ACTION_ENTRIES.reduce(
++    async (chain, { selector, value }) => chain.then(() => typeAndBlur(selector, value)),
++    Promise.resolve(),
++  );
++
++  await FillDestinationDetailFields(destinationFieldValues);
++
++  const SAVE_BUTTON_TEXT = 'Save';
++  await clickTextAsync(SAVE_BUTTON_TEXT);
++
++  const EXPECT_SUCCESSFUL_SHIPMENT_UPDATE = 'Successfully updated shipment';
++  await expect(page.getByText(EXPECT_SUCCESSFUL_SHIPMENT_UPDATE)).toHaveCount(1);
++
++  expect(page.url()).toContain(EXPECT_MOVE_DETAILS_URL_VALUE);
++
++  await checkShipmentWeights(sitValues);
++
++  await signOut();
++  // --------------[END TEST]---------------- //
++};
++
++export const RUN_PRIME_SETS_UP_SHIPMENT = ({ run: (input, getHelpers) => testExecution({ ...input, ...getHelpers(input) }) });
++
++
+diff --git a/playwright/tests/mixed/browserTestActions.js b/playwright/tests/mixed/browserTestActions.js
+new file mode 100644
+index 0000000000..b453bc1b23
+--- /dev/null
++++ b/playwright/tests/mixed/browserTestActions.js
+@@ -0,0 +1,156 @@
++// @ts-nocheck
++import { stringHelpers as str } from './testActionUtils';
++import { serviceMemberMatch } from './MixedUtilities/ApiMatches';
++
++export const TOOOfficeUserType = 'TOO office';
++export const TIOOfficeUserType = 'TIO office';
++export const QAECSROfficeUserType = 'QAE/CSR office';
++export const ServicesCounselorOfficeUserType = 'Services Counselor office';
++export const PrimeSimulatorUserType = 'Prime Simulator office';
++export const MultiRoleOfficeUserType = 'Multi role office';
++export const MilmoveUserType = 'milmove';
++
++export const allUserTypes = {
++  TOOOfficeUserType,
++  TIOOfficeUserType,
++  QAECSROfficeUserType,
++  ServicesCounselorOfficeUserType,
++  PrimeSimulatorUserType,
++  MultiRoleOfficeUserType,
++  MilmoveUserType,
++};
++
++export const getUserType = (userType) =>  Object.entries(allUserTypes).find(([name, value]) => value === userType)[0];
++
++export const URL_PATHS = {
++  ROOT_PATH: '/',
++  DEV_LOGIN_PATH: 'devlocal-auth/login',
++  SIGN_IN_PATH: 'sign-in',
++};
++
++export const compareUrlPath =
++  (check) =>
++  ({ pathname }) =>
++    str.trimOuterSymbols(pathname, '/') === check;
++
++export const RegularPathChecks = {
++  DEV_LOGIN_PATH: ({ pathname }) => pathname === URL_PATHS.DEV_LOGIN_PATH,
++  ROOT_PATH_CHECK: ({ pathname }) => pathname === URL_PATHS.ROOT_PATH,
++  SIGN_IN_PATH_CHECK: compareUrlPath(URL_PATHS.SIGN_IN_PATH),
++};
++
++export const waitForSignout = async ({ page }) => {
++  await page.getByText('Sign out').click();
++};
++
++//officelocalt:3000/devlocal-auth/login
++/** Navigates to a path on the current domain */
++export const waitForPageNavigation = async ({ page, path }) => {
++  const urlWaiter = page.waitForURL(compareUrlPath(path));
++  const currentUrl = page.url();
++  const baseUrl = new URL(currentUrl).origin;
++  const loginUrl = str.concatUrlSegments([baseUrl, path]);
++  await page.goto(loginUrl);
++  await urlWaiter;
++};
++
++export const waitForPageNavigationStep =
++  (path) =>
++  async ({ page }) =>
++    await waitForPageNavigation({ page, path });
++
++// officelocal:3000 for the PATH_CHECK, for example
++export const waitForLoginPage = async ({ page, navToUrl, PATH_CHECK = RegularPathChecks.SIGN_IN_PATH_CHECK }) => {
++  const urlWaiter = page.waitForURL(PATH_CHECK);
++  await page.goto(navToUrl);
++  await urlWaiter;
++};
++
++const clickNewLoginForUser =
++  (userType) =>
++  async ({ page }) =>
++    await page.locator(`button[data-hook="new-user-login-${userType}"]`).click();
++
++const loginAs = Object.entries({
++  ...allUserTypes,
++}).reduce((logins, [key, value]) => {
++  logins[key] = clickNewLoginForUser(value);
++  return logins;
++}, {});
++
++// TODO map this
++/*
++async signInAsExistingOfficeUser(email) {
++  await this.page.goto('/devlocal-auth/login');
++  await this.page.locator('input[name=email]').fill(email);
++  await this.page.locator('p', { hasText: 'User Email' }).locator('button').click();
++}
++*/
++
++export const waitForTOOWithUserId = async ({ page, email, loginPath = URL_PATHS.DEV_LOGIN_PATH }) => {
++  await waitForPageNavigation({ page, path: loginPath });
++  await page.locator('input[name=email]').fill(email);
++  await page.locator('p', { hasText: 'User Email' }).locator('button').click();
++};
++//await page.locator('input[name=email]').fill(email);
++//await page.locator('p', { hasText: 'User Email' }).locator('button').click();
++export const waitForTOONewLogin = async ({ page, loginPath = URL_PATHS.DEV_LOGIN_PATH }) => {
++  await waitForPageNavigation({ page, path: loginPath });
++  await loginAs.TOOOfficeUserType({ page });
++  await page.getByRole('heading', { name: 'All moves' }).waitFor();
++};
++export const waitForTIONewLogin = async ({ page, loginPath = URL_PATHS.DEV_LOGIN_PATH }) => {
++  await waitForPageNavigation({ page, path: loginPath });
++  await loginAs.TIOOfficeUserType({ page });
++  await page.getByRole('heading', { name: 'Payment requests' }).waitFor();
++};
++export const waitForPrimeNewLogin = async ({ page, loginPath = URL_PATHS.DEV_LOGIN_PATH }) => {
++  await waitForPageNavigation({ page, path: loginPath });
++  await loginAs.PrimeSimulatorUserType({ page });
++  await page.getByRole('heading', { name: 'Moves available to Prime' }).waitFor();
++};
++export const waitForServiceCounselorNewLogin = async ({ page, loginPath = URL_PATHS.DEV_LOGIN_PATH }) => {
++  await waitForPageNavigation({ page, path: loginPath });
++  await loginAs.ServicesCounselorOfficeUserType({ page });
++  await page.getByRole('heading', { name: 'Moves' }).waitFor();
++};
++export const waitForQAECSRNewLogin = async ({ page, loginPath = URL_PATHS.DEV_LOGIN_PATH }) => {
++  await waitForPageNavigation({ page, path: loginPath });
++  await loginAs.QAECSROfficeUserType({ page });
++  await page.getByRole('heading', { name: 'Search for a move' }).waitFor();
++};
++export const waitForMultiRoleUserLogin = async ({ page, loginPath = URL_PATHS.DEV_LOGIN_PATH }) => {
++  await waitForPageNavigation({ page, path: loginPath });
++  await loginAs.MultiRoleOfficeUserType({ page });
++  await page.getByText('Change user role').waitFor();
++};
++export const waitForCustomerUserLogin = async ({ page, loginPath = URL_PATHS.DEV_LOGIN_PATH }) => {
++  await waitForPageNavigation({ page, path: loginPath });
++  await loginAs.MilmoveUserType({ page });
++  await page.getByLabel('Home').waitFor();
++};
++
++export const userLoginActions = {
++  TOOOfficeUserType: waitForTOONewLogin,
++  TIOOfficeUserType: waitForTIONewLogin,
++  QAECSROfficeUserType: waitForQAECSRNewLogin,
++  ServicesCounselorOfficeUserType: waitForServiceCounselorNewLogin,
++  PrimeSimulatorUserType: waitForPrimeNewLogin,
++  MultiRoleOfficeUserType: waitForMultiRoleUserLogin,
++  MilmoveUserType: waitForCustomerUserLogin,
++};
++
++const goToOfficeUserLoginPage = async ({ page, baseURLS: { office: navToUrl } }) =>
++  await waitForLoginPage({ page, navToUrl });
++
++const goToMyMoveUserLoginPage = async ({ page, baseURLS: { my: navToUrl } }) =>
++  await waitForLoginPage({ page, navToUrl });
++
++const applyOfficeLoginPage = (key) => [key, goToOfficeUserLoginPage];
++const applyMyLoginPage = (key) => [key, goToMyMoveUserLoginPage];
++
++const getOfficeUserTypes = (({ MilmoveUserType, ...otherUserTypes }) => otherUserTypes)(allUserTypes);
++export const goToProperBasePage = Object.fromEntries([
++  ...Object.keys({ MilmoveUserType }).map(applyMyLoginPage),
++  ...Object.keys(getOfficeUserTypes).map(applyOfficeLoginPage),
++]);
+diff --git a/playwright/tests/mixed/customer/controls.js b/playwright/tests/mixed/customer/controls.js
+new file mode 100644
+index 0000000000..b6a03d3894
+--- /dev/null
++++ b/playwright/tests/mixed/customer/controls.js
+@@ -0,0 +1,263 @@
++const makeProxy = (callback) =>
++  new Proxy(
++    {},
++    {
++      get: function (target, property, receiver) {
++        return callback(property);
++      },
++    },
++  );
++
++//click: (locFunc, ...params) => locFunc()
++
++// bindPageCall(/*the callback that gets the locator function*/)
++// locatorActions.click(bindPageCall)
++
++//callBack ShouldProduce a locator.
++const bindPageCall =
++  (locatorFunc) =>
++  ({ page }) =>
++    locatorFunc(page);
++
++const getCallObjectItems = (item) => Object.entries(item)[0];
++
++const controlBy = (callObject, ...options) => {
++  const [key, value] = getCallObjectItems(callObject);
++  return [key, value, ...options];
++};
++
++//const selectConus = controlBy({getByText: 'Starts and ends in the continental US'}).
++
++const selector = (call, ...locatorOptions) => {
++  // locatorProxy.type(firstName) <- invocation of the build symbol.
++  const locatorProxy = makeProxy((functionKey) => {
++    if (functionKey === 'from') {
++      const [pageFuncName, ...options] = controlBy(call, ...locatorOptions);
++      return (page) => page[pageFuncName](...options);
++    }
++
++    //return build so we can pass the parameters we want to execute with
++    const build = (...callParams) => {
++      //we bind selectFunc so we can use 'this', which is the object that has locator functions (page/locator)
++      const selectFunc = (page) => {
++        //get the locator
++        const [pageFuncName, ...options] = controlBy(call, ...locatorOptions);
++        const pageLocator = page[pageFuncName](...options);
++        //execute the locator function (prop)
++        const locatorFunc = pageLocator[functionKey].bind(pageLocator);
++        const invokeCallParams = callParams.map((e) => (typeof e === 'function' ? e() : e));
++        //pageLocator.count().then((e) => console.log(e));
++        return locatorFunc(...invokeCallParams);
++      };
++
++      //this will be setup to execute 'selectFunc' on the page object.
++      //when this happens, it will immediately invoke the function with the options provided
++      const theLocatorFunction = bindPageCall(selectFunc);
++      return theLocatorFunction;
++    };
++    return build;
++  });
++
++  return locatorProxy;
++};
++
++const conusText = 'Starts and ends in the continental US';
++const oconusText = 'Starts or ends in Alaska, Hawaii, or International locations';
++
++export const WIZARD_ITEMS = {
++  NEXT_WIZARD_BUTTON: selector({ getByTestId: 'wizardNextButton' }),
++  SETUP_SHIPMENTS_BUTTON: selector({ getByRole: 'button' }, { name: 'Set up your shipments' }),
++  SAVE_AND_CONTINUE_BUTTON: selector({ getByRole: 'button' }, { name: 'Save & Continue' }),
++  ADD_ANOTHER_SHIPMENT: selector({ getByRole: 'button' }, { name: 'Add another shipment' }),
++  NEXT_SAVE_BUTTON: selector({ getByRole: 'button' }, { name: 'Next' }),
++};
++
++export const SIGN_OUT_BUTTON = selector({ getByRole: 'button' }, { name: 'Sign out' });
++
++const mapToScheme = (prefix, shape, func) =>
++  Object.fromEntries(shape.map((k) => [k.toLowerCase().split(' ').join(''), func(`${k}`)]));
++const addressShape = ['Address 1', 'Address 2', 'Address 3', 'City', 'State', 'ZIP'];
++
++export const PPMS = {
++  chooseAdvanceYes: selector({ getByText: 'Yes' }, { exact: true }),
++  checkAcknowledge: selector({ getByText: 'I acknowledge that any advance' }, { exact: false }),
++  advanceField: selector({ getByLabel: 'Amount requested' }),
++  setupShipmentsEdit: selector({ getByTestId: 'shipment-list-item-container' }, { text: 'Edit' }),
++  selectRadioPPM: selector({ locator: 'label[for="PPM"]' }),
++  pickupZipField: selector({ locator: 'input[name="pickupPostalCode"]' }),
++  pickupCurrentZipCheck: selector({ getByRole: 'label' }, { name: 'Use my current ZIP (59801)' }),
++  differentPPMZipYes: selector({ getByRole: 'label' }, { name: 'yes-secondary-pickup-postal-code' }),
++  differentPPMZipNo: selector({ getByRole: 'label' }, { name: 'no-secondary-pickup-postal-code' }),
++  pickupSecondZipField: selector({ getByLabel: 'Second ZIP' }),
++
++  destinationZipField: selector({ locator: 'input[name="destinationPostalCode"]' }),
++  dutyStationZipCheck: selector({ getByRole: 'label' }, { name: 'Use the ZIP for my new duty location (92310)' }),
++  differentPPMDeliverZipYes: selector({ getByRole: 'label' }, { name: 'hasSecondaryDestinationPostalCodeYes' }),
++  differentPPMDeliverZipNo: selector({ getByRole: 'label' }, { name: 'hasSecondaryDestinationPostalCodeNo' }),
++  deliverSecondZipField: selector({ getByLabel: 'secondaryDestinationPostalCode' }),
++
++  closeoutDropdown: selector({ getByLabel: 'Which closeout office should review your PPM?' }),
++  closeoutOption: (location) =>
++    selector({ locator: `[data-testid="form"] >> mark` }, { hasText: location, exact: true }),
++
++  storeYourOwnYes: selector({ getByLabel: 'sitExpectedYes' }),
++  storeYourOwnNo: selector({ getByLabel: 'sitExpectedNo' }),
++  departureDatePicker:
++    (dateValue) =>
++    async ({ page }) =>
++      dateInputOperator(page, page.getByLabel('When do you plan to start moving your PPM?'), dateValue),
++
++  estimatedWeightField: selector(
++    { getByLabel: 'Estimated weight of this PPM shipment' } /*{name: 'Estimated weight of this PPM shipment'}*/,
++  ),
++  movingProgearYes: selector({ locator: 'label[for="hasProGearYes"]' }),
++  movingProgearNo: selector({ locator: 'label[for="hasProGearNo"]' }),
++  yourGearWeight: selector({ getByLabel: 'Estimated weight of your pro-gear' }),
++  spouseGearWeight: selector({ getByLabel: 'Estimated weight of your spouse’s pro-gear' }),
++};
++
++export const ORDERS = {
++  fileUploadActionLink: selector({ locator: '.filepond--wrapper .filepond--label-action' }),
++  fileUploadContainerLink: selector({ locator: '.filepond--wrapper' }),
++  addOrdersNavigate: selector({ getByRole: 'button' }, { name: 'Add orders' }),
++  ordersTypeDropdown: selector({ getByLabel: 'Orders type' }), //selectOption('PERMANENT_CHANGE_OF_STATION')
++  ordersDatePicker:
++    (dateValue) =>
++    async ({ page }) =>
++      dateInputOperator(page, page.getByLabel('Orders date'), dateValue),
++  reportByDatePicker:
++    (dateValue) =>
++    async ({ page }) =>
++      dateInputOperator(page, page.getByLabel('Report by date'), dateValue),
++  dependentsChoice: selector(
++    { locator: 'div:has(label:has-text("Are dependents")) >> div.usa-radio' },
++    { hasText: 'No' },
++  ),
++  currentDutyLocationDropdown: selector({ getByLabel: 'Current duty location' }),
++  currentDutyLocationOption: (dutyLocationAddress) =>
++    selector({ locator: `[data-testid="form"] >> mark` }, { hasText: dutyLocationAddress, exact: true }),
++  newDutyLocationDropdown: selector({ getByLabel: 'New duty location' }),
++  newDutyLocationOption: (dutyStationAddress) =>
++    selector({ locator: `[data-testid="form"] >> mark` }, { hasText: dutyStationAddress, exact: true }),
++  selectPayGrade: selector({ getByLabel: 'Pay grade' }),
++  selectPayGradeOption: (payGrade) => selector({ getByLabel: payGrade }),
++};
++
++export const PROFILE_CREATION = {
++  serviceMember: {
++    existingUser: selector({ locator: 'h2:text("Select an Existing User") + h4 + form >> input[name="email"]' }),
++    createUser: selector({ locator: 'h2:text("Create a New User") + form >> input[name="email"]' }),
++    firstName: selector({ getByLabel: 'First name' }),
++    lastName: selector({ getByLabel: 'Last name' }),
++    middleName: selector({ getByLabel: 'Middle name' }),
++    suffix: selector({ getByLabel: 'Suffix' }),
++    dodInput: selector({ getByLabel: 'DOD ID number' }, { name: 'edipi' }),
++    rankCombo: selector({ getByRole: 'combobox' }, { name: 'Pay grade' }),
++    branchCombo: selector({ getByRole: 'combobox' }, { name: 'Branch of service' }),
++    oconusRadio: selector({ getByText: oconusText }),
++    conusRadio: selector({ getByText: conusText }),
++    primaryPhone: selector({ getByLabel: 'Best contact phone' }),
++    altPhone: selector({ getByLabel: 'Alt. phone' }),
++    email: selector({ getByLabel: 'Personal email' }, { exact: true }),
++    prefersPhoneContact: selector({ locator: '[name=phone_is_preferred] + :text("Phone")' }),
++    prefersEmailContact: selector({ locator: '[name=email_is_preferred] + :text("Email")' }),
++    currentDutyStation: selector({ getByLabel: 'What is your current duty location?' }),
++    currentDutyStationOption: (dutyStationAddress) =>
++      selector({ locator: `[data-testid="form"] >> mark` }, { hasText: dutyStationAddress, exact: true }),
++    //currentDutyStationOption: (dutyStationAddress) => selector({ locator: `#react-select-4-listbox mark:has-text("${dutyStationAddress}")`}),
++    address: {
++      ...mapToScheme('current_residence', addressShape, (selectorName) => selector({ getByLabel: selectorName })),
++    },
++    backup: {
++      contactName: selector({ getByLabel: 'Name' }, { exact: true }),
++      contactEmail: selector({ getByLabel: 'Email' }, { exact: true }),
++      contactPhone: selector({ getByLabel: 'Phone' }, { exact: true }),
++    },
++  },
++};
++
++const DAY_PICKER_YEAR_CLASS = 'div.DayPicker-Caption';
++const DAY_PICKER_PREVIOUS = '.DayPicker-NavButton--prev';
++const DAY_PICKER_NEXT = '.DayPicker-NavButton--next';
++const DAY_PICKER_DAYS = 'div.DayPicker-Week';
++export const dateInputOperator = async (page, locator, dateValue) => {
++  const clickDate = async (page, dayOfMonthNumber) => {
++    const dayElementLocator = page.locator(DAY_PICKER_DAYS, { state: 'attached' });
++    const filterOnlyCompleteMatch = new RegExp(`^${dayOfMonthNumber}$`);
++    const targetDate = await dayElementLocator.getByText(filterOnlyCompleteMatch, { state: 'attached' });
++    await targetDate.click();
++  };
++
++  /** calculate how many clicks to the correct month */
++  const getMonthsDifference = (originDate, targetDate) =>
++    targetDate.getMonth() - originDate.getMonth() + 12 * (targetDate.getFullYear() - originDate.getFullYear());
++
++  const datesMatch = (dateA, dateB) =>
++    dateA.getMonth() === dateB.getMonth() && dateA.getFullYear() === dateB.getFullYear();
++
++  await locator.focus();
++  const yearElement = await page.locator(DAY_PICKER_YEAR_CLASS, { state: 'attached' });
++  const monthYearText = await yearElement.textContent();
++  const firstDate = new Date(['1', monthYearText].join(' '));
++
++  const startingPageIsTargetPage = datesMatch(dateValue, firstDate);
++
++  if (startingPageIsTargetPage) {
++    await clickDate(page, dateValue.getDate());
++    return;
++  }
++
++  const lastDate = new Date(firstDate);
++  lastDate.setMonth(1);
++  lastDate.setHours(-24);
++
++  /** The amount of months is how many times we click to to get to the target month */
++  const months = getMonthsDifference(dateValue, firstDate);
++
++  /** Set the direction going backwards or forwards based on month's sign. */
++  const directionAction = months > 0 ? DAY_PICKER_PREVIOUS : DAY_PICKER_NEXT;
++
++  let currentMonth = monthYearText;
++  for (let i = 0; i < Math.abs(months); i++) {
++    await page.locator(directionAction).click();
++    let changedMonth = await page.locator(DAY_PICKER_YEAR_CLASS, { hasNotText: currentMonth, state: 'attached' });
++    currentMonth = await changedMonth.textContent();
++  }
++
++  const firstDateOfCurrentMonth = new Date(['1', currentMonth].join(' '));
++  const traversedPageIsTargetPage = datesMatch(dateValue, firstDateOfCurrentMonth);
++
++  if (traversedPageIsTargetPage) {
++    await clickDate(page, dateValue.getDate());
++    return;
++  }
++};
++
++// export const PROFILE_CREATION = {
++//   serviceMember: {
++//     ...reMap(
++//       {
++//         firstName: 'first_name',
++//         lastName: 'last_name',
++//         middleName: 'middle_name',
++//         suffix: 'suffix',
++//         dodInput: 'edipi',
++//       },
++//       toNamedTypeAction,
++//     ),
++//     ...reMap(
++//       {
++//         rankCombo: 'rank',
++//         branchCombo: 'affiliation',
++//       },
++//       toDropdownSelectAction,
++//     ),
++//     ...reMap(
++//       {
++//         conusRadio: 'input_CONUS',
++//         oconusRadio: 'input_OCONUS',
++//       },
++//       toRadioSelectionAction,
++//     ),
++//   },
++// };
+diff --git a/playwright/tests/mixed/login/userLogins.spec.js b/playwright/tests/mixed/login/userLogins.spec.js
+new file mode 100644
+index 0000000000..ed6d589683
+--- /dev/null
++++ b/playwright/tests/mixed/login/userLogins.spec.js
+@@ -0,0 +1,20 @@
++// import { test, expect, AuditTestPage } from '../mixedTestSetup';
++// import * as run from '../browserTestActions';
++// import { buildTestScenarios } from '../browserTestActions';
++
++// const testExecution = async ({role, value, pageInstance }) =>
++//         await run.setupTestChain(pageInstance)
++//         .next(run.goToProperBasePage[role])
++//         .next(run.userLoginActions[role])
++//         .task;
++
++// const scenarios = run.setupTestScenarioChains(testExecution);
++
++// test.describe('Login Actions', () => {
++
++//   buildTestScenarios(test, {
++//     ...scenarios,
++//   }).map((([key, value]) =>
++//    test(key, value)));
++// });
++
+\ No newline at end of file
+diff --git a/playwright/tests/mixed/mixedTestSetup.js b/playwright/tests/mixed/mixedTestSetup.js
+new file mode 100644
+index 0000000000..ea3097d895
+--- /dev/null
++++ b/playwright/tests/mixed/mixedTestSetup.js
+@@ -0,0 +1,114 @@
++import TestHarness from '../utils/testharness';
++import * as base from '@playwright/test';
++
++import { baseTestPage } from '../utils/baseTest';
++
++export const { expect } = base;
++import { stringHelpers, textWithNoTrailingNumbers } from './testActionUtils';
++import { locatorHelpers } from './MixedUtilities/Helpers';
++import { getNetworkDataByMatch } from './MixedUtilities/ApiMatches';
++/**
++ * mixed test fixture for playwright
++ * See https://playwright.dev/docs/test-fixtures
++ */
++export class MixedTestPage {
++  /**
++   * Create an BaseTestPage.
++   * @param {import('@playwright/test').Page} page
++   * @param {import('@playwright/test').APIRequestContext} request
++   */
++  constructor(page, request) {
++    this.page = page;
++    this.request = request;
++    const baseMilmoveLocal = 'http://milmovelocal:3000';
++    const baseOfficeLocal = 'http://officelocal:3000';
++    const baseAdminLocal = 'http://adminlocal:3000';
++
++    this.baseURLS = {
++      my: process.env.PLAYWRIGHT_MY_URL || baseMilmoveLocal,
++      office: process.env.PLAYWRIGHT_OFFICE_URL || baseOfficeLocal,
++      admin: process.env.PLAYWRIGHT_ADMIN_URL || baseAdminLocal,
++    };
++
++    this.testHarness = new TestHarness(request);
++
++    this.helpers = {
++      waitForLoading: async () => {
++        await expect(page.locator('button:has-text("Sign out")')).toHaveCount(1, { timeout: 10000 });
++        await expect(page.locator('h2[data-name="loading-placeholder"]')).toHaveCount(0);
++      },
++      signOut: async () => {
++        await this.page.getByText('Sign out').click();
++      },
++      stringHelpers,
++      utils: {
++        textWithNoTrailingNumbers,
++      },
++      locatorHelpers: locatorHelpers(page),
++      fast: {
++        focusSelector: async (selector) => await page.locator(selector).focus(),
++        clickTextAsync: async (selector) => await page.getByText(selector).click(),
++        typeInto: async (selector, value) =>
++          (async (locator, value) => locator.focus().then(() => locator.type(value)))(page.locator(selector), value),
++        typeAndBlur: async (selector, value) => {
++          const locator = page.locator(selector);
++          await locator.type(value);
++          await locator.blur();
++        },
++        selectValue: async (selector, selectPayload) => await page.locator(selector).selectOption(selectPayload),
++      },
++    };
++  }
++}
++
++/**
++ * @typedef {object} MixedTestArgs
++ * @property {MixedTestPage} pageInstance
++ */
++
++/** @type {base.Fixtures<MixedTestArgs, {}, base.PlaywrightTestArgs & base.PlaywrightTestOptions, base.PlaywrightWorkerArgs & base.PlaywrightWorkerOptions>} */
++const mixedFixtures = {
++  pageInstance: async ({ page, request }, use) => {
++    const thePage = new MixedTestPage(page, request);
++    await use(thePage);
++  },
++};
++
++export const test = base.test.extend(mixedFixtures);
++
++export default test;
++
++export const initializeTestChain = ({ chainActions }) => {
++  return async ({ pageInstance }) => {
++    let task = Promise.resolve(pageInstance);
++    let setupTasks = await chainActions({ instance: pageInstance });
++    let result = setupTasks.reduce((tasks, func) => {
++      return tasks.then(async (page) => {
++        const funcResult = await (typeof func == 'function' ? await func(page) : Promise.resolve(func));
++        return { ...page, previous: funcResult };
++      });
++    }, task);
++
++    await result;
++  };
++};
++
++export const buildTestScenarios = (items) => {
++  const entries = Object.entries(items);
++  const actions = entries.map(([key, chainActions]) => ({
++    key: key.split('_').join(' '),
++    steps: initializeTestChain({ chainActions, key }),
++  }));
++
++  return actions;
++};
++
++export const preSteps = async (...steps) => {
++  for (let action of steps) {
++    if (typeof action === 'function') {
++      await action(instance);
++      continue;
++    }
++    await action;
++  }
++};
+diff --git a/playwright/tests/mixed/steps/serviceMember.js b/playwright/tests/mixed/steps/serviceMember.js
+new file mode 100644
+index 0000000000..2361bca7a3
+--- /dev/null
++++ b/playwright/tests/mixed/steps/serviceMember.js
+@@ -0,0 +1,218 @@
++import { goToProperBasePage, waitForPageNavigationStep } from '../browserTestActions';
++import { generateShortGuid, nextPageAfterControl, waitAfterAction, waitForFileUpload } from '../MixedUtilities/Helpers';
++import { ORDERS, PROFILE_CREATION, SIGN_OUT_BUTTON, WIZARD_ITEMS } from '../customer/controls';
++import path from 'path';
++
++const serviceMember = PROFILE_CREATION.serviceMember;
++
++const choiceOfConusOrOconus = ({ conusRadio, oconusRadio }) => ({
++  conus: conusRadio,
++  oconus: oconusRadio,
++});
++
++const NEXT_WIZARD_CONTROL = WIZARD_ITEMS.NEXT_WIZARD_BUTTON;
++
++const DEV_LOCAL = '**/devlocal-auth/login';
++const DEV_LOCAL_PATH = 'devlocal-auth/login';
++const ROOT_PAGE = '';
++const SIGN_IN_PATH = '**/sign-in';
++const ORDERS_INFO_PATH = '**/orders/info';
++const SERVICE_MEMBER_DOD_INFO_PATH = '**/service-member/dod-info';
++const SERVICE_MEMBER_NAME_PATH = '**/service-member/name';
++const SERVICE_MEMBER_CONTACT_INFO_PATH = '**/service-member/contact-info';
++const SERVICE_MEMBER_CURRENT_DUTY_PATH = '**/service-member/current-duty';
++const SERVICE_MEMBER_CURRENT_ADDRESS = '**/service-member/current-address';
++const SERVICE_MEMBER_BACKUP_ADDRESS = '**/service-member/backup-address';
++const SERVICE_MEMBER_BACKUP_CONTACT = '**/service-member/backup-contact';
++const ORDERS_UPLOAD_PATH = '**/orders/upload';
++
++const BRANCH_OPTIONS = {
++  AIR_FORCE: 'AIR_FORCE',
++  ARMY: 'ARMY',
++  NAVY: 'NAVY',
++  MARINES: 'MARINES',
++  SPACE_FORCE: 'SPACE_FORCE',
++  OTHER: 'OTHER',
++  COAST_GUARD: 'COAST_GUARD',
++};
++
++const makeAddress = () => ({
++  streetAddress1: '1755 show ave',
++  streetAddress2: 'apt 123',
++  streetAddress3: '',
++  city: 'Wissourl',
++  state: 'MA',
++  postalCode: '59801',
++});
++const makeAddress2 = () => ({
++  streetAddress1: '4755 show ave',
++  streetAddress2: 'apt 321',
++  streetAddress3: '',
++  city: 'Wizzourl',
++  state: 'MA',
++  postalCode: '59801',
++});
++
++export const testInputDefaults = {
++  serviceMemberDetails: {
++    context: { callMe: true, emailMe: true },
++    conusOrOconous: 'conus',
++    branch: BRANCH_OPTIONS.ARMY,
++    dodId: '1222222222',
++    rank: 'E-4',
++    firstName: 'Other Member',
++    middleName: 'm.',
++    lastName: 'LastFriday',
++    email: [generateShortGuid(), 'fakemail.com'].join('@'),
++    primaryPhone: '555-555-5555',
++    altPhone: '555-555-5551',
++    currentDutyStation: 'Fort Drum, NY 13602',
++    addresses: {
++      current: makeAddress(),
++      backup: makeAddress2(),
++    },
++    backupContact: {
++      firstName: 'alisson',
++      lastName: 'tonrado',
++      email: 'deemed_good_to_go@fakegmail.com',
++      primaryPhone: '555-555-5552',
++    },
++  },
++};
++
++const conusForm = ({ conusOrOconous }) => [
++  choiceOfConusOrOconus(PROFILE_CREATION.serviceMember)[conusOrOconous].click(),
++];
++
++const dodInfoForm = ({ branch, dodId, rank }) => [
++  serviceMember.branchCombo.selectOption(branch),
++  serviceMember.dodInput.fill(dodId),
++];
++
++const userDetailsForm = ({ firstName, middleName, lastName, suffix }) => [
++  serviceMember.firstName.fill(firstName),
++  serviceMember.middleName.fill(middleName),
++  serviceMember.lastName.fill(lastName),
++  suffix && serviceMember.suffix.fill(suffix),
++];
++
++const userContactForm = ({ primaryPhone, altPhone, email, context: { callMe, emailMe } }) => [
++  serviceMember.primaryPhone.fill(primaryPhone),
++  serviceMember.altPhone.fill(altPhone),
++  serviceMember.email.press('Backspace'),
++  //serviceMember.email.fill(() => {}),
++  serviceMember.email.fill(() => {
++    return email;
++  }),
++
++  callMe && serviceMember.prefersPhoneContact.click(),
++  emailMe && serviceMember.prefersEmailContact.click(),
++];
++
++const dutyStationForm = ({ currentDutyStation }) => [
++  serviceMember.currentDutyStation.waitFor({ state: 'visible' }),
++  serviceMember.currentDutyStation.fill(currentDutyStation),
++  serviceMember.currentDutyStationOption(currentDutyStation).press('Enter'),
++];
++
++const addressForm = ({ streetAddress1, streetAddress2, streetAddress3, city, state, postalCode }) => [
++  serviceMember.address.address1.fill(streetAddress1),
++  serviceMember.address.address2.fill(streetAddress2),
++  serviceMember.address.address3.fill(streetAddress3),
++  serviceMember.address.city.fill(city),
++  serviceMember.address.state.selectOption(state),
++  serviceMember.address.zip.fill(postalCode),
++];
++
++const backupContactForm = ({ firstName, lastName, email, primaryPhone }) => [
++  serviceMember.backup.contactName.fill([lastName, firstName].join(', ')),
++  serviceMember.backup.contactEmail.fill(email),
++  serviceMember.backup.contactPhone.fill(primaryPhone),
++];
++
++export const loginAsExistingMember = (role, email) => {
++  return [
++    goToProperBasePage[role],
++    waitForPageNavigationStep(DEV_LOCAL_PATH),
++    serviceMember.existingUser.fill(email),
++    async ({ page }) => await serviceMember.existingUser.press('Enter')({ page }),
++    nextPageAfterControl(SIGN_IN_PATH, serviceMember.existingUser.press('Enter')),
++  ];
++};
++
++export const loginAsNewServiceMember = (role, email = testInputDefaults.serviceMemberDetails.email) => {
++  return [
++    goToProperBasePage[role],
++    waitForPageNavigationStep(DEV_LOCAL_PATH),
++    serviceMember.createUser.fill(email),
++    serviceMember.createUser.press('Enter'),
++    //nextPageAfterControl(DEV_LOCAL, serviceMember.createUser.press('Enter')),
++  ];
++};
++
++export const logoutAsServiceMember = () => nextPageAfterControl(SIGN_IN_PATH, SIGN_OUT_BUTTON.click());
++
++export const profileSetupSteps = (role, serviceMemberDetails = testInputDefaults.serviceMemberDetails) => {
++  return [
++    async ({ page }) => await page.pause(),
++    ...conusForm(serviceMemberDetails),
++    ...nextPageAfterControl(SERVICE_MEMBER_DOD_INFO_PATH, NEXT_WIZARD_CONTROL.click()),
++
++    ...dodInfoForm(serviceMemberDetails),
++    ...nextPageAfterControl(SERVICE_MEMBER_NAME_PATH, NEXT_WIZARD_CONTROL.click()),
++
++    ...userDetailsForm(serviceMemberDetails),
++    ...nextPageAfterControl(SERVICE_MEMBER_CONTACT_INFO_PATH, NEXT_WIZARD_CONTROL.click()),
++
++    ...userContactForm(serviceMemberDetails),
++    ...nextPageAfterControl(SERVICE_MEMBER_CURRENT_ADDRESS, NEXT_WIZARD_CONTROL.click()),
++
++    // ...dutyStationForm(serviceMemberDetails),
++    // ...nextPageAfterControl(SERVICE_MEMBER_CURRENT_ADDRESS, NEXT_WIZARD_CONTROL.click()),
++
++    ...addressForm(serviceMemberDetails.addresses.current),
++    ...nextPageAfterControl(SERVICE_MEMBER_BACKUP_ADDRESS, NEXT_WIZARD_CONTROL.click()),
++
++    ...addressForm(serviceMemberDetails.addresses.backup),
++    ...nextPageAfterControl(SERVICE_MEMBER_BACKUP_CONTACT, NEXT_WIZARD_CONTROL.click()),
++
++    ...backupContactForm(serviceMemberDetails.backupContact),
++    ...nextPageAfterControl(ROOT_PAGE, NEXT_WIZARD_CONTROL.click()),
++  ];
++};
++const fillInOrdersInfo = ({ ordersType, ordersDate, reportByDate, currentDutyStation, newDutyStation, payGrade }) => {
++  return [
++    ORDERS.ordersTypeDropdown.selectOption(ordersType),
++    ORDERS.ordersDatePicker(ordersDate),
++    ORDERS.reportByDatePicker(reportByDate),
++    ORDERS.dependentsChoice.click(),
++
++    ORDERS.currentDutyLocationDropdown.waitFor({ state: 'visible' }),
++    ORDERS.currentDutyLocationDropdown.fill(currentDutyStation),
++    ORDERS.currentDutyLocationOption(currentDutyStation).press('Enter'),
++
++    ORDERS.newDutyLocationDropdown.waitFor({ state: 'visible' }),
++    ORDERS.newDutyLocationDropdown.fill(newDutyStation),
++    ORDERS.newDutyLocationOption(newDutyStation).press('Enter'),
++
++    ORDERS.selectPayGrade.selectOption({ label: payGrade }),
++  ];
++};
++
++export const ordersSetupSteps = (
++  role,
++  { ordersType, ordersDate, reportByDate, currentDutyStation, newDutyStation, payGrade },
++) => {
++  //needs to be on milmovelocal / path
++  const ordersFilepath = path.join('playwright/fixtures', 'AF Orders Sample.pdf');
++  return [
++    ...nextPageAfterControl(ORDERS_INFO_PATH, ORDERS.addOrdersNavigate.click()),
++    ...fillInOrdersInfo({ ordersType, ordersDate, reportByDate, currentDutyStation, newDutyStation, payGrade }),
++    ...nextPageAfterControl(ORDERS_UPLOAD_PATH, WIZARD_ITEMS.NEXT_WIZARD_BUTTON.click()),
++    ...waitForFileUpload(ORDERS.fileUploadActionLink.click(), ordersFilepath),
++    ...nextPageAfterControl(ROOT_PAGE, NEXT_WIZARD_CONTROL.click()),
++    () => {
++      let a = 1;
++    },
++  ];
++};
+diff --git a/playwright/tests/mixed/steps/serviceMemberActions/shipment.js b/playwright/tests/mixed/steps/serviceMemberActions/shipment.js
+new file mode 100644
+index 0000000000..94d9c7819c
+--- /dev/null
++++ b/playwright/tests/mixed/steps/serviceMemberActions/shipment.js
+@@ -0,0 +1,167 @@
++import { nextPageAfterControl } from '../../MixedUtilities/Helpers';
++import { PPMS, WIZARD_ITEMS } from '../../customer/controls';
++import { formatRelativeDate } from '../../testActionUtils';
++
++const ROOT_PAGE = '';
++const MOVING_INFO_MATCH_URL = /^.*\/moves\/[0-9a-fA-F-]+\/moving-info$/;
++const SHIPMENT_TYPE_MATCH_URL = /^.*\/moves\/[0-9a-fA-F-]+\/shipment-type$/;
++const HHG_URL = /^.*\/moves\/[0-9a-fA-F-]+\/snew-hipment\?type=HHG$/;
++const PPM_URL = /^.*\/moves\/[0-9a-fA-F-]+\/new-shipment\?type=PPM$/;
++const NTS_INTO_URL = /^.*\/moves\/[0-9a-fA-F-]+\/new-shipment\?type=HHG_INTO_NTS_DOMESTIC$/;
++const NTS_OUTOF_URL = /^.*\/moves\/[0-9a-fA-F-]+\/new-shipment\?type=HHG_OUTOF_NTS_DOMESTIC$/;
++const PPM_ESTIMATED_WEIGHT_URL = /^.*\/moves\/[0-9a-fA-F-]+\/shipments\/[0-9a-fA-F-]+\/estimated-weight$/;
++const PPM_ESTIMATE_INCENTIVE_URL = /^.*\/moves\/[0-9a-fA-F-]+\/shipments\/[0-9a-fA-F-]+\/estimated-incentive$/;
++const PPM_ADVANCE_URL = /^.*\/moves\/[0-9a-fA-F-]+\/shipments\/[0-9a-fA-F-]+\/advances$/;
++const PPM_REVIEW = /^.*\/moves\/[0-9a-fA-F-]+\/review$/;
++const PPM_AGREEMENT = /^.*\/moves\/[0-9a-fA-F-]+\/agreement$/;
++
++export const setupShipment = (shipmentInfo, bucket) => {
++  const {
++    moves,
++    response: { orders, serviceMember },
++  } = bucket;
++
++  const shipmentSteps = shipmentActions[shipmentInfo.shipmentType];
++
++  return [
++    async () => '',
++    serviceMember(),
++    () => {},
++    ...nextPageAfterControl(MOVING_INFO_MATCH_URL, WIZARD_ITEMS.SETUP_SHIPMENTS_BUTTON.click()),
++    () => {},
++    ...nextPageAfterControl(SHIPMENT_TYPE_MATCH_URL, WIZARD_ITEMS.NEXT_WIZARD_BUTTON.click()),
++    () => {},
++    ...shipmentSteps(shipmentInfo),
++    () => '',
++  ];
++};
++
++const hhgPickup = () => {
++  return [];
++};
++
++const ppmEstimatedWeight = ({ estimatedWeightInfo }) => {
++  const { estimatedValue, yourGear, spouseGear } = estimatedWeightInfo;
++
++  const conditionalSteps = [
++    ...(function* () {
++      yield PPMS.estimatedWeightField.fill(estimatedValue);
++      if (yourGear || spouseGear) {
++        yield PPMS.movingProgearYes.click();
++        yourGear && (yield PPMS.yourGearWeight.fill(yourGear));
++        spouseGear && (yield PPMS.spouseGearWeight.fill(spouseGear));
++      }
++    })(),
++  ];
++
++  return [...conditionalSteps];
++};
++
++const ppmRequestAdvance = ({ advance }) => {
++  const { amount } = advance;
++  return amount > 0
++    ? [PPMS.chooseAdvanceYes.click(), PPMS.advanceField.fill(amount), PPMS.checkAcknowledge.click()]
++    : [];
++};
++
++const ppmAgreement = ({}) => {
++  return [];
++};
++
++const ppmActions = (ppmInfo) => {
++  //...ppmEstimatedWeight(shipmentInfo),
++  return [
++    ...ppmDateAndLocation(ppmInfo),
++    ...nextPageAfterControl(PPM_ESTIMATED_WEIGHT_URL, WIZARD_ITEMS.SAVE_AND_CONTINUE_BUTTON.click()),
++    ...ppmEstimatedWeight(ppmInfo),
++    ...nextPageAfterControl(PPM_ESTIMATE_INCENTIVE_URL, WIZARD_ITEMS.SAVE_AND_CONTINUE_BUTTON.click()),
++    () => '',
++    ...nextPageAfterControl(PPM_ADVANCE_URL, WIZARD_ITEMS.NEXT_SAVE_BUTTON.click()),
++    ...ppmRequestAdvance(ppmInfo),
++    ...nextPageAfterControl(PPM_REVIEW, WIZARD_ITEMS.SAVE_AND_CONTINUE_BUTTON.click()),
++    () => 'do a review now',
++    ...nextPageAfterControl(PPM_AGREEMENT, WIZARD_ITEMS.NEXT_WIZARD_BUTTON.click()),
++    ...ppmAgreement(ppmInfo),
++    ...nextPageAfterControl(ROOT_PAGE, WIZARD_ITEMS.NEXT_WIZARD_BUTTON.click()),
++    () => '',
++  ];
++};
++
++const ppmDateAndLocation = ({ ppmDateAndLocationInfo }) => {
++  const {
++    destination: { destinationZipEntry, checkCurrentZip, secondaryZip },
++    delivery: { deliveryZipEntry, checkBaseZip, differentDeliveryZip },
++    secondaryLocation,
++    closeoutLocation,
++    departureDate: { relativeDate: theDate },
++  } = ppmDateAndLocationInfo;
++
++  const conditionalSteps = [
++    ...(function* () {
++      if (destinationZipEntry) yield PPMS.pickupZipField.fill(destinationZipEntry);
++      if (checkCurrentZip) {
++        yield PPMS.differentPPMZipYes.click();
++        yield PPMS.secondaryZip.fill(secondaryZip);
++      }
++      if (secondaryZip) yield PPMS.pickupSecondZipField.fill(secondaryZip);
++
++      if (deliveryZipEntry) yield PPMS.destinationZipField.fill(destinationZipEntry);
++      if (checkBaseZip) yield PPMS.dutyStationZipCheck.click();
++      if (differentDeliveryZip) {
++        yield PPMS.differentPPMDeliverZipYes.click();
++        yield PPMS.deliverSecondZipField.fill(differentDeliveryZip);
++      }
++
++      if (secondaryLocation) yield PPMS.storeYourOwnYes.click();
++    })(),
++  ];
++
++  const chooseCloseoutOffice = [
++    PPMS.closeoutDropdown.waitFor({ state: 'visible' }),
++    PPMS.closeoutDropdown.fill(closeoutLocation),
++    PPMS.closeoutOption(closeoutLocation).press('Enter'),
++  ];
++
++  return [
++    PPMS.selectRadioPPM.click(),
++    ...nextPageAfterControl(PPM_URL, WIZARD_ITEMS.NEXT_WIZARD_BUTTON.click()),
++    ...conditionalSteps,
++    ...chooseCloseoutOffice,
++    PPMS.departureDatePicker(theDate),
++  ];
++};
++
++export const shipmentTestDefaults = {
++  PPM: {
++    shipmentType: 'PPM',
++    ppmDateAndLocationInfo: {
++      destination: {
++        destinationZipEntry: '13602',
++        checkCurrentZip: false,
++        secondaryZip: undefined,
++      },
++      delivery: {
++        deliveryZipEntry: '92310',
++        checkBaseZip: undefined,
++        differentDeliveryZip: undefined,
++      },
++      secondaryLocation: false,
++      closeoutLocation: 'fort irwin',
++      departureDate: formatRelativeDate(11),
++    },
++    estimatedWeightInfo: {
++      estimatedValue: '5620',
++      yourGear: '433',
++      spouseGear: undefined,
++      //also a link on the screen btw https://www.ustranscom.mil/dp3/weightestimator.cfm
++    },
++    advance: {
++      amount: '1200',
++    },
++  },
++  HHG: {
++    shipmmentType: 'HHG',
++  },
++};
++
++const shipmentActions = { PPM: ppmActions, HHG: hhgPickup, NTSI: NTS_INTO_URL, NTSO: NTS_OUTOF_URL };
+diff --git a/playwright/tests/mixed/testActionUtils.js b/playwright/tests/mixed/testActionUtils.js
+new file mode 100644
+index 0000000000..18227e2d6c
+--- /dev/null
++++ b/playwright/tests/mixed/testActionUtils.js
+@@ -0,0 +1,128 @@
++// @ts-ignore
++
++const format = function (formattingString, ...args) {
++  return formattingString.replace(/{(\d+)}/g, (match, index) => (args[index] !== undefined ? args[index] : match));
++};
++
++const trimOuterSymbols = function (stringValue, symbol) {
++  return stringValue.replace(new RegExp(`^\\${symbol}+|\\${symbol}+$`, 'g'), '');
++};
++
++const filterYear = function (yearString) {
++  return yearString.replace(/.*?(\b\d{4}\b).*?/g, '$1');
++};
++
++const trimUrlOperation = function (stringSegment) {
++  return new Set(stringSegment).size === stringSegment.length;
++};
++
++const GetURLOrigin = function (stringUrl) {
++  return new URL(stringUrl).origin;
++};
++
++const concatUrlSegments = (stringPathSegments) => {
++  const trimSegments = (path) => (typeof path === 'string' ? trimOuterSymbols(path, trimOuterSymbols('/')) : []);
++  const result = stringPathSegments.flatMap(trimSegments).join('/');
++  return result;
++};
++
++export const stringHelpers = {
++  format,
++  trimOuterSymbols,
++  filterYear,
++  trimUrlOperation,
++  GetURLOrigin,
++  concatUrlSegments,
++};
++
++export const formatRelativeDate = (daysInterval) => {
++  const relativeDate = new Date();
++  relativeDate.setDate(relativeDate.getDate() + daysInterval);
++  const formattedDay = relativeDate.toLocaleDateString(undefined, { day: '2-digit' });
++  const formattedMonth = relativeDate.toLocaleDateString(undefined, {
++    month: 'short',
++  });
++  const formattedYear = relativeDate.toLocaleDateString(undefined, {
++    year: 'numeric',
++  });
++  const formattedDate = `${formattedDay} ${formattedMonth} ${formattedYear}`;
++
++  return {
++    relativeDate,
++    formattedDate,
++  };
++};
++
++export const formatNumericDate = (date) => {
++  const formattedDay = date.toLocaleDateString(undefined, { day: '2-digit' });
++  const formattedMonth = date.toLocaleDateString(undefined, {
++    month: '2-digit',
++  });
++  const formattedYear = date.toLocaleDateString(undefined, {
++    year: 'numeric',
++  });
++
++  return [formattedYear, formattedMonth, formattedDay].join('-');
++};
++
++export const textWithNoTrailingNumbers = (value) => RegExp(`${value}$`);
++
++const DAY_PICKER_YEAR_CLASS = 'div.DayPicker-Caption';
++const DAY_PICKER_PREVIOUS = '.DayPicker-NavButton--prev';
++const DAY_PICKER_NEXT = '.DayPicker-NavButton--next';
++const DAY_PICKER_DAYS = 'div.DayPicker-Week';
++
++export const dateInputOperator = async (page, locator, dateValue) => {
++  const clickDate = async (page, dayOfMonthNumber) => {
++    const dayElementLocator = page.locator(DAY_PICKER_DAYS, { state: 'attached' });
++    const filterOnlyCompleteMatch = new RegExp(`^${dayOfMonthNumber}$`);
++    const targetDate = await dayElementLocator.getByText(filterOnlyCompleteMatch, { state: 'attached' });
++    await targetDate.click();
++  };
++
++  /** calculate how many clicks to the correct month */
++  const getMonthsDifference = (originDate, targetDate) =>
++    targetDate.getMonth() - originDate.getMonth() + 12 * (targetDate.getFullYear() - originDate.getFullYear());
++
++  const datesMatch = (dateA, dateB) =>
++    dateA.getMonth() === dateB.getMonth() && dateA.getFullYear() === dateB.getFullYear();
++
++  await locator.focus();
++  const yearElement = await page.locator(DAY_PICKER_YEAR_CLASS, { state: 'attached' });
++  const monthYearText = await yearElement.textContent();
++  const firstDate = new Date(['1', monthYearText].join(' '));
++
++  const startingPageIsTargetPage = datesMatch(dateValue, firstDate);
++
++  if (startingPageIsTargetPage) {
++    await clickDate(page, dateValue.getDate());
++    return;
++  }
++
++  const lastDate = new Date(firstDate);
++  lastDate.setMonth(1);
++  lastDate.setHours(-24);
++
++  /** The amount of months is how many times we click to to get to the target month */
++  const months = getMonthsDifference(dateValue, firstDate);
++
++  /** Set the direction going backwards or forwards based on month's sign. */
++  const directionAction = months > 0 ? DAY_PICKER_PREVIOUS : DAY_PICKER_NEXT;
++
++  let currentMonth = monthYearText;
++  for (let i = 0; i < Math.abs(months); i++) {
++    await page.locator(directionAction).click();
++    let changedMonth = await page.locator(DAY_PICKER_YEAR_CLASS, { hasNotText: currentMonth, state: 'attached' });
++    currentMonth = await changedMonth.textContent();
++  }
++
++  const firstDateOfCurrentMonth = new Date(['1', currentMonth].join(' '));
++  const traversedPageIsTargetPage = datesMatch(dateValue, firstDateOfCurrentMonth);
++
++  if (traversedPageIsTargetPage) {
++    await clickDate(page, dateValue.getDate());
++    return;
++  }
++};
++
++export {};
+diff --git a/playwright/tests/mixed/testMapping/scenarioSuite.js b/playwright/tests/mixed/testMapping/scenarioSuite.js
+new file mode 100644
+index 0000000000..577cd20ae4
+--- /dev/null
++++ b/playwright/tests/mixed/testMapping/scenarioSuite.js
+@@ -0,0 +1,90 @@
++const withName = (obj) => (typeof obj === 'object' && 'name' in v && 'name') || JSON.stringify(obj);
++
++/**
++ * Default run function that sets up and executes a test scenario.
++ *
++ * @param {Function} a - The function representing the test scenario.
++ * @param {Array} testCases - An array of test cases for the scenario.
++ * @returns {Function} - An asynchronous function that runs the provided scenario function with the specified options.
++ */
++const defaultRun =
++  (runFunc, ...options) =>
++  async ({ pageInstance }) => {
++    //run({pageInstance}, ...options);
++    await runFunc(pageInstance, ...options);
++  };
++
++/**
++ * Orchestrates the execution of test scenarios based on the provided options.
++ *
++ * @param {Object} options - Options for running test scenarios.
++ * @param {Array} options.testCases - An array of test cases to be executed (default is [undefined]).
++ * @param {Function} options.setupRun - The setup function for the scenario run (default is `defaultRun`).
++ * @param {Function} options.run - The function representing the test scenario.
++ * @param {string} options.name - The name of the test scenario.
++ * @param {Function} options.op - The operation to be performed for each test case.
++ * @returns - No return. The tests will execute from the for loop, but there is no object to wait on.
++ */
++const runScenario = async ({ testCases = [undefined], setupRun = defaultRun, run, name, op }) => {
++  const items = testCases.map((testCase) => {
++    const testFunction = setupRun(run, { testCases });
++    return [`${name} ${(testCase === undefined && ' ') || ('case' && withName(testCase))}`, testFunction];
++  });
++  //a should be ({pageInstance}) => {/* literal running context */};
++  for (let a of items) {
++    await op(...a);
++  }
++};
++
++/**
++ * This function creates a scenario suite that provides the ability to run test scenarios and offers additional features for working with Playwright.
++ *@param {Object} op - Additional options for the scenario suite.
++ * @returns {Object} - An object containing properties for describing tests, running scenarios, and defining individual scenarios.
++ */
++export const scenarioSuite = (op) => ({
++  /**
++   * Creates a scenario with the specified options and run function.
++   *
++   * @param {Object} scenarioOptions - Options for the scenario.
++   * @param {Function} run - The function to run for the scenario.
++   * @returns {Function} - A function representing the created scenario.
++   */
++  createScenario(scenarioOptions, run) {
++    return runScenario({ run, op, ...scenarioOptions });
++  },
++
++  /**
++   * Runs a scenario with the specified options, test cases, run function, and setup run function.
++   *
++   * @param {Object} options - Options for the scenario.
++   * @param {string} options.name - The name of the scenario.
++   * @param {Array} options.testCases - An array of test cases for the scenario.
++   * @param {Function} options.run - The function to run for the scenario.
++   * @param {Function} options.setupRun - The setup function for the scenario run (default is `defaultRun`).
++   * @returns {Promise} - A promise that resolves when the scenario is completed.
++   */
++  scenario ({ name, testCases: testCases, run, setupRun }) {
++    return runScenario({ op, name, testCases, run, setupRun });
++  },
++});
++
++export const actionArray =
++  (input, ...options) =>
++  ({ pageInstance }) => {
++    const promiseOfParams = Promise.resolve([{ pageInstance }, ...options]);
++    const stepParams = Promise.resolve(pageInstance);
++
++    const waitForStep = async (step) => {
++      await (typeof step == 'function' ? await stepParams.then(step) : Promise.resolve(step));
++    };
++
++    const runQueue = promiseOfParams
++      .then(async (parameters) => await input(...parameters))
++      .then(
++        async (queue) =>
++          await queue.reduce((calls, step) => calls.then(async (a) => await waitForStep(step)), stepParams),
++      );
++    return runQueue;
++  };
++
++
+diff --git a/src/pages/MyMove/UploadOrders.jsx b/src/pages/MyMove/UploadOrders.jsx
+index 84fce6cc03..75d9480eb6 100644
+--- a/src/pages/MyMove/UploadOrders.jsx
++++ b/src/pages/MyMove/UploadOrders.jsx
+@@ -85,7 +85,7 @@ export class UploadOrders extends Component {
+       navigate(customerRoutes.ORDERS_INFO_PATH);
+     };
+     const handleNext = () => {
+-      navigate(generalRoutes.HOME_PATH);
++      navigate(customerRoutes.MOVE_HOME_PAGE);
+     };
+
+     const { isLoading, serverError } = this.state;
+diff --git a/src/scenes/MyMove/getWorkflowRoutes.jsx b/src/scenes/MyMove/getWorkflowRoutes.jsx
+index d56cd0da80..a9ae5894ce 100644
+--- a/src/scenes/MyMove/getWorkflowRoutes.jsx
++++ b/src/scenes/MyMove/getWorkflowRoutes.jsx
+@@ -18,7 +18,7 @@ import Orders from 'pages/MyMove/Orders';
+ import UploadOrders from 'pages/MyMove/UploadOrders';
+ import SelectShipmentType from 'pages/MyMove/SelectShipmentType';
+ import BackupAddress from 'pages/MyMove/Profile/BackupAddress';
+-import ResidentialAddress from 'pages/MyMove/Profile/ResidentialAddress';
++import ResidentialAddress from 'pages/MyMove/Profile/ResidentialAddress.jsx';
+ import Review from 'pages/MyMove/Review/Review';
+ import Agreement from 'pages/MyMove/Agreement';
+
+@@ -116,7 +116,8 @@ const pages = {
+     render: () => <BackupContact />,
+     description: 'Backup contacts',
+   },
+-  [generalRoutes.HOME_PATH]: {
++  //the routing and semantics right now are in flux.
++  [customerRoutes.MOVE_HOME_PAGE]: {
+     isInFlow: (props) => {
+       return myFirstRodeo(props) && inGhcFlow(props);
+     },
+diff --git a/src/services/internalApi.js b/src/services/internalApi.js
+index 7d1aef9c78..36a709b848 100644
+--- a/src/services/internalApi.js
++++ b/src/services/internalApi.js
+@@ -200,6 +200,7 @@ export async function createUploadForAmendedOrdersDocument(file, ordersId) {
+ }
+
+ export async function createUploadForDocument(file, documentId) {
++  console.log(documentId);
+   return makeInternalRequest(
+     'uploads.createUpload',
+     {

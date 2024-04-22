@@ -1,0 +1,667 @@
+diff --git a/playwright.config.js b/playwright.config.js
+index 02eefa37cd..2c5408c14b 100644
+--- a/playwright.config.js
++++ b/playwright.config.js
+@@ -58,12 +58,11 @@ const config = {
+         ...devices['Desktop Chrome'],
+       },
+     },
+-    {
+-      // lparker 2023-08-01: for now, only test desktop chrome for admin
++    {
+       name: 'mixed',
+       testMatch: 'mixed/**/*.spec.js',
+       use: {
+-        baseURL: process.env.PLAYWRIGHT_ADMIN_URL || 'http://adminlocal:3000',
++        baseURL: process.env.PLAYWRIGHT_MY_URL || 'http://officelocal:3000',
+         ...devices['Desktop Chrome'],
+       },
+     },
+@@ -76,6 +75,7 @@ const config = {
+         ...devices['Desktop Chrome'],
+       },
+     },
++    // ahobson 2022-12-08: for now, only test desktop chrome for my
+     {
+       // ahobson 2022-12-14: for now, only test desktop chrome for office
+       name: 'office',
+diff --git a/playwright/tests/mixed/UserActivities/BuildShipments.spec.js b/playwright/tests/mixed/UserActivities/BuildShipments.spec.js
+new file mode 100644
+index 0000000000..d7b7591101
+--- /dev/null
++++ b/playwright/tests/mixed/UserActivities/BuildShipments.spec.js
+@@ -0,0 +1,26 @@
++import { test, expect, MixedTestPage, buildTestScenarios } from '../mixedTestSetup';
++import * as run from '../browserTestActions';
++import { profileSetupSteps } from '../steps/serviceMember';
++
++const loggedInServiceMember = 'loggedInServiceMember';
++
++const customerBuildsPPMShipment = ({
++  container = {},
++  responses = { stack: [] },
++  role,
++  instance: {
++    helpers: { locatorHelpers },
++  },
++}) => {
++  const serviceMemberSteps = profileSetupSteps(role, container, responses, { locatorHelpers });
++
++  const steps = [].concat(serviceMemberSteps);
++  console.log('here');
++  return steps;
++};
++
++test.describe('Login As Customer', () => {
++  buildTestScenarios({
++    MilmoveUserType: customerBuildsPPMShipment,
++  }).map(({ key, steps }) => test(key, steps));
++});
+diff --git a/playwright/tests/mixed/auditing/auditHistoryFlow.spec.js b/playwright/tests/mixed/auditing/auditHistoryFlow.spec.js
+index d1cbca6ccb..6716a0500e 100644
+--- a/playwright/tests/mixed/auditing/auditHistoryFlow.spec.js
++++ b/playwright/tests/mixed/auditing/auditHistoryFlow.spec.js
+@@ -1,27 +1,39 @@
+ // @ts-nocheck
+ import { PrimeSimulatorUserType } from '../../utils/office/officeTest';
+-import { test, expect, AuditTestPage } from './auditTestSetup';
++import { test, expect, MixedTestPage } from '../mixedTestSetup';
++import { stringHelpers as str } from '../testActionUtils';
+ import { RUN_PRIME_SETS_UP_SHIPMENT } from './primeEntersShipmentDetailsSteps';
+ import { RUN_MOVER_OWNER_SETS_UP_HHG } from './customerHhgSetupSteps';
+-import './auditUtils';
++import '../testActionUtils';
+
+-const GetPrimeStepHelpers = ({ page, helpers }) => ({
++const GetPrimeStepHelpers = ({ page, helpers, baseURLS: { office } }) => ({
+   ...helpers,
+   signInAsNewPrimeSimulatorUser: async () => {
+-    await page.goto('/devlocal-auth/login');
+-    await page.locator(`button[data-hook="new-user-login-${PrimeSimulatorUserType}"]`).click();
+-    await page.getByRole('heading', { name: 'Moves available to Prime' }).waitFor();
++    await waitForLoginPage({ page, navToUrl: office, PATH_CHECK: RegularPathChecks.SIGN_IN_PATH_CHECK });
++    await waitForPrimeNewLogin({ page });
+   },
+ });
+
+-export const getCustomerStepHelpers = ({ page, helpers: { stringHelpers, ...helpers } }) => ({
++const GetOfficeStepHelpers = ({ page, helpers, baseURLS: { office } }) => ({
++  ...helpers,
++  signinAsExistingTOO: async () => {
++    await waitForLoginPage({ page, navToUrl: office, PATH_CHECK: RegularPathChecks.SIGN_IN_PATH_CHECK });
++    await waitForTOOWithUserId({ page });
++  },
++  signinAsNewTOO: async (email) => {
++    await waitForLoginPage({ page, navToUrl: office, PATH_CHECK: RegularPathChecks.SIGN_IN_PATH_CHECK });
++    await waitForTOONew({ page });
++  },
++});
++
++export const getCustomerStepHelpers = ({ page, helpers: { stringHelpers, ...helpers }, baseUrl }) => ({
+   ...helpers,
+   stringHelpers,
+   signInAsExisting: async (userId) => {
+     const currentUrl = page.url();
+     const baseUrl = new URL(currentUrl).origin;
+     const loginPath = '/devlocal-auth/login';
+-    const loginUrl = stringHelpers.concatUrlSegments([baseUrl, loginPath]);
++    const loginUrl = str.concatUrlSegments([baseUrl, loginPath]);
+     await page.goto(loginUrl);
+
+     const navigationWaiter = page.waitForURL(({ pathname, ...url }) => pathname === '/');
+@@ -44,7 +56,7 @@ export const getCustomerStepHelpers = ({ page, helpers: { stringHelpers, ...help
+ /** Array of test scenarios which also receive the test fixtures via pageInstance */
+ const SCENARIOS = {
+   CREATING_SHIPMENT_CAUSES_SIT_CALCULATION: async ({ pageInstance }) => {
+-    //await RUN_PRIME_SETS_UP_SHIPMENT.run(pageInstance, GetPrimeStepHelpers);
++    await RUN_PRIME_SETS_UP_SHIPMENT.run(pageInstance, GetPrimeStepHelpers);
+     await RUN_MOVER_OWNER_SETS_UP_HHG.run(pageInstance, getCustomerStepHelpers);
+   },
+ };
+@@ -58,5 +70,5 @@ const TESTS = Object.entries(SCENARIOS).map(([key, testFunction]) => ({
+ const GetTest = (testInfo) => test(testInfo.testLabel, testInfo.testFunction);
+
+ test.describe('Prime Updates SIT', () => {
+-  GetTest(TESTS[0]);
++ //GetTest(TESTS[0]);
+ });
+\ No newline at end of file
+diff --git a/playwright/tests/mixed/auditing/customerHhgSetupSteps.js b/playwright/tests/mixed/auditing/customerHhgSetupSteps.js
+index f55fa2778a..579714ba8f 100644
+--- a/playwright/tests/mixed/auditing/customerHhgSetupSteps.js
++++ b/playwright/tests/mixed/auditing/customerHhgSetupSteps.js
+@@ -1,7 +1,7 @@
+ // @ts-nocheck
+-import './auditUtils';
+-import { formatRelativeDate, dateInputOperator, stringHelpers as str } from './auditUtils';
+-import { expect } from './auditTestSetup';
++import '../testActionUtils';
++import { formatRelativeDate, dateInputOperator, stringHelpers as str } from '../testActionUtils';
++import { expect } from '../mixedTestSetup';
+ import _ from 'lodash';
+
+ const URL_PATHS = {
+diff --git a/playwright/tests/mixed/auditing/primeEntersShipmentDetailsSteps.js b/playwright/tests/mixed/auditing/primeEntersShipmentDetailsSteps.js
+index 6c66dd8d2a..0b36e68536 100644
+--- a/playwright/tests/mixed/auditing/primeEntersShipmentDetailsSteps.js
++++ b/playwright/tests/mixed/auditing/primeEntersShipmentDetailsSteps.js
+@@ -1,4 +1,5 @@
+-import { expect } from './auditTestSetup';
++import { expect } from '../mixedTestSetup';
++import {  formatRelativeDate, formatNumericDate,  } from '../testActionUtils';
+
+ export const testExecution = async ({
+   page,
+@@ -46,19 +47,19 @@ export const testExecution = async ({
+     address: { street, city, state, postalCode },
+   }) => {
+     const SCHEDULED_PICKUP_DATE_LABEL = 'Scheduled Pickup Date:';
+-    const SCHEDULED_PICKUP_DATE_VALUE = utils.formatNumericDate(sPickupDate);
++    const SCHEDULED_PICKUP_DATE_VALUE = formatNumericDate(sPickupDate);
+     const SCHEDULED_PICKUP_DATE_CONTENT = `${SCHEDULED_PICKUP_DATE_LABEL}${SCHEDULED_PICKUP_DATE_VALUE}`;
+
+     const ACTUAL_PICKUP_DATE_LABEL = 'Actual Pickup Date:';
+-    const ACTUAL_PICKUP_DATE_VALUE = utils.formatNumericDate(aPickupDate);
++    const ACTUAL_PICKUP_DATE_VALUE = formatNumericDate(aPickupDate);
+     const ACTUAL_PICKUP_DATE_CONTENT = `${ACTUAL_PICKUP_DATE_LABEL}${ACTUAL_PICKUP_DATE_VALUE}`;
+
+     const SCHEDULED_DELIVERY_DATE_LABEL = 'Scheduled Delivery Date:';
+-    const SCHEDULED_DELIVERY_DATE_VALUE = utils.formatNumericDate(sDeliveryDate);
++    const SCHEDULED_DELIVERY_DATE_VALUE = formatNumericDate(sDeliveryDate);
+     const SCHEDULED_DELIVERY_DATE_CONTENT = `${SCHEDULED_DELIVERY_DATE_LABEL}${SCHEDULED_DELIVERY_DATE_VALUE}`;
+
+     const ACTUAL_DELIVERY_DATE_LABEL = 'Actual Delivery Date:';
+-    const ACTUAL_DELIVERY_DATE_VALUE = utils.formatNumericDate(aDeliveryDate);
++    const ACTUAL_DELIVERY_DATE_VALUE = formatNumericDate(aDeliveryDate);
+     const ACTUAL_DELIVERY_DATE_CONTENT = `${ACTUAL_DELIVERY_DATE_LABEL}${ACTUAL_DELIVERY_DATE_VALUE}`;
+
+     const ESTIMATED_WEIGHT_LABEL = 'Estimated Weight:';
+@@ -108,8 +109,8 @@ export const testExecution = async ({
+     await expect(page.getByText(moveLocator)).toBeVisible();
+   };
+
+-  const DAY_11TH = utils.formatRelativeDate(11);
+-  const DAY_12TH = utils.formatRelativeDate(12);
++  const DAY_11TH = formatRelativeDate(11);
++  const DAY_12TH = formatRelativeDate(12);
+
+   const [
+     { relativeDate: scheduledDeliveryDate, formattedDate: formattedScheduledDeliveryDate },
+diff --git a/playwright/tests/mixed/browserTestActions.js b/playwright/tests/mixed/browserTestActions.js
+new file mode 100644
+index 0000000000..38e74d0a2a
+--- /dev/null
++++ b/playwright/tests/mixed/browserTestActions.js
+@@ -0,0 +1,149 @@
++// @ts-nocheck
++import { stringHelpers as str } from './testActionUtils';
++import { serviceMemberMatch } from './MixedUtilities/ApiMatches'
++
++export const TOOOfficeUserType = 'TOO office';
++export const TIOOfficeUserType = 'TIO office';
++export const QAECSROfficeUserType = 'QAE/CSR office';
++export const ServicesCounselorOfficeUserType = 'Services Counselor office';
++export const PrimeSimulatorUserType = 'Prime Simulator office';
++export const MultiRoleOfficeUserType = 'Multi role office';
++export const MilmoveUserType = 'milmove';
++
++export const allUserTypes = {
++  TOOOfficeUserType,
++  TIOOfficeUserType,
++  QAECSROfficeUserType,
++  ServicesCounselorOfficeUserType,
++  PrimeSimulatorUserType,
++  MultiRoleOfficeUserType,
++  MilmoveUserType,
++};
++
++export const URL_PATHS = {
++  ROOT_PATH: '/',
++  DEV_LOGIN_PATH: 'devlocal-auth/login',
++  SIGN_IN_PATH: 'sign-in',
++};
++
++export const compareUrlPath =
++  (check) =>
++  ({ pathname }) =>
++    str.trimOuterSymbols(pathname, '/') === check;
++
++export const RegularPathChecks = {
++  DEV_LOGIN_PATH: ({ pathname }) => pathname === URL_PATHS.DEV_LOGIN_PATH,
++  ROOT_PATH_CHECK: ({ pathname }) => pathname === URL_PATHS.ROOT_PATH,
++  SIGN_IN_PATH_CHECK: compareUrlPath(URL_PATHS.SIGN_IN_PATH),
++};
++
++export const waitForSignout = async ({ page }) => {
++  await page.getByText('Sign out').click();
++};
++
++//officelocalt:3000/devlocal-auth/login
++/** Navigates to a path on the current domain */
++export const waitForPageNavigation = async ({ page, path }) => {
++  const urlWaiter = page.waitForURL(compareUrlPath(path));
++  const currentUrl = page.url();
++  const baseUrl = new URL(currentUrl).origin;
++  const loginUrl = str.concatUrlSegments([baseUrl, path]);
++  await page.goto(loginUrl);
++  await urlWaiter;
++};
++
++// officelocal:3000 for the PATH_CHECK, for example
++export const waitForLoginPage = async ({ page, navToUrl, PATH_CHECK = RegularPathChecks.SIGN_IN_PATH_CHECK }) => {
++  const urlWaiter = page.waitForURL(PATH_CHECK);
++  await page.goto(navToUrl);
++  await urlWaiter;
++};
++
++const clickNewLoginForUser =
++  (userType) =>
++  async ({ page }) =>
++    await page.locator(`button[data-hook="new-user-login-${userType}"]`).click();
++
++const loginAs = Object.entries({
++  ...allUserTypes,
++}).reduce((logins, [key, value]) => {
++  logins[key] = clickNewLoginForUser(value);
++  return logins;
++}, {});
++
++// TODO map this
++/*
++async signInAsExistingOfficeUser(email) {
++  await this.page.goto('/devlocal-auth/login');
++  await this.page.locator('input[name=email]').fill(email);
++  await this.page.locator('p', { hasText: 'User Email' }).locator('button').click();
++}
++*/
++
++export const waitForTOOWithUserId = async ({ page, email, loginPath = URL_PATHS.DEV_LOGIN_PATH }) => {
++  await waitForPageNavigation({ page, path: loginPath });
++  await page.locator('input[name=email]').fill(email);
++  await page.locator('p', { hasText: 'User Email' }).locator('button').click();
++};
++//await page.locator('input[name=email]').fill(email);
++//await page.locator('p', { hasText: 'User Email' }).locator('button').click();
++export const waitForTOONewLogin = async ({ page, loginPath = URL_PATHS.DEV_LOGIN_PATH }) => {
++  await waitForPageNavigation({ page, path: loginPath });
++  await loginAs.TOOOfficeUserType({ page });
++  await page.getByRole('heading', { name: 'All moves' }).waitFor();
++};
++export const waitForTIONewLogin = async ({ page, loginPath = URL_PATHS.DEV_LOGIN_PATH }) => {
++  await waitForPageNavigation({ page, path: loginPath });
++  await loginAs.TIOOfficeUserType({ page });
++  await page.getByRole('heading', { name: 'Payment requests' }).waitFor();
++};
++export const waitForPrimeNewLogin = async ({ page, loginPath = URL_PATHS.DEV_LOGIN_PATH }) => {
++  await waitForPageNavigation({ page, path: loginPath });
++  await loginAs.PrimeSimulatorUserType({ page });
++  await page.getByRole('heading', { name: 'Moves available to Prime' }).waitFor();
++};
++export const waitForServiceCounselorNewLogin = async ({ page, loginPath = URL_PATHS.DEV_LOGIN_PATH }) => {
++  await waitForPageNavigation({ page, path: loginPath });
++  await loginAs.ServicesCounselorOfficeUserType({ page });
++  await page.getByRole('heading', { name: 'Moves' }).waitFor();
++};
++export const waitForQAECSRNewLogin = async ({ page, loginPath = URL_PATHS.DEV_LOGIN_PATH }) => {
++  await waitForPageNavigation({ page, path: loginPath });
++  await loginAs.QAECSROfficeUserType({ page });
++  await page.getByRole('heading', { name: 'Search for a move' }).waitFor();
++};
++export const waitForMultiRoleUserLogin = async ({ page, loginPath = URL_PATHS.DEV_LOGIN_PATH }) => {
++  await waitForPageNavigation({ page, path: loginPath });
++  await loginAs.MultiRoleOfficeUserType({ page });
++  await page.getByText('Change user role').waitFor();
++};
++export const waitForCustomerUserLogin = async ({ page, loginPath = URL_PATHS.DEV_LOGIN_PATH }) => {
++  await waitForPageNavigation({ page, path: loginPath });
++  await loginAs.MilmoveUserType({ page });
++  await page.getByLabel('Home').waitFor();
++};
++
++export const userLoginActions = {
++  TOOOfficeUserType: waitForTOONewLogin,
++  TIOOfficeUserType: waitForTIONewLogin,
++  QAECSROfficeUserType: waitForQAECSRNewLogin,
++  ServicesCounselorOfficeUserType: waitForServiceCounselorNewLogin,
++  PrimeSimulatorUserType: waitForPrimeNewLogin,
++  MultiRoleOfficeUserType: waitForMultiRoleUserLogin,
++  MilmoveUserType: waitForCustomerUserLogin,
++};
++
++const goToOfficeUserLoginPage = async ({ page, baseURLS: { office: navToUrl } }) =>
++  await waitForLoginPage({ page, navToUrl });
++
++const goToMyMoveUserLoginPage = async ({ page, baseURLS: { my: navToUrl } }) =>
++  await waitForLoginPage({ page, navToUrl });
++
++const applyOfficeLoginPage = (key) => [key, goToOfficeUserLoginPage];
++const applyMyLoginPage = (key) => [key, goToMyMoveUserLoginPage];
++
++const getOfficeUserTypes = (({ MilmoveUserType, ...otherUserTypes }) => otherUserTypes)(allUserTypes);
++export const goToProperBasePage = Object.fromEntries([
++  ...Object.keys({ MilmoveUserType }).map(applyMyLoginPage),
++  ...Object.keys(getOfficeUserTypes).map(applyOfficeLoginPage),
++]);
+\ No newline at end of file
+diff --git a/playwright/tests/mixed/login/userLogins.spec.js b/playwright/tests/mixed/login/userLogins.spec.js
+new file mode 100644
+index 0000000000..ed6d589683
+--- /dev/null
++++ b/playwright/tests/mixed/login/userLogins.spec.js
+@@ -0,0 +1,20 @@
++// import { test, expect, AuditTestPage } from '../mixedTestSetup';
++// import * as run from '../browserTestActions';
++// import { buildTestScenarios } from '../browserTestActions';
++
++// const testExecution = async ({role, value, pageInstance }) =>
++//         await run.setupTestChain(pageInstance)
++//         .next(run.goToProperBasePage[role])
++//         .next(run.userLoginActions[role])
++//         .task;
++
++// const scenarios = run.setupTestScenarioChains(testExecution);
++
++// test.describe('Login Actions', () => {
++
++//   buildTestScenarios(test, {
++//     ...scenarios,
++//   }).map((([key, value]) =>
++//    test(key, value)));
++// });
++
+\ No newline at end of file
+diff --git a/playwright/tests/mixed/mixedTestSetup.js b/playwright/tests/mixed/mixedTestSetup.js
+new file mode 100644
+index 0000000000..dd09e3862e
+--- /dev/null
++++ b/playwright/tests/mixed/mixedTestSetup.js
+@@ -0,0 +1,144 @@
++import TestHarness from '../utils/testharness';
++import * as base from '@playwright/test';
++import { stringHelpers, textWithNoTrailingNumbers } from './testActionUtils';
++export const { expect } = base;
++import { locatorHelpers } from './MixedUtilities/Helpers';
++import { getNetworkDataByMatch } from './MixedUtilities/ApiMatches';
++/**
++ * mixed test fixture for playwright
++ * See https://playwright.dev/docs/test-fixtures
++ */
++export class MixedTestPage {
++  /**
++   * Create an BaseTestPage.
++   * @param {import('@playwright/test').Page} page
++   * @param {import('@playwright/test').APIRequestContext} request
++   */
++  constructor(page, request) {
++    this.page = page;
++    this.request = request;
++    const baseMilmoveLocal = 'http://milmovelocal:3000';
++    const baseOfficeLocal = 'http://officelocal:3000';
++    const baseAdminLocal = 'http://adminlocal:3000';
++
++    this.baseURLS = {
++      my: process.env.PLAYWRIGHT_MY_URL || baseMilmoveLocal,
++      office: process.env.PLAYWRIGHT_OFFICE_URL || baseOfficeLocal,
++      admin: process.env.PLAYWRIGHT_ADMIN_URL || baseAdminLocal,
++    };
++
++    this.testHarness = new TestHarness(request);
++
++    this.helpers = {
++      waitForLoading: async () => {
++        await expect(page.locator('button:has-text("Sign out")')).toHaveCount(1, { timeout: 10000 });
++        await expect(page.locator('h2[data-name="loading-placeholder"]')).toHaveCount(0);
++      },
++      signOut: async () => {
++        await this.page.getByText('Sign out').click();
++      },
++      stringHelpers,
++      utils: {
++        textWithNoTrailingNumbers,
++      },
++      locatorHelpers: locatorHelpers(page),
++      fast: {
++        focusSelector: async (selector) => await page.locator(selector).focus(),
++        clickTextAsync: async (selector) => await page.getByText(selector).click(),
++        typeInto: async (selector, value) =>
++          (async (locator, value) => locator.focus().then(() => locator.type(value)))(page.locator(selector), value),
++        typeAndBlur: async (selector, value) => {
++          const locator = page.locator(selector);
++          await locator.type(value);
++          await locator.blur();
++        },
++        selectValue: async (selector, selectPayload) => await page.locator(selector).selectOption(selectPayload),
++      },
++    };
++  }
++}
++
++/**
++ * @typedef {object} MixedTestArgs
++ * @property {MixedTestPage} pageInstance
++ */
++
++/** @type {base.Fixtures<MixedTestArgs, {}, base.PlaywrightTestArgs & base.PlaywrightTestOptions, base.PlaywrightWorkerArgs & base.PlaywrightWorkerOptions>} */
++const mixedFixtures = {
++  pageInstance: async ({ page, request }, use) => {
++    const thePage = new MixedTestPage(page, request);
++    //await page.goto('about_blank');
++    await use(thePage);
++  },
++};
++
++export const test = base.test.extend(mixedFixtures);
++
++const getResponseJson = async (result) => {
++    expect(result.ok()).toBe(true);
++    const text = await result.text();
++    const json = JSON.parse(text);
++    return json;
++};
++
++export const addToContainer = (container, key, data) => (container[key] = data);
++export const getContainerItemFor = (container, key) => container[key];
++export const readyResponses =
++  (responses, matches) =>
++  async ({ page }) => {
++
++
++
++    const matchResult = Object.entries(matches);
++    matchResult.map(([key, match]) => {
++      const stackValues = (responses[match] ??= []);
++      stackValues.push(new Promise((res, err) => page.waitForResponse(match).then(async (response) => {
++        const result = await response;
++        console.log(await result.text());
++        const status = result.status();
++        try {
++          if(status >= 400) {
++            throw new Error("status was not okay");
++          }
++        res(await getResponseJson(result));
++        }catch(error){
++          console.log('v result');
++          console.log(result);
++          console.log('^ result');
++          console.log(error);
++          err({status, result});
++        }
++      })));
++    });
++  };
++
++export const createResponseQueueFor = (container, responses, stackName) => (key) => async (pageInstance) => {
++  const data = await getNetworkDataByMatch(stackName, responses).then((data) => addToContainer(container, key, data));
++};
++
++export const queueResponse = (responses, responseMatch) => readyResponses(responses, responseMatch);
++
++const initializeTestChain = ({ chainActions, role }) => {
++  return async ({ pageInstance }) => {
++    let task = Promise.resolve(pageInstance);
++    let setupTasks = chainActions({ role, instance: pageInstance });
++    let result = setupTasks.reduce((tasks, func) => {
++      return tasks.then(async (page) => {
++        const funcResult = await (typeof func == 'function' ? await func(page) : Promise.resolve(func));
++        return { ...page, previous: funcResult };
++      });
++    }, task);
++
++    await result;
++  };
++};
++
++export const buildTestScenarios = (items) => {
++  const entries = Object.entries(items);
++  const actions = entries.map(([key, chainActions]) => ({
++    key: key.split('_').join(' '),
++    steps: initializeTestChain({ chainActions, role: key }),
++  }));
++
++  return actions;
++};
+diff --git a/playwright/tests/mixed/testActionUtils.js b/playwright/tests/mixed/testActionUtils.js
+new file mode 100644
+index 0000000000..18227e2d6c
+--- /dev/null
++++ b/playwright/tests/mixed/testActionUtils.js
+@@ -0,0 +1,128 @@
++// @ts-ignore
++
++const format = function (formattingString, ...args) {
++  return formattingString.replace(/{(\d+)}/g, (match, index) => (args[index] !== undefined ? args[index] : match));
++};
++
++const trimOuterSymbols = function (stringValue, symbol) {
++  return stringValue.replace(new RegExp(`^\\${symbol}+|\\${symbol}+$`, 'g'), '');
++};
++
++const filterYear = function (yearString) {
++  return yearString.replace(/.*?(\b\d{4}\b).*?/g, '$1');
++};
++
++const trimUrlOperation = function (stringSegment) {
++  return new Set(stringSegment).size === stringSegment.length;
++};
++
++const GetURLOrigin = function (stringUrl) {
++  return new URL(stringUrl).origin;
++};
++
++const concatUrlSegments = (stringPathSegments) => {
++  const trimSegments = (path) => (typeof path === 'string' ? trimOuterSymbols(path, trimOuterSymbols('/')) : []);
++  const result = stringPathSegments.flatMap(trimSegments).join('/');
++  return result;
++};
++
++export const stringHelpers = {
++  format,
++  trimOuterSymbols,
++  filterYear,
++  trimUrlOperation,
++  GetURLOrigin,
++  concatUrlSegments,
++};
++
++export const formatRelativeDate = (daysInterval) => {
++  const relativeDate = new Date();
++  relativeDate.setDate(relativeDate.getDate() + daysInterval);
++  const formattedDay = relativeDate.toLocaleDateString(undefined, { day: '2-digit' });
++  const formattedMonth = relativeDate.toLocaleDateString(undefined, {
++    month: 'short',
++  });
++  const formattedYear = relativeDate.toLocaleDateString(undefined, {
++    year: 'numeric',
++  });
++  const formattedDate = `${formattedDay} ${formattedMonth} ${formattedYear}`;
++
++  return {
++    relativeDate,
++    formattedDate,
++  };
++};
++
++export const formatNumericDate = (date) => {
++  const formattedDay = date.toLocaleDateString(undefined, { day: '2-digit' });
++  const formattedMonth = date.toLocaleDateString(undefined, {
++    month: '2-digit',
++  });
++  const formattedYear = date.toLocaleDateString(undefined, {
++    year: 'numeric',
++  });
++
++  return [formattedYear, formattedMonth, formattedDay].join('-');
++};
++
++export const textWithNoTrailingNumbers = (value) => RegExp(`${value}$`);
++
++const DAY_PICKER_YEAR_CLASS = 'div.DayPicker-Caption';
++const DAY_PICKER_PREVIOUS = '.DayPicker-NavButton--prev';
++const DAY_PICKER_NEXT = '.DayPicker-NavButton--next';
++const DAY_PICKER_DAYS = 'div.DayPicker-Week';
++
++export const dateInputOperator = async (page, locator, dateValue) => {
++  const clickDate = async (page, dayOfMonthNumber) => {
++    const dayElementLocator = page.locator(DAY_PICKER_DAYS, { state: 'attached' });
++    const filterOnlyCompleteMatch = new RegExp(`^${dayOfMonthNumber}$`);
++    const targetDate = await dayElementLocator.getByText(filterOnlyCompleteMatch, { state: 'attached' });
++    await targetDate.click();
++  };
++
++  /** calculate how many clicks to the correct month */
++  const getMonthsDifference = (originDate, targetDate) =>
++    targetDate.getMonth() - originDate.getMonth() + 12 * (targetDate.getFullYear() - originDate.getFullYear());
++
++  const datesMatch = (dateA, dateB) =>
++    dateA.getMonth() === dateB.getMonth() && dateA.getFullYear() === dateB.getFullYear();
++
++  await locator.focus();
++  const yearElement = await page.locator(DAY_PICKER_YEAR_CLASS, { state: 'attached' });
++  const monthYearText = await yearElement.textContent();
++  const firstDate = new Date(['1', monthYearText].join(' '));
++
++  const startingPageIsTargetPage = datesMatch(dateValue, firstDate);
++
++  if (startingPageIsTargetPage) {
++    await clickDate(page, dateValue.getDate());
++    return;
++  }
++
++  const lastDate = new Date(firstDate);
++  lastDate.setMonth(1);
++  lastDate.setHours(-24);
++
++  /** The amount of months is how many times we click to to get to the target month */
++  const months = getMonthsDifference(dateValue, firstDate);
++
++  /** Set the direction going backwards or forwards based on month's sign. */
++  const directionAction = months > 0 ? DAY_PICKER_PREVIOUS : DAY_PICKER_NEXT;
++
++  let currentMonth = monthYearText;
++  for (let i = 0; i < Math.abs(months); i++) {
++    await page.locator(directionAction).click();
++    let changedMonth = await page.locator(DAY_PICKER_YEAR_CLASS, { hasNotText: currentMonth, state: 'attached' });
++    currentMonth = await changedMonth.textContent();
++  }
++
++  const firstDateOfCurrentMonth = new Date(['1', currentMonth].join(' '));
++  const traversedPageIsTargetPage = datesMatch(dateValue, firstDateOfCurrentMonth);
++
++  if (traversedPageIsTargetPage) {
++    await clickDate(page, dateValue.getDate());
++    return;
++  }
++};
++
++export {};
+diff --git a/playwright/tests/tsconfig.json b/playwright/tests/tsconfig.json
+index 612def8caa..b85b6bed66 100644
+--- a/playwright/tests/tsconfig.json
++++ b/playwright/tests/tsconfig.json
+@@ -6,5 +6,5 @@
+     "noEmit": true
+   },
+   "include": ["**/*.js"],
+-  "exclude": ["**/mixed/auditing/*.js"],
++  "exclude": ["**/mixed/**/*.js"],
+ }
